@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 768px;
+}
+
+#app {
+  min-width: 768px;
+}
+
+/* ── DataTable cursor & hover ────────────────────────────────────────────── */
+.p-datatable .p-datatable-tbody > tr {
+  cursor: pointer;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #f8fafc !important;
+}
+
+/* ── KYearGrid cell colour coding (spreadsheet conventions) ─────────────── */
+.cell-input {
+  @apply bg-orange-50 border-orange-200;
+}
+
+.cell-computed {
+  @apply bg-green-50 border-green-200;
+}
+
+.cell-override {
+  @apply bg-yellow-50 border-yellow-200;
+}
+
+/* ── Aggregate / subtotal row styling ───────────────────────────────────── */
+.row-aggregate {
+  @apply font-bold bg-gray-100;
+}
+
+.row-subtotal {
+  @apply font-semibold bg-gray-50;
+}
