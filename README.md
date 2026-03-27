@@ -9,6 +9,7 @@ Ascenda is an **AI-powered financial planning and decision intelligence platform
 ## Table of Contents
 
 - [Why Ascenda](#why-ascenda)
+- [Business Drivers](#business-drivers)
 - [Positioning](#positioning)
 - [What Users Can Do](#what-users-can-do)
 - [Key Features](#key-features)
@@ -30,6 +31,31 @@ Traditional financial tools are either:
 - **Enterprise FP&A platforms** → powerful but complex, expensive, and inaccessible to early-stage teams
 
 Ascenda fills the gap: a structured financial modelling platform with the usability of a product and the rigour of a CFO-grade tool — augmented by AI so teams can not only compute their financials, but understand and act on them.
+
+---
+
+## Business Drivers
+
+Ascenda is built on a set of concrete advantages over existing approaches:
+
+- **Business model awareness** — Ascenda natively models the most common startup archetypes. Revenue drivers, cost structures, and KPIs adapt to the selected model — so the plan reflects reality, not a generic template.
+
+  | Model | Revenue Driver |
+  |---|---|
+  | 📋 Generic | Volumes and unit costs entered manually — fits any product or service |
+  | 🤝 Consulting / Service | Billable days = Headcount × Working Days × Utilisation |
+  | ☁️ SaaS / Subscription | Revenue = Active Users × Monthly Fee × 12 |
+  | 🏭 Manufacturing / Industry | Sales-volume forecast with unit cost adjusted for scrap rate and setup amortisation |
+  | 🛒 Marketplace / Platform | Net revenue = GMV × Take Rate |
+  | 📺 Media / Advertising | Revenue per mille = CPM × Fill Rate |
+  | 🎓 Training / Events | Revenue = Sessions × Participants × Fill Rate × Price/participant |
+- **Accuracy over flexibility** — A deterministic engine eliminates the formula errors, broken references, and version drift inherent to spreadsheet-based modelling.
+- **Speed to insight** — Computed outputs update instantly as inputs change. No manual recalculation, no rebuild cycles.
+- **Scenario intelligence** — Multiple scenarios live within the same structured model, enabling true side-by-side comparison rather than duplicated files.
+- **AI that understands context** — AI narration and insights are grounded in the live financial model, not generic prompts. The AI knows the numbers.
+- **Investor-ready by default** — Reports, cap table outputs, and financial summaries are structured for due diligence from day one.
+- **Reduced dependency on finance specialists** — Founders can build and iterate on their own models with guardrails that prevent structural errors.
+- **Auditability and versioning** — Every change is tracked. Snapshots allow point-in-time comparison and rollback.
 
 ---
 
