@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { PlanMember, User } from '@/types'
+import type { PlanMember } from '@/types'
 import api from '@/composables/useApi'
 import { useAuthStore } from '@/stores/auth'
 

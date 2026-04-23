@@ -16,7 +16,7 @@ test.describe('Login page', () => {
 
   test('loads with the correct page title', async ({ page }) => {
     await page.goto('/login')
-    await expect(page).toHaveTitle(/KerPlan|Vite|frontend/i)
+    await expect(page).toHaveTitle(/Ascenda|Vite|frontend/i)
   })
 
   test('shows the login card with a visible heading', async ({ page }) => {
@@ -85,25 +85,25 @@ test.describe('Navigation guards — unauthenticated', () => {
 
   test('redirects / to /login when not authenticated', async ({ page }) => {
     await page.goto('/')
-    await page.waitForURL(/login/)
-    await expect(page).toHaveURL(/login/)
+    await page.waitForURL(/landing\.html/)
+    await expect(page).toHaveURL(/landing\.html/)
   })
 
   test('redirects /plans to /login', async ({ page }) => {
     await page.goto('/plans/some-plan-id')
-    await page.waitForURL(/login/)
-    await expect(page).toHaveURL(/login/)
+    await page.waitForURL(/landing\.html/)
+    await expect(page).toHaveURL(/landing\.html/)
   })
 
   test('redirects scenario dashboard to /login', async ({ page }) => {
     await page.goto('/plans/p1/scenarios/s1/snapshots')
-    await page.waitForURL(/login/)
-    await expect(page).toHaveURL(/login/)
+    await page.waitForURL(/landing\.html/)
+    await expect(page).toHaveURL(/landing\.html/)
   })
 
   test('appends redirect query param when bouncing to login', async ({ page }) => {
     await page.goto('/plans/plan-1')
-    await page.waitForURL(/login/)
+    await page.waitForURL(/landing\.html/)
     // The router adds ?redirect=... so the user lands back after login
     expect(page.url()).toContain('redirect')
   })

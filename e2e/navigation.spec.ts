@@ -27,8 +27,8 @@ test.describe('Unauthenticated redirect', () => {
       await page.route('**/api/**',  r => r.fulfill({ json: {} }))
       await page.route('**/auth/**', r => r.fulfill({ json: {} }))
       await page.goto(route)
-      await page.waitForURL(/login/)
-      await expect(page).toHaveURL(/login/)
+      await page.waitForURL(/landing\.html/)
+      await expect(page).toHaveURL(/landing\.html/)
     })
   }
 })
@@ -62,9 +62,10 @@ test.describe('AppShell after login', () => {
 test.describe('Role-based access — admin role', () => {
   test('admin cannot access the plans dashboard and is redirected', async ({ page }) => {
     // Bootstrap the app as admin from the start so auth survives page.goto()
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: { ...MOCK_USER, role: 'admin' } }
+    const adminUser = { ...MOCK_USER, role: 'admin' }
+    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: adminUser }
     await page.addInitScript((d) => { ;(window as any).__E2E_AUTH__ = d }, payload)
-    await mockApiCalls(page)
+    await mockApiCalls(page, adminUser)
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 

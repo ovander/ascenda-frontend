@@ -43,16 +43,16 @@ test.describe('Admin Dashboard — KPI cards', () => {
     await expect(page.locator('.text-3xl').filter({ hasText: String(MOCK_ADMIN_STATS.users.total) }).first()).toBeVisible()
   })
 
-  test('Owners card shows correct count', async ({ adminPage: page }) => {
-    await expect(page.locator('.text-3xl').filter({ hasText: String(MOCK_ADMIN_STATS.users.byRole.owner) }).first()).toBeVisible()
+  test('Enterprise users card shows correct count', async ({ adminPage: page }) => {
+    await expect(page.locator('.text-3xl').filter({ hasText: String(MOCK_ADMIN_STATS.users.byPlan.enterprise) }).first()).toBeVisible()
   })
 
-  test('Admins card shows correct count', async ({ adminPage: page }) => {
-    await expect(page.locator('.text-3xl').filter({ hasText: String(MOCK_ADMIN_STATS.users.byRole.admin) }).first()).toBeVisible()
+  test('Pro users card shows correct count', async ({ adminPage: page }) => {
+    await expect(page.locator('.text-3xl').filter({ hasText: String(MOCK_ADMIN_STATS.users.byPlan.pro) }).first()).toBeVisible()
   })
 
-  test('Members card shows correct count', async ({ adminPage: page }) => {
-    await expect(page.locator('.text-3xl').filter({ hasText: String(MOCK_ADMIN_STATS.users.byRole.user) }).first()).toBeVisible()
+  test('Freemium users card shows correct count', async ({ adminPage: page }) => {
+    await expect(page.locator('.text-3xl').filter({ hasText: String(MOCK_ADMIN_STATS.users.byPlan.freemium) }).first()).toBeVisible()
   })
 
   test('Total Plans card shows correct count', async ({ adminPage: page }) => {

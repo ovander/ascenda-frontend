@@ -1,0 +1,560 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "create": "Créer",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "loading": "Chargement...",
+    "noData": "Aucune donnée",
+    "actions": "Actions",
+    "search": "Rechercher",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "finish": "Terminer",
+    "year": "Année",
+    "total": "Total",
+    "subtotal": "Sous-total"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "plans": "Mes Plans",
+    "newPlan": "Nouveau Plan",
+    "settings": "Paramètres",
+    "config": "Configuration",
+    "openingBalance": "Bilan d'ouverture",
+    "workingCapital": "Fonds de roulement",
+    "products": "Produits / Services",
+    "staff": "Personnel",
+    "capex": "Investissements",
+    "opex": "Charges d'exploitation",
+    "revenues": "Revenus",
+    "pnl": "Compte de résultat",
+    "fiplan": "Plan de financement",
+    "pnlCash": "P&L Fonctionnel",
+    "bsheet": "Bilan",
+    "ratios": "Ratios",
+    "wcr": "BFR",
+    "cash": "Trésorerie mensuelle",
+    "budget": "Budget",
+    "graphs": "Graphiques annuels",
+    "graphsMonthly": "Graphiques mensuels",
+    "report": "Rapport complet",
+    "snapshots": "Versions",
+    "auditTrail": "Journal d'activité",
+    "admin": "Administration",
+    "adminDashboard": "Vue d'ensemble",
+    "countryConfigs": "Paramètres pays",
+    "tenant": "Organisation",
+    "users": "Utilisateurs",
+    "myTeam": "Mon équipe",
+    "dataInput": "Saisie des données",
+    "financialStatements": "États financiers",
+    "analysis": "Analyse",
+    "cashBudget": "Trésorerie & Budget",
+    "dashboards": "Tableaux de bord",
+    "aiInsights": "Intelligence IA",
+    "advanced": "Avancé",
+    "versionHistory": "Historique des versions",
+    "aiNarrate": "Narration",
+    "aiUnitEconomics": "Économie Unitaire",
+    "aiAssumptionReview": "Revue des hypothèses",
+    "aiBenchmarkCommentary": "Commentaire benchmark",
+    "aiPortfolioMix": "Mix produits",
+    "aiDriverAdvisor": "Conseiller driver",
+    "aiScenarioSuggestion": "Suggestion de scénario",
+    "aiSensitivityNarrative": "Narration sensibilité",
+    "aiInvestorMemo": "Note investisseur",
+    "tenants": "Locataires",
+    "organizations": "Organisations",
+    "aiUsage": "Utilisation IA",
+    "featurePolicies": "Politiques fonctionnalités",
+    "breakEven": "Point mort",
+    "capTable": "Cap Table"
+  },
+  "auth": {
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "loginTitle": "Bienvenue sur Ascenda",
+    "loginSubtitle": "Connectez-vous pour accéder à vos plans d'affaires",
+    "loginButton": "Se connecter avec Socrate",
+    "loggingIn": "Connexion en cours..."
+  },
+  "roles": {
+    "owner": "Propriétaire",
+    "admin": "Admin",
+    "editor": "Éditeur",
+    "reader": "Lecteur",
+    "user": "Utilisateur"
+  },
+  "staff": {
+    "rnd_engineers": "Ingénieurs R&D",
+    "rnd_product": "Product Management",
+    "prod_engineers": "Ingénieurs Production",
+    "prod_technicians": "Techniciens Production",
+    "sales_team": "Équipe Commerciale",
+    "marketing_team": "Équipe Marketing",
+    "sales_customer_success": "Customer Success",
+    "admin_managers": "Responsables Administratifs",
+    "admin_assistants": "Assistants Administratifs",
+    "executive_team": "Direction Générale",
+    "gna_finance": "Finance & Comptabilité",
+    "gna_hr": "RH & Personnes",
+    "gna_it": "IT & Infrastructure"
+  },
+  "zones": {
+    "france": "France",
+    "europe": "Europe",
+    "export": "Export"
+  },
+  "driverType": {
+    "generic": "Générique",
+    "saas": "SaaS",
+    "consulting": "Conseil",
+    "industry": "Industrie",
+    "marketplace": "Marketplace",
+    "media": "Média"
+  },
+  "mobile": {
+    "readOnlyNotice": "Mode consultation — la saisie est disponible sur tablette ou ordinateur."
+  },
+  "modules": {
+    "settings": {
+      "name": "Paramètres",
+      "desc": "Configuration, Bilan d'ouverture, Fonds de roulement"
+    },
+    "products": {
+      "name": "Produits / Services",
+      "desc": "Tarification produits, volumes, marges"
+    },
+    "revenues": {
+      "name": "Revenus",
+      "desc": "Ventes et marge brute par segment"
+    },
+    "staff": {
+      "name": "Personnel",
+      "desc": "Effectifs, salaires, primes"
+    },
+    "capex": {
+      "name": "Investissements",
+      "desc": "Investissements et amortissements"
+    },
+    "opex": {
+      "name": "Charges d'exploitation",
+      "desc": "Charges d'exploitation (22 lignes)"
+    },
+    "pnl": {
+      "name": "Compte de résultat",
+      "desc": "P&L format français (A-G)"
+    },
+    "fiplan": {
+      "name": "Plan de financement",
+      "desc": "Sources et emplois des fonds"
+    },
+    "pnlCash": {
+      "name": "P&L Fonctionnel",
+      "desc": "P&L anglo-saxon par fonction"
+    },
+    "bsheet": {
+      "name": "Bilan",
+      "desc": "4 vues + 6 graphiques"
+    },
+    "ratios": {
+      "name": "Ratios",
+      "desc": "Ratios financiers et valorisation"
+    },
+    "wcr": {
+      "name": "BFR",
+      "desc": "Besoin en fonds de roulement"
+    },
+    "cash": {
+      "name": "Trésorerie mensuelle",
+      "desc": "Flux de trésorerie sur 36 mois"
+    },
+    "budget": {
+      "name": "Budget",
+      "desc": "Budget mensuel Année 1"
+    },
+    "graphs": {
+      "name": "Graphiques",
+      "desc": "Tableau de bord annuel 2x2"
+    },
+    "report": {
+      "name": "Rapport complet",
+      "desc": "Rapport consolidé"
+    },
+    "snapshots": {
+      "name": "Versions",
+      "desc": "Historique des versions"
+    }
+  },
+  "scenario": {
+    "wizard": "Assistant"
+  },
+  "ai": {
+    "viabilityScore": "Score de viabilité",
+    "highlights": "Points clés",
+    "strengths": "Forces",
+    "weaknesses": "Faiblesses",
+    "risks": "Risques",
+    "rootCauses": "Causes racines",
+    "trendInsights": "Tendances",
+    "aiCommentary": "Commentaire IA",
+    "fallback": "(Fallback)",
+    "viewFullAnalysis": "Voir l'analyse complète",
+    "unlockFullAnalysis": "Débloquer l'analyse complète",
+    "analysisGenerated": "Analyse générée le",
+    "generated": "Généré le",
+    "scenarioIntelligence": "Intelligence Scénario",
+    "upgradeToUnlock": "Passer en Pro pour débloquer",
+    "topRisks": "Risques principaux",
+    "refreshAnalysis": "Actualiser l'analyse",
+    "rerunAnalysis": "Relancer l'analyse",
+    "unknownFeature": "Fonctionnalité IA inconnue",
+    "requiresPlan": "{feature} nécessite le plan {tier}.",
+    "runningScenarioAnalysis": "Analyse du scénario en cours…",
+    "generatingAnalysis": "Génération de l'analyse IA…",
+    "intelligenceUnavailable": "Intelligence Scénario indisponible — affichage de la narration IA uniquement.",
+    "aiCommentarySectionLabel": "Commentaire IA",
+    "readyToAnalyse": "Prêt à analyser. Cliquez sur actualiser pour démarrer.",
+    "tierBadge": {
+      "pro": "PRO",
+      "enterprise": "ENTERPRISE"
+    },
+    "features": {
+      "narrate": {
+        "label": "Narration IA",
+        "description": "Synthèse en langage naturel de votre plan financier générée par IA."
+      },
+      "unit-economics": {
+        "label": "Économie Unitaire",
+        "description": "Narration des KPIs spécifiques au driver pour chaque ligne de produits."
+      },
+      "assumption-review": {
+        "label": "Revue des hypothèses",
+        "description": "Détection des signaux d'alerte sur les entrées du plan vs. les normes du secteur."
+      },
+      "benchmark-commentary": {
+        "label": "Commentaire benchmark",
+        "description": "Positionne vos KPIs par rapport aux benchmarks sectoriels spécifiques au driver."
+      },
+      "portfolio-mix": {
+        "label": "Mix produits",
+        "description": "Commentaire sur le portefeuille de produits multi-drivers."
+      },
+      "driver-advisor": {
+        "label": "Conseiller driver",
+        "description": "Recommande le meilleur driver structuré pour vos produits."
+      },
+      "scenario-suggestion": {
+        "label": "Suggestion de scénario",
+        "description": "Génère des différences de paramètres bear / bull / stress pour votre scénario."
+      },
+      "sensitivity-narrative": {
+        "label": "Narration sensibilité",
+        "description": "Classe et narre les principaux leviers de sensibilité affectant l'EBITDA."
+      },
+      "investor-memo": {
+        "label": "Note investisseur",
+        "description": "Narration complète prête pour les investisseurs : modèle, projections, risques."
+      }
+    }
+  },
+  "dashboard": {
+    "kpi": {
+      "revenueY1": "CA Année 1",
+      "avgGrowth": "Croissance moy.",
+      "ebitdaY1": "EBITDA A1",
+      "netProfitY1": "Résultat net A1",
+      "cashEOY5": "Tréso. fin A5",
+      "npv": "VAN",
+      "irr": "TRI",
+      "payback": "Retour sur inv."
+    },
+    "modules": "Modules",
+    "cashPositive": "Trésorerie positive"
+  },
+  "ui": {
+    "layerOperate": "GÉRER",
+    "layerAnalyse": "ANALYSER"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "readOnlyAccess": "Vous avez un accès en lecture seule à ce plan. Contactez le propriétaire pour demander l'accès éditeur.",
+    "tab": {
+      "config": "Configuration",
+      "opening": "Bilan d'ouverture",
+      "wc": "Fonds de roulement",
+      "opexParams": "Paramètres OPEX"
+    },
+    "notAvailable": "Configuration non disponible. Le serveur est peut-être encore en train de configurer ce scénario.",
+    "openingNotConfigured": "Bilan d'ouverture non encore configuré pour ce scénario.",
+    "wcNotAvailable": "Configuration du fonds de roulement non encore disponible pour ce scénario.",
+    "tooltip": {
+      "cashAndSecurities": "Liquidités en comptes bancaires et investissements liquides à court terme (fonds monétaires, bons du Trésor). C'est le solde de trésorerie initial pour le modèle de flux de trésorerie."
+    }
+  },
+  "revenues": {
+    "title": "Revenus",
+    "description": "Synthèse des revenus par produit : ventes par segment et marge brute par segment. Tous les montants dans l'unité du plan.",
+    "tab": {
+      "table": "Tableau récapitulatif",
+      "charts": "Graphiques"
+    },
+    "noData": "Aucune donnée de revenus — ajoutez des produits et définissez les volumes de ventes d'abord.",
+    "col": {
+      "segment": "Segment / Produit",
+      "gmY1": "Marge % (A1)"
+    },
+    "chart": {
+      "turnoverBySegment": "CA par segment",
+      "grossMarginBySegment": "Marge brute par segment",
+      "grossMarginTrend": "Tendance de la marge brute globale %"
+    },
+    "grossMarginPct": "Marge brute %"
+  },
+  "products": {
+    "driver": {
+      "parameter": "Paramètre"
+    }
+  },
+  "fiplan": {
+    "label": {
+      "requirements": "EMPLOIS",
+      "capex": "Investissements",
+      "wcrIncrease": "Augmentation BFR",
+      "dividends": "Dividendes",
+      "loanRepayments": "Remboursements d'emprunts",
+      "grantRepayments": "Remboursements de subventions",
+      "negativeOperatingFlow": "Flux d'exploitation négatif",
+      "totalRequirements": "Total des emplois",
+      "resources": "RESSOURCES",
+      "operatingCashFlow": "Capacité d'autofinancement",
+      "capitalIncrease": "Augmentation de capital",
+      "currentAccountContrib": "Apports en compte courant",
+      "longTermLoans": "Emprunts à long terme",
+      "subsidies": "Subventions",
+      "otherGrants": "Autres subventions",
+      "repayableGrants": "Avances remboursables",
+      "assetSales": "Cessions d'actifs",
+      "totalResources": "Total des ressources",
+      "annualBalance": "Solde annuel",
+      "cumulativeCash": "Trésorerie cumulée",
+      "operatingActivities": "Activités opérationnelles",
+      "netProfit": "Résultat net",
+      "depreciation": "Dotations aux amortissements",
+      "disposalGainLoss": "Plus/moins-values de cession",
+      "changeInWCR": "Variation du BFR",
+      "totalOperating": "Total activités opérationnelles",
+      "investingActivities": "Activités d'investissement",
+      "assetDisposals": "Cessions d'actifs",
+      "disposalGainsLosses": "Plus/moins-values",
+      "totalInvesting": "Total activités d'investissement",
+      "financingActivities": "Activités de financement",
+      "currentAccount": "Comptes courants",
+      "newLoansAndGrants": "Nouveaux emprunts & subventions",
+      "loanGrantRepayments": "Remboursements",
+      "totalFinancing": "Total activités de financement",
+      "netChangeInCash": "Variation de trésorerie",
+      "openingCash": "Trésorerie d'ouverture",
+      "closingCash": "Trésorerie de clôture"
+    },
+    "tooltip": {
+      "requirements": "Total des besoins de financement de l'année : investissements, augmentation du BFR, dividendes, remboursements d'emprunts et déficits d'exploitation.",
+      "capex": "Total des investissements de l'année, extrait automatiquement du module Investissements. Représente les liquidités nécessaires pour acquérir ou construire des actifs immobilisés.",
+      "wcrIncrease": "Augmentation du Besoin en Fonds de Roulement — liquidités supplémentaires immobilisées lorsque les créances et les stocks croissent plus vite que les dettes fournisseurs.",
+      "dividends": "Dividendes versés aux actionnaires. Saisissez votre distribution prévue pour chaque année. Laissez à zéro si aucune distribution n'est prévue.",
+      "loanRepayments": "Remboursements du capital des emprunts en cours, calculés à partir du calendrier de remboursement configuré dans les Paramètres.",
+      "grantRepayments": "Remboursement des avances remboursables. Saisissez le montant de remboursement prévu par année.",
+      "negativeOperatingFlow": "Déficit de trésorerie lorsque les activités opérationnelles consomment plus de liquidités qu'elles n'en génèrent. Ce déficit doit être couvert par des ressources de financement.",
+      "totalRequirements": "Somme de tous les besoins de financement : investissements, augmentation du BFR, dividendes, remboursements d'emprunts, remboursements de subventions et flux d'exploitation négatifs.",
+      "resources": "Total des ressources de financement disponibles pour l'année.",
+      "operatingCashFlow": "Capacité d'autofinancement : résultat net + dotations aux amortissements. Extrait automatiquement du compte de résultat.",
+      "capitalIncrease": "Liquidités levées via de nouvelles émissions d'actions. Saisissez les montants de levée de fonds prévus par année.",
+      "currentAccountContrib": "Apports en compte courant des actionnaires — injections de liquidités à court terme, généralement sans intérêts et remboursables sur demande.",
+      "longTermLoans": "Capital reçu de nouveaux emprunts bancaires à long terme. Saisissez le montant du tirage par année.",
+      "subsidies": "Subventions et aides non remboursables reçues (ex : subventions d'innovation BPI). Ces montants n'ont pas à être remboursés.",
+      "otherGrants": "Autres subventions ou contributions non remboursables non classées ailleurs (ex : programmes EU, aides régionales).",
+      "repayableGrants": "Avances remboursables reçues. Saisissez les montants reçus par année ; programmez les remboursements sous Remboursements de subventions.",
+      "assetSales": "Produits de cession d'actifs immobilisés. Saisissez le prix de vente attendu par année.",
+      "totalResources": "Somme de toutes les ressources de financement : CAF, augmentations de capital, emprunts, subventions, avances et produits de cession.",
+      "annualBalance": "Excédent ou déficit annuel : total des ressources moins total des emplois. Vert = entièrement financé ; rouge = déficit de financement à couvrir.",
+      "cumulativeCash": "Position de trésorerie cumulée en fin d'année, à partir du solde d'ouverture. Les valeurs négatives persistantes indiquent un sous-financement structurel.",
+      "netProfit": "Résultat net de l'exercice tel que reporté dans le compte de résultat. Point de départ de la méthode indirecte des flux de trésorerie.",
+      "depreciation": "Réintégration des dotations aux amortissements non monétaires. Les amortissements réduisent le résultat mais ne consomment pas de trésorerie.",
+      "disposalGainLoss": "Plus ou moins-value de cession d'actifs reconnue au compte de résultat. Réintégrée ici pour éviter un double comptage.",
+      "changeInWCR": "Variation du Besoin en Fonds de Roulement : une augmentation immobilise des liquidités (négatif) ; une diminution en libère (positif).",
+      "totalOperating": "Flux nets générés ou consommés par les activités opérationnelles : résultat net + amortissements ± variation du BFR.",
+      "cfCapex": "Liquidités décaissées pour les investissements, tirées du module Investissements. Affiché comme un flux sortant négatif.",
+      "assetDisposals": "Liquidités reçues de la vente d'actifs immobilisés.",
+      "disposalGainsLosses": "Plus ou moins-value nette de cession d'actifs. Saisissez en positif pour une plus-value, en négatif pour une moins-value.",
+      "totalInvesting": "Flux nets utilisés dans les activités d'investissement : décaissements d'investissements moins produits de cession.",
+      "capitalIncreaseFlow": "Liquidités reçues de nouvelles émissions d'actions.",
+      "currentAccountFlow": "Liquidités reçues des apports en compte courant des actionnaires.",
+      "newLoansAndGrants": "Total des entrées de trésorerie provenant de nouveaux emprunts à long terme, subventions, avances remboursables et non remboursables combinés.",
+      "dividendsFlow": "Dividendes versés aux actionnaires.",
+      "loanGrantRepayments": "Liquidités décaissées pour les remboursements du capital des emprunts et des avances remboursables combinés.",
+      "totalFinancing": "Flux nets des activités de financement : entrées de capitaux propres, dettes et subventions moins sorties pour dividendes et remboursements.",
+      "netChangeInCash": "Mouvement net de trésorerie de l'année : flux opérationnels + d'investissement + de financement combinés.",
+      "openingCash": "Solde de trésorerie en début d'année (solde de clôture de l'année précédente). La trésorerie d'ouverture de l'Année 1 est définie dans Paramètres → Bilan d'ouverture.",
+      "closingCash": "Solde de trésorerie en fin d'année : trésorerie d'ouverture + variation de trésorerie. C'est le solde bancaire réel qui correspond à la ligne de trésorerie du bilan."
+    }
+  },
+  "cash": {
+    "label": {
+      "netCashFlow": "Flux de trésorerie net",
+      "openingBalance": "Solde d'ouverture",
+      "closingBalance": "Solde de clôture"
+    },
+    "tooltip": {
+      "netCashFlow": "Total des entrées moins les sorties de trésorerie du mois (Revenus + Financement − Charges − Investissements). Positif = trésorerie nette générée ; négatif = trésorerie nette consommée.",
+      "openingBalance": "Solde de trésorerie en début de mois. Égal au solde de clôture du mois précédent. Pour le mois 1 de l'Année 1, c'est le solde de trésorerie initial défini dans les Paramètres.",
+      "closingBalance": "Solde de trésorerie en fin de mois = Solde d'ouverture + Flux de trésorerie net. Les valeurs négatives (surlignées en rouge) indiquent un déficit de liquidités — un financement supplémentaire doit être mis en place pour couvrir cet écart."
+    }
+  },
+  "pnl": {
+    "tab": { "report": "Compte de résultat", "graphs": "Graphiques" },
+    "kpi": {
+      "revenueY1": "CA Année 1", "ebitdaY1": "EBITDA Année 1",
+      "netMarginY1": "Marge nette A1", "profitableFrom": "Rentable à partir de",
+      "year": "Année {n}", "beyondY5": "Au-delà de A5"
+    },
+    "row": {
+      "sales": "Ventes nettes (Produits)",
+      "exportSalesMemo": "dont Ventes à l'export",
+      "capitalizedProduction": "Production immobilisée",
+      "storedProduction": "Variation de stocks",
+      "totalOperatingRevenue": "Total produits d'exploitation",
+      "cogs": "Coût des ventes",
+      "externalExpenses": "Charges externes",
+      "totalConsumption": "Total consommation",
+      "addedValue": "Valeur ajoutée",
+      "taxesAndDuties": "Impôts et taxes",
+      "payrollExpenses": "Charges de personnel",
+      "ebitda": "EBITDA",
+      "depreciation": "Dotations aux amortissements",
+      "impairment": "Dépréciations",
+      "grantsOtherRevenue": "Subventions et autres revenus",
+      "otherOperatingExp": "Autres charges d'exploitation",
+      "ebit": "EBIT",
+      "financialRevenues": "Produits financiers",
+      "financialExpenses": "Charges financières",
+      "preTaxEarnings": "Résultat avant impôt",
+      "extraordinaryIncome": "Produits exceptionnels",
+      "extraordinaryExpense": "Charges exceptionnelles",
+      "employeeParticipation": "Participation des salariés",
+      "corporateTax": "Impôt sur les sociétés",
+      "taxCredits": "Crédits d'impôt",
+      "netProfit": "Résultat net",
+      "cashFlow": "Flux de trésorerie",
+      "staffHeadcount": "Effectifs"
+    }
+  },
+  "bsheet": {
+    "tab": {
+      "detailed": "Bilan détaillé",
+      "condensed": "Bilan condensé",
+      "analysis": "Analyse du bilan",
+      "capitalEmployed": "Capitaux employés",
+      "charts": "Graphiques"
+    }
+  },
+  "ratios": {
+    "tab": {
+      "salesMargins": "Ventes & Marges",
+      "operational": "KPIs opérationnels",
+      "profitability": "Rentabilité",
+      "equityLeverage": "Capitaux & Leviers",
+      "valuation": "Valorisation",
+      "charts": "Graphiques"
+    }
+  },
+  "wcr": {
+    "tab": {
+      "analysis": "Analyse BFR",
+      "chart": "Graphique BFR"
+    }
+  },
+  "graphs": {
+    "title": "Graphiques financiers annuels",
+    "salesAnalysis": "Analyse des ventes",
+    "costStructure": "Structure des coûts",
+    "revProfitCash": "Revenus, Résultat & Trésorerie",
+    "reqVsCash": "Besoins financiers vs Trésorerie",
+    "balanceSheet": "Structure du bilan",
+    "headcount": "Effectifs par Fonction",
+    "pnlCascade": "Cascade P&L",
+    "allAvailable": "Les 7 graphiques sont disponibles sur tablette et ordinateur"
+  },
+  "pnlCash": {
+    "tab": { "functional": "P&L Fonctionnel", "graphs": "Graphiques" }
+  },
+  "messages": {
+    "statusUpdated": "Statut mis à jour",
+    "error": "Erreur",
+    "failedUpdateStatus": "Impossible de mettre à jour le statut.",
+    "done": "Terminé",
+    "demoReset": "Plans de démonstration réinitialisés.",
+    "failedResetDemo": "Impossible de réinitialiser les plans de démonstration.",
+    "deleted": "Supprimé",
+    "failedDeletePlan": "Impossible de supprimer le plan. Veuillez réessayer.",
+    "planLocked": "Plan verrouillé",
+    "planLockedDetail": "Le plan est approuvé et verrouillé pour le partage investisseur.",
+    "failedLockPlan": "Impossible de verrouiller le plan.",
+    "planUnlocked": "Plan déverrouillé",
+    "planUnlockedDetail": "Le plan est de nouveau en révision.",
+    "failedUnlockPlan": "Impossible de déverrouiller le plan.",
+    "archived": "Archivé",
+    "planArchivedDetail": "Le plan a été archivé.",
+    "failedArchivePlan": "Impossible d'archiver le plan.",
+    "scenarioDeleted": "Scénario supprimé.",
+    "failedDeleteScenario": "Impossible de supprimer le scénario.",
+    "lockPlan": "Verrouiller le plan",
+    "unlock": "Déverrouiller",
+    "archive": "Archiver",
+    "archiveThisPlan": "Archiver ce plan",
+    "newScenario": "Nouveau scénario",
+    "markAsApproved": "Marquer comme Approuvé — restreint les modifications ultérieures",
+    "moveBackReview": "Remettre en révision",
+    "statusInReview": "En révision",
+    "statusApprovedLocked": "Approuvé / Verrouillé",
+    "scenarios": "Scénarios",
+    "noScenarios": "Aucun scénario trouvé. Créez-en un pour commencer.",
+    "nameLabel": "Nom",
+    "descriptionLabel": "Description",
+    "thisIsDefault": "Ceci est le scénario de base / par défaut",
+    "lastScenario": "Dernier scénario restant dans ce plan"
+  },
+  "enums": {
+    "viability": {
+      "strong": "Solide",
+      "viable": "Viable",
+      "atRisk": "À risque",
+      "critical": "Critique"
+    },
+    "risk": {
+      "urgency": {
+        "critical": "Critique",
+        "high": "Élevé",
+        "medium": "Moyen",
+        "low": "Faible",
+        "long_term": "Long terme"
+      }
+    },
+    "planStatus": {
+      "draft": "Brouillon",
+      "review": "En révision",
+      "approved": "Approuvé",
+      "archived": "Archivé"
+    },
+    "tier": {
+      "pro": "Pro",
+      "enterprise": "Entreprise",
+      "free": "Gratuit"
+    }
+  }
+}

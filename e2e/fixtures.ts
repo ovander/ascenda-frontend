@@ -29,6 +29,7 @@ export const MOCK_USER = {
   email:    'test@example.com',
   name:     'Test User',
   role:     'owner',
+  plan:     'pro',
   tenantId: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
 }
 
@@ -87,6 +88,7 @@ export const MOCK_ADMIN_STATS = {
     active: 7,
     inactive: 1,
     byRole: { owner: 1, admin: 2, user: 5 },
+    byPlan: { freemium: 5, pro: 2, enterprise: 1 },
   },
   plans: {
     total: 12,
@@ -106,6 +108,7 @@ export const MOCK_ADMIN_STATS = {
 }
 
 export const MOCK_SETTINGS = {
+  language:             'en',
   corporateTaxRate:     '0.25',
   vatRate:              '0.21',
   inflationRate:        '0.02',
@@ -120,14 +123,14 @@ export const MOCK_SETTINGS = {
  * Registers page.route() handlers for all backend API calls so tests run
  * without a live backend. More-specific patterns must be registered first.
  */
-export async function mockApiCalls(page: Page) {
+export async function mockApiCalls(page: Page, user = MOCK_USER) {
   await page.route('**/api/v1/**', async (route) => {
     const url    = route.request().url()
     const method = route.request().method().toUpperCase()
 
     // ── Users ──────────────────────────────────────────────────────────────
     if (/\/api\/v1\/users\/me/.test(url)) {
-      return route.fulfill({ json: MOCK_USER })
+      return route.fulfill({ json: user })
     }
 
     // ── Plans ──────────────────────────────────────────────────────────────
@@ -158,9 +161,19 @@ export async function mockApiCalls(page: Page) {
       return route.fulfill({ json: {} })
     }
 
+    // ── Feature policies (must precede catch-all — returns [] not {}) ──────
+    if (/\/api\/v1\/feature-policies/.test(url)) {
+      return route.fulfill({ json: [] })
+    }
+
     // ── Admin stats ────────────────────────────────────────────────────────
     if (/\/api\/v1\/admin\/stats/.test(url)) {
       return route.fulfill({ json: MOCK_ADMIN_STATS })
+    }
+
+    // ── Admin tenants ──────────────────────────────────────────────────────
+    if (/\/api\/v1\/admin\/tenants/.test(url)) {
+      return route.fulfill({ json: { tenants: [], total: 0, page: 1, pageSize: 100 } })
     }
 
     // ── Users list (admin user management) ────────────────────────────────
@@ -402,7 +415,7 @@ export const test = base.extend<AuthFixtures>({
   adminPage: async ({ page }, use) => {
     const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_ADMIN_USER }
     await page.addInitScript((data) => { ;(window as any).__E2E_AUTH__ = data }, payload)
-    await mockApiCalls(page)
+    await mockApiCalls(page, MOCK_ADMIN_USER)
     await page.goto('/admin/dashboard')
     await page.waitForLoadState('networkidle')
     await use(page)

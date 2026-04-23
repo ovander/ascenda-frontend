@@ -7,13 +7,16 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig({
   plugins: [vue()],
   server: {
-    port: 5173,
+    port: 5180,
     strictPort: true,
   },
   build: {
     // The VM sandbox prevents unlinking existing dist files, so we keep them
     // and let Vite overwrite them in place.
     emptyOutDir: false,
+    // Neither lightningcss (arm64 native missing) nor esbuild is available in
+    // this VM sandbox — disable CSS minification so the build completes.
+    cssMinify: false,
   },
   resolve: {
     alias: {

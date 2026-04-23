@@ -64,18 +64,5 @@ function paragraphClass(type: NarrationParagraph['type']): string {
       {{ para.content }}
     </div>
 
-    <!-- Structured data (Driver Advisor / Scenario Suggestion) -->
-    <div
-      v-if="narration.structured_data && Object.keys(narration.structured_data).length"
-      class="bg-violet-50 border border-violet-200 rounded-xl p-4"
-    >
-      <h3 class="text-xs font-semibold text-violet-600 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-        <i class="pi pi-database text-xs"></i>
-        Structured Output
-      </h3>
-      <pre class="text-xs text-violet-800 whitespace-pre-wrap overflow-auto max-h-64">{{
-        JSON.stringify(narration.structured_data, null, 2)
-      }}</pre>
-    </div>
   </div>
 </template>

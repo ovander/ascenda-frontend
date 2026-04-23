@@ -55,12 +55,15 @@ describe('useCapexStore', () => {
   })
 
   describe('updateEntries', () => {
-    it('puts entries and re-fetches', async () => {
+    it('puts entries and merges optimistically', async () => {
+      // capexStore uses an optimistic local merge (no re-fetch) keyed on category+yearIndex.
+      const testData = [{ id: 'e1', category: 'equipment', yearIndex: 0, amount: 5000 }]
       mockApi.put.mockResolvedValue({})
-      mockApi.get.mockResolvedValue({ data: mockEntries }) // chained fetchEntries()
-      await store.updateEntries(mockEntries as any)
-      expect(mockApi.put).toHaveBeenCalledWith(`${BASE}/`, mockEntries)
-      expect(store.entries).toEqual(mockEntries)
+      mockApi.get.mockResolvedValue({ data: testData }) // fetchSummary background refresh
+      await store.updateEntries(testData as any)
+      expect(mockApi.put).toHaveBeenCalledWith(`${BASE}/`, testData)
+      // Entry is pushed via optimistic merge since category+yearIndex are present.
+      expect(store.entries).toEqual(testData)
     })
   })
 
