@@ -1,0 +1,560 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "create": "Create",
+    "close": "Close",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "noData": "No data",
+    "actions": "Actions",
+    "search": "Search",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Finish",
+    "year": "Year",
+    "total": "Total",
+    "subtotal": "Subtotal"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "plans": "My Plans",
+    "newPlan": "New Plan",
+    "settings": "Settings",
+    "config": "Configuration",
+    "openingBalance": "Opening Balance",
+    "workingCapital": "Working Capital",
+    "products": "Products / Services",
+    "staff": "Staff",
+    "capex": "Capital Expenditure",
+    "opex": "Operating Expenses",
+    "revenues": "Revenues",
+    "pnl": "P&L Statement",
+    "fiplan": "Financial Plan",
+    "pnlCash": "Functional P&L",
+    "bsheet": "Balance Sheet",
+    "ratios": "Ratios",
+    "wcr": "Working Capital Req.",
+    "cash": "Monthly Cash Flow",
+    "budget": "Budget",
+    "graphs": "Annual Graphs",
+    "graphsMonthly": "Monthly Graphs",
+    "report": "Full Report",
+    "snapshots": "Snapshots",
+    "auditTrail": "Audit Trail",
+    "admin": "Administration",
+    "adminDashboard": "Overview",
+    "countryConfigs": "Country Parameters",
+    "tenant": "Organisation",
+    "users": "Users",
+    "myTeam": "My Team",
+    "dataInput": "Data Input",
+    "financialStatements": "Financial Statements",
+    "analysis": "Analysis",
+    "cashBudget": "Cash & Budget",
+    "dashboards": "Dashboards",
+    "aiInsights": "AI Insights",
+    "advanced": "Advanced",
+    "versionHistory": "Version History",
+    "aiNarrate": "Narration",
+    "aiUnitEconomics": "Unit Economics",
+    "aiAssumptionReview": "Assumption Review",
+    "aiBenchmarkCommentary": "Benchmark Commentary",
+    "aiPortfolioMix": "Portfolio Mix",
+    "aiDriverAdvisor": "Driver Advisor",
+    "aiScenarioSuggestion": "Scenario Suggestion",
+    "aiSensitivityNarrative": "Sensitivity Narrative",
+    "aiInvestorMemo": "Investor Memo",
+    "tenants": "Tenants",
+    "organizations": "Organizations",
+    "aiUsage": "AI Usage",
+    "featurePolicies": "Feature Policies",
+    "breakEven": "Break-Even",
+    "capTable": "Cap Table"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "loginTitle": "Welcome to Ascenda",
+    "loginSubtitle": "Sign in to access your business plans",
+    "loginButton": "Sign in with Socrate",
+    "loggingIn": "Signing in..."
+  },
+  "roles": {
+    "owner": "Owner",
+    "admin": "Admin",
+    "editor": "Editor",
+    "reader": "Reader",
+    "user": "User"
+  },
+  "staff": {
+    "rnd_engineers": "R&D Engineers",
+    "rnd_product": "Product Management",
+    "prod_engineers": "Production Engineers",
+    "prod_technicians": "Production Technicians",
+    "sales_team": "Sales Team",
+    "marketing_team": "Marketing Team",
+    "sales_customer_success": "Customer Success",
+    "admin_managers": "Admin Managers",
+    "admin_assistants": "Admin Assistants",
+    "executive_team": "Executive Team",
+    "gna_finance": "Finance & Accounting",
+    "gna_hr": "HR & People",
+    "gna_it": "IT & Infrastructure"
+  },
+  "zones": {
+    "france": "France",
+    "europe": "Europe",
+    "export": "Export"
+  },
+  "driverType": {
+    "generic": "Generic",
+    "saas": "SaaS",
+    "consulting": "Consulting",
+    "industry": "Industry",
+    "marketplace": "Marketplace",
+    "media": "Media"
+  },
+  "mobile": {
+    "readOnlyNotice": "View-only mode — editing is available on tablet or desktop."
+  },
+  "modules": {
+    "settings": {
+      "name": "Settings",
+      "desc": "Configuration, Opening Balance, Working Capital"
+    },
+    "products": {
+      "name": "Products / Services",
+      "desc": "Product & service pricing, volumes, margins"
+    },
+    "revenues": {
+      "name": "Revenues",
+      "desc": "Sales and gross margin by segment"
+    },
+    "staff": {
+      "name": "Staff",
+      "desc": "Headcounts, salaries, incentives"
+    },
+    "capex": {
+      "name": "CapEx",
+      "desc": "Capital expenditure and depreciation"
+    },
+    "opex": {
+      "name": "OpEx",
+      "desc": "Operating expenses (22 lines)"
+    },
+    "pnl": {
+      "name": "P&L Statement",
+      "desc": "French-format P&L (A-G)"
+    },
+    "fiplan": {
+      "name": "Financial Plan",
+      "desc": "Sources vs uses of funds"
+    },
+    "pnlCash": {
+      "name": "Functional P&L",
+      "desc": "Anglo-Saxon P&L by function"
+    },
+    "bsheet": {
+      "name": "Balance Sheet",
+      "desc": "4 views + 6 charts"
+    },
+    "ratios": {
+      "name": "Ratios",
+      "desc": "Financial ratios and valuation"
+    },
+    "wcr": {
+      "name": "WCR",
+      "desc": "Working capital requirement"
+    },
+    "cash": {
+      "name": "Cash Flow",
+      "desc": "36-month cash flow"
+    },
+    "budget": {
+      "name": "Budget",
+      "desc": "Monthly budget Year 1"
+    },
+    "graphs": {
+      "name": "Graphs",
+      "desc": "Annual 2x2 dashboard"
+    },
+    "report": {
+      "name": "Full Report",
+      "desc": "Consolidated report"
+    },
+    "snapshots": {
+      "name": "Snapshots",
+      "desc": "Version history"
+    }
+  },
+  "scenario": {
+    "wizard": "Wizard"
+  },
+  "ai": {
+    "viabilityScore": "Viability Score",
+    "highlights": "Highlights",
+    "strengths": "Strengths",
+    "weaknesses": "Weaknesses",
+    "risks": "Risks",
+    "rootCauses": "Root Causes",
+    "trendInsights": "Trend Insights",
+    "aiCommentary": "AI Commentary",
+    "fallback": "(Fallback)",
+    "viewFullAnalysis": "View Full Analysis",
+    "unlockFullAnalysis": "Unlock Full Analysis",
+    "analysisGenerated": "Analysis generated",
+    "generated": "Generated",
+    "scenarioIntelligence": "Scenario Intelligence",
+    "upgradeToUnlock": "Upgrade to Pro to unlock",
+    "topRisks": "Top Risks",
+    "refreshAnalysis": "Refresh analysis",
+    "rerunAnalysis": "Re-run analysis",
+    "unknownFeature": "Unknown AI feature",
+    "requiresPlan": "{feature} requires the {tier} plan.",
+    "runningScenarioAnalysis": "Running scenario analysis…",
+    "generatingAnalysis": "Generating AI analysis…",
+    "intelligenceUnavailable": "Scenario Intelligence unavailable — showing AI narrative only.",
+    "aiCommentarySectionLabel": "AI Commentary",
+    "readyToAnalyse": "Ready to analyse. Click refresh to start.",
+    "tierBadge": {
+      "pro": "PRO",
+      "enterprise": "ENTERPRISE"
+    },
+    "features": {
+      "narrate": {
+        "label": "AI Narration",
+        "description": "AI-powered plain-language summary of your financial plan."
+      },
+      "unit-economics": {
+        "label": "Unit Economics",
+        "description": "Driver-specific KPI narration for each product line."
+      },
+      "assumption-review": {
+        "label": "Assumption Review",
+        "description": "Red-flag detection on plan inputs vs. industry norms."
+      },
+      "benchmark-commentary": {
+        "label": "Benchmark Commentary",
+        "description": "Positions your KPIs against driver-specific industry benchmarks."
+      },
+      "portfolio-mix": {
+        "label": "Portfolio Mix",
+        "description": "Multi-driver product portfolio commentary."
+      },
+      "driver-advisor": {
+        "label": "Driver Advisor",
+        "description": "Recommends the best structured driver for your products."
+      },
+      "scenario-suggestion": {
+        "label": "Scenario Suggestion",
+        "description": "Generates bear / bull / stress parameter diffs for your scenario."
+      },
+      "sensitivity-narrative": {
+        "label": "Sensitivity Narrative",
+        "description": "Ranks and narrates the key sensitivity levers affecting EBITDA."
+      },
+      "investor-memo": {
+        "label": "Investor Memo",
+        "description": "Full investor-ready plan narrative: model, projections, risks."
+      }
+    }
+  },
+  "dashboard": {
+    "kpi": {
+      "revenueY1": "Revenue Y1",
+      "avgGrowth": "Avg Growth",
+      "ebitdaY1": "EBITDA Y1",
+      "netProfitY1": "Net Profit Y1",
+      "cashEOY5": "Cash EOY5",
+      "npv": "NPV",
+      "irr": "IRR",
+      "payback": "Payback"
+    },
+    "modules": "Modules",
+    "cashPositive": "Cash positive"
+  },
+  "ui": {
+    "layerOperate": "OPERATE",
+    "layerAnalyse": "ANALYSE"
+  },
+  "settings": {
+    "title": "Settings",
+    "readOnlyAccess": "You have read-only access to this plan. Contact the owner to request editor access.",
+    "tab": {
+      "config": "Configuration",
+      "opening": "Opening Balance",
+      "wc": "Working Capital",
+      "opexParams": "OPEX Parameters"
+    },
+    "notAvailable": "Configuration not available. The backend may still be setting up this scenario.",
+    "openingNotConfigured": "Opening balance not yet configured for this scenario.",
+    "wcNotAvailable": "Working capital configuration not yet available for this scenario.",
+    "tooltip": {
+      "cashAndSecurities": "Cash in bank accounts and short-term liquid investments (money market funds, treasury bills). This is the starting cash balance for the cash flow model."
+    }
+  },
+  "revenues": {
+    "title": "Revenues",
+    "description": "Revenue summary across all products: sales per segment and gross margin per segment. All amounts in the plan unit.",
+    "tab": {
+      "table": "Summary Table",
+      "charts": "Charts"
+    },
+    "noData": "No revenue data — add products and define sales volumes first.",
+    "col": {
+      "segment": "Segment / Product",
+      "gmY1": "GM % (Y1)"
+    },
+    "chart": {
+      "turnoverBySegment": "Turnover by Segment",
+      "grossMarginBySegment": "Gross Margin by Segment",
+      "grossMarginTrend": "Overall Gross Margin % Trend"
+    },
+    "grossMarginPct": "Gross Margin %"
+  },
+  "products": {
+    "driver": {
+      "parameter": "Parameter"
+    }
+  },
+  "fiplan": {
+    "label": {
+      "requirements": "REQUIREMENTS",
+      "capex": "Capex",
+      "wcrIncrease": "WCR Increase",
+      "dividends": "Dividends",
+      "loanRepayments": "Loan Repayments",
+      "grantRepayments": "Grant Repayments",
+      "negativeOperatingFlow": "Negative Operating Flow",
+      "totalRequirements": "Total Requirements",
+      "resources": "RESOURCES",
+      "operatingCashFlow": "Operating Cash Flow",
+      "capitalIncrease": "Capital Increase",
+      "currentAccountContrib": "Current Account Contrib.",
+      "longTermLoans": "Long-Term Loans",
+      "subsidies": "Subsidies",
+      "otherGrants": "Other Grants",
+      "repayableGrants": "Repayable Grants",
+      "assetSales": "Asset Sales",
+      "totalResources": "Total Resources",
+      "annualBalance": "Annual Balance",
+      "cumulativeCash": "Cumulative Cash",
+      "operatingActivities": "Operating Activities",
+      "netProfit": "Net Profit",
+      "depreciation": "Depreciation",
+      "disposalGainLoss": "Disposal Gain/Loss",
+      "changeInWCR": "Change in WCR",
+      "totalOperating": "Total Operating",
+      "investingActivities": "Investing Activities",
+      "assetDisposals": "Asset Disposals",
+      "disposalGainsLosses": "Disposal Gains/Losses",
+      "totalInvesting": "Total Investing",
+      "financingActivities": "Financing Activities",
+      "currentAccount": "Current Account",
+      "newLoansAndGrants": "New Loans & Grants",
+      "loanGrantRepayments": "Loan & Grant Repayments",
+      "totalFinancing": "Total Financing",
+      "netChangeInCash": "Net Change in Cash",
+      "openingCash": "Opening Cash",
+      "closingCash": "Closing Cash"
+    },
+    "tooltip": {
+      "requirements": "Total financing needs for the year: capex, WCR increase, dividends, loan repayments, and operating shortfalls.",
+      "capex": "Total capital expenditure for the year, pulled automatically from the Capex module. Represents cash needed to purchase or build fixed assets.",
+      "wcrIncrease": "Increase in Working Capital Requirement — additional cash tied up as receivables and inventory grow faster than payables. A positive value means more cash is needed.",
+      "dividends": "Cash dividends paid out to shareholders. Enter your planned distribution for each year. Leave at zero if no distribution is planned.",
+      "loanRepayments": "Principal repayments on outstanding loans, computed from the debt repayment schedule configured in Settings.",
+      "grantRepayments": "Repayment of repayable grants (avances remboursables). Enter the scheduled repayment amount per year.",
+      "negativeOperatingFlow": "Cash shortfall when operating activities consume more cash than they generate. This gap must be covered by financing resources.",
+      "totalRequirements": "Sum of all financing requirements: capex, WCR increase, dividends, loan repayments, grant repayments, and negative operating flows.",
+      "resources": "Total financing resources available for the year.",
+      "operatingCashFlow": "Self-financing capacity when operating activities are cash-positive: net profit + depreciation. Automatically sourced from the P&L.",
+      "capitalIncrease": "Cash raised from new equity issuances. Enter planned fundraising amounts per year. Use the \"Structure raise\" button to link an amount to a Cap Table round.",
+      "currentAccountContrib": "Shareholder current account contributions — short-term cash injections by shareholders, typically interest-free and repayable on demand.",
+      "longTermLoans": "Principal received from new long-term bank loans or bonds. Enter the drawdown amount per year. Repayments are recorded under Requirements.",
+      "subsidies": "Non-repayable grants and subsidies received (e.g. BPI innovation grants, public aid). These do not need to be repaid.",
+      "otherGrants": "Other non-repayable grants or contributions not classified elsewhere (e.g. EU programmes, regional subsidies).",
+      "repayableGrants": "Soft loans or repayable innovation grants received (avances remboursables). Enter amounts received per year; schedule repayments under Grant Repayments.",
+      "assetSales": "Cash proceeds from the disposal of fixed assets. Enter the expected sale price per year.",
+      "totalResources": "Sum of all financing resources: operating cash flow, equity raises, loans, subsidies, grants, and asset sale proceeds.",
+      "annualBalance": "Annual surplus or deficit: total resources minus total requirements. Green = fully funded; red = funding gap that still needs to be covered.",
+      "cumulativeCash": "Cumulative cash position at year-end, starting from the opening balance. Persistent negative values indicate structural under-financing.",
+      "netProfit": "Net profit for the year as reported in the P&L statement. Starting point for the indirect cash flow method.",
+      "depreciation": "Add-back of non-cash depreciation and amortisation charges. Depreciation reduces profit but does not consume cash.",
+      "disposalGainLoss": "Gain or loss on asset disposals recognised in the P&L. Added back here to avoid double-counting — cash proceeds appear in Investing Activities.",
+      "changeInWCR": "Change in Working Capital Requirement: an increase ties up cash (negative); a decrease releases cash (positive). Computed from receivables, inventory, and payables movements.",
+      "totalOperating": "Net cash generated or consumed by operating activities: net profit + depreciation ± WCR change. The core measure of cash-generation ability.",
+      "cfCapex": "Cash paid for capital expenditures (fixed asset purchases), drawn from the Capex module. Shown as a negative outflow.",
+      "assetDisposals": "Cash received from the sale of fixed assets, sourced from the Asset Sales entry in the Financing Plan.",
+      "disposalGainsLosses": "Net P&L gain or loss on asset disposals (book value minus sale price). Enter as positive for a gain, negative for a loss.",
+      "totalInvesting": "Net cash used in investing activities: capex outflows minus asset disposal proceeds.",
+      "capitalIncreaseFlow": "Cash received from new equity issuances. Sourced from the Capital Increase entry in the Financing Plan.",
+      "currentAccountFlow": "Cash received from shareholder current account contributions. Sourced from the Financing Plan.",
+      "newLoansAndGrants": "Total cash inflows from new long-term loans, subsidies, repayable and non-repayable grants combined.",
+      "dividendsFlow": "Cash paid out to shareholders as dividends. Sourced from the Dividends entry in the Financing Plan.",
+      "loanGrantRepayments": "Cash paid for loan principal repayments and repayable grant repayments combined.",
+      "totalFinancing": "Net cash from financing activities: inflows from equity, debt, and grants minus outflows for dividends and repayments.",
+      "netChangeInCash": "Total net cash movement for the year: operating + investing + financing flows combined. Positive = cash accumulated; negative = cash consumed.",
+      "openingCash": "Cash balance at the start of the year (closing balance of the prior year). Year 1 opening cash is set in Settings → Opening Balance.",
+      "closingCash": "Cash balance at year-end: opening cash + net change in cash. This is the actual bank balance and matches the Balance Sheet cash line."
+    }
+  },
+  "cash": {
+    "label": {
+      "netCashFlow": "Net Cash Flow",
+      "openingBalance": "Opening Balance",
+      "closingBalance": "Closing Balance"
+    },
+    "tooltip": {
+      "netCashFlow": "Total cash inflows minus outflows for the month (Revenue + Financing − Operating − Capex). Positive = net cash generated; negative = net cash consumed.",
+      "openingBalance": "Cash balance at the start of the month. Equals the closing balance of the previous month. For Month 1 of Year 1, this is the initial cash balance set in Settings.",
+      "closingBalance": "Cash balance at month-end = Opening Balance + Net Cash Flow. Negative values (highlighted in red) indicate a liquidity shortfall — additional financing must be arranged to cover this gap."
+    }
+  },
+  "pnl": {
+    "tab": { "report": "P&L Report", "graphs": "Graphs" },
+    "kpi": {
+      "revenueY1": "Revenue Y1", "ebitdaY1": "EBITDA Y1",
+      "netMarginY1": "Net Margin Y1", "profitableFrom": "Profitable from",
+      "year": "Year {n}", "beyondY5": "Beyond Y5"
+    },
+    "row": {
+      "sales": "Net Sales (Products)",
+      "exportSalesMemo": "of which Export Sales",
+      "capitalizedProduction": "Capitalized Production",
+      "storedProduction": "Change in Inventory",
+      "totalOperatingRevenue": "Total Operating Revenue",
+      "cogs": "COGS",
+      "externalExpenses": "External Expenses",
+      "totalConsumption": "Total Consumption",
+      "addedValue": "Added Value",
+      "taxesAndDuties": "Taxes & Duties",
+      "payrollExpenses": "Payroll Expenses",
+      "ebitda": "EBITDA",
+      "depreciation": "Depreciation",
+      "impairment": "Impairment",
+      "grantsOtherRevenue": "Grants & Other Revenue",
+      "otherOperatingExp": "Other Operating Expenses",
+      "ebit": "EBIT",
+      "financialRevenues": "Financial Revenues",
+      "financialExpenses": "Financial Expenses",
+      "preTaxEarnings": "Pre-Tax Earnings",
+      "extraordinaryIncome": "Extraordinary Income",
+      "extraordinaryExpense": "Extraordinary Expenses",
+      "employeeParticipation": "Employee Participation",
+      "corporateTax": "Corporate Tax",
+      "taxCredits": "Tax Credits",
+      "netProfit": "Net Profit",
+      "cashFlow": "Cash Flow",
+      "staffHeadcount": "Staff Headcount"
+    }
+  },
+  "bsheet": {
+    "tab": {
+      "detailed": "Detailed Balance Sheet",
+      "condensed": "Condensed Balance Sheet",
+      "analysis": "BS Analysis",
+      "capitalEmployed": "Capital Employed",
+      "charts": "Charts"
+    }
+  },
+  "ratios": {
+    "tab": {
+      "salesMargins": "Sales & Margins",
+      "operational": "Operational KPIs",
+      "profitability": "Profitability",
+      "equityLeverage": "Equity & Leverage",
+      "valuation": "Valuation",
+      "charts": "Charts"
+    }
+  },
+  "wcr": {
+    "tab": {
+      "analysis": "WCR Analysis",
+      "chart": "WCR Chart"
+    }
+  },
+  "graphs": {
+    "title": "Annual Financial Graphs",
+    "salesAnalysis": "Sales Analysis",
+    "costStructure": "Cost Structure",
+    "revProfitCash": "Revenue, Profit & Cash Flow",
+    "reqVsCash": "Financial Requirements vs Cash Flow",
+    "balanceSheet": "Balance Sheet Structure",
+    "headcount": "Headcount by Function",
+    "pnlCascade": "P&L Cascade",
+    "allAvailable": "All 7 charts available on tablet and desktop"
+  },
+  "pnlCash": {
+    "tab": { "functional": "Functional P&L", "graphs": "Graphs" }
+  },
+  "messages": {
+    "statusUpdated": "Status updated",
+    "error": "Error",
+    "failedUpdateStatus": "Failed to update status.",
+    "done": "Done",
+    "demoReset": "Demo plans have been reset.",
+    "failedResetDemo": "Failed to reset demo plans.",
+    "deleted": "Deleted",
+    "failedDeletePlan": "Failed to delete the plan. Please try again.",
+    "planLocked": "Plan locked",
+    "planLockedDetail": "Plan is now approved and locked for investor sharing.",
+    "failedLockPlan": "Failed to lock plan",
+    "planUnlocked": "Plan unlocked",
+    "planUnlockedDetail": "Plan is back in review.",
+    "failedUnlockPlan": "Failed to unlock plan",
+    "archived": "Archived",
+    "planArchivedDetail": "Plan has been archived.",
+    "failedArchivePlan": "Failed to archive plan",
+    "scenarioDeleted": "Scenario removed.",
+    "failedDeleteScenario": "Failed to delete scenario",
+    "lockPlan": "Lock Plan",
+    "unlock": "Unlock",
+    "archive": "Archive",
+    "archiveThisPlan": "Archive this plan",
+    "newScenario": "New Scenario",
+    "markAsApproved": "Mark as Approved — restricts further editing",
+    "moveBackReview": "Move back to In Review",
+    "statusInReview": "In Review",
+    "statusApprovedLocked": "Approved / Locked",
+    "scenarios": "Scenarios",
+    "noScenarios": "No scenarios found. Create one to get started.",
+    "nameLabel": "Name",
+    "descriptionLabel": "Description",
+    "thisIsDefault": "This is the base / default scenario",
+    "lastScenario": "Last remaining scenario in this plan"
+  },
+  "enums": {
+    "viability": {
+      "strong": "Strong",
+      "viable": "Viable",
+      "atRisk": "At Risk",
+      "critical": "Critical"
+    },
+    "risk": {
+      "urgency": {
+        "critical": "Critical",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low",
+        "long_term": "Long Term"
+      }
+    },
+    "planStatus": {
+      "draft": "Draft",
+      "review": "Review",
+      "approved": "Approved",
+      "archived": "Archived"
+    },
+    "tier": {
+      "pro": "Pro",
+      "enterprise": "Enterprise",
+      "free": "Free"
+    }
+  }
+}
