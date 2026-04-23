@@ -73,6 +73,7 @@ export interface NarrationContext {
   scenario_name: string
   period_label: string
   currency: string
+  language: 'fr' | 'en'
   user_role: NarrationUserRole
   narration_type?: NarrationType
 
@@ -125,94 +126,118 @@ export type AIFeatureTier = 'standard' | 'pro' | 'enterprise'
 
 export interface AIFeatureDef {
   key: string
+  /** Stable English label for internal use (gate() modals, tests, admin views). */
   label: string
+  /** vue-i18n message key for the localised display label. */
+  labelKey: string
   icon: string
   tier: AIFeatureTier
   endpoint: string
   narration_type: NarrationType
+  /** Stable English description for internal use. */
   description: string
+  /** vue-i18n message key for the localised description. */
+  descriptionKey: string
 }
 
 export const AI_FEATURES: AIFeatureDef[] = [
   {
     key: 'narrate',
     label: 'AI Narration',
+    labelKey: 'ai.features.narrate.label',
     icon: 'pi pi-sparkles',
     tier: 'standard',
     endpoint: 'narrate',
     narration_type: 'plan_summary',
     description: 'AI-powered plain-language summary of your financial plan.',
+    descriptionKey: 'ai.features.narrate.description',
   },
   {
     key: 'unit-economics',
     label: 'Unit Economics',
+    labelKey: 'ai.features.unit-economics.label',
     icon: 'pi pi-calculator',
     tier: 'pro',
     endpoint: 'unit-economics',
     narration_type: 'unit_economics',
     description: 'Driver-specific KPI narration for each product line.',
+    descriptionKey: 'ai.features.unit-economics.description',
   },
   {
     key: 'assumption-review',
     label: 'Assumption Review',
+    labelKey: 'ai.features.assumption-review.label',
     icon: 'pi pi-flag',
     tier: 'pro',
     endpoint: 'assumption-review',
     narration_type: 'assumption_review',
     description: 'Red-flag detection on plan inputs vs. industry norms.',
+    descriptionKey: 'ai.features.assumption-review.description',
   },
   {
     key: 'benchmark-commentary',
     label: 'Benchmark Commentary',
+    labelKey: 'ai.features.benchmark-commentary.label',
     icon: 'pi pi-chart-bar',
     tier: 'pro',
     endpoint: 'benchmark-commentary',
     narration_type: 'benchmark_commentary',
     description: 'Positions your KPIs against driver-specific industry benchmarks.',
+    descriptionKey: 'ai.features.benchmark-commentary.description',
   },
   {
     key: 'portfolio-mix',
     label: 'Portfolio Mix',
+    labelKey: 'ai.features.portfolio-mix.label',
     icon: 'pi pi-chart-pie',
     tier: 'pro',
     endpoint: 'portfolio-mix',
     narration_type: 'portfolio_mix',
     description: 'Multi-driver product portfolio commentary.',
+    descriptionKey: 'ai.features.portfolio-mix.description',
   },
   {
     key: 'driver-advisor',
     label: 'Driver Advisor',
+    labelKey: 'ai.features.driver-advisor.label',
     icon: 'pi pi-compass',
     tier: 'pro',
     endpoint: 'driver-advisor',
     narration_type: 'driver_advisor',
     description: 'Recommends the best structured driver for your products.',
+    descriptionKey: 'ai.features.driver-advisor.description',
   },
   {
     key: 'scenario-suggestion',
     label: 'Scenario Suggestion',
+    labelKey: 'ai.features.scenario-suggestion.label',
     icon: 'pi pi-code-branch',
     tier: 'pro',
     endpoint: 'scenario-suggestion',
     narration_type: 'scenario_suggestion',
     description: 'Generates bear / bull / stress parameter diffs for your scenario.',
+    descriptionKey: 'ai.features.scenario-suggestion.description',
   },
   {
     key: 'sensitivity-narrative',
     label: 'Sensitivity Narrative',
+    labelKey: 'ai.features.sensitivity-narrative.label',
     icon: 'pi pi-sliders-h',
     tier: 'pro',
     endpoint: 'sensitivity-narrative',
     narration_type: 'sensitivity_narrative',
     description: 'Ranks and narrates the key sensitivity levers affecting EBITDA.',
+    descriptionKey: 'ai.features.sensitivity-narrative.description',
   },
   {
     key: 'investor-memo',
     label: 'Investor Memo',
+    labelKey: 'ai.features.investor-memo.label',
     icon: 'pi pi-file',
     tier: 'enterprise',
     endpoint: 'investor-memo',
     narration_type: 'investor_memo',
     description: 'Full investor-ready plan narrative: model, projections, risks.',
+    descriptionKey: 'ai.features.investor-memo.description',
   },
 ]
