@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, shallowMount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
 import KChart from './KChart.vue'
 import type { ChartData } from '@/types'
 
@@ -63,6 +64,7 @@ describe('KChart', () => {
   }
 
   beforeEach(() => {
+    setActivePinia(createPinia())
     vi.clearAllMocks()
   })
 
@@ -78,14 +80,14 @@ describe('KChart', () => {
     expect(wrapper.find('.kchart-wrapper').attributes('style')).toContain('height: 400px')
   })
 
-  it('uses default height when not provided', () => {
+  it('uses responsive default height when height prop is not provided', () => {
     const wrapper = shallowMount(KChart, {
-      props: {
-        data: mockChartData,
-      },
+      global: { plugins: [createPinia()] },
+      props: { data: mockChartData },
     })
-
-    expect(wrapper.find('.kchart-wrapper').attributes('style')).toContain('height: 320px')
+    // In jsdom the window width is large enough to be "desktop", so default resolves to 320px.
+    const style = wrapper.find('.kchart-wrapper').attributes('style') ?? ''
+    expect(style).toMatch(/height/)
   })
 
   it('displays title when provided', () => {

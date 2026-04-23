@@ -51,7 +51,7 @@ describe('useFiplanStore', () => {
 
     it('sets error on failure', async () => {
       mockApi.get.mockRejectedValue({})
-      await store.fetchEntries()
+      await expect(store.fetchEntries()).rejects.toBeTruthy()
       expect(store.error).toBe('Failed to fetch financial plan entries')
     })
   })
@@ -88,7 +88,7 @@ describe('useFiplanStore', () => {
 
     it('sets error on failure', async () => {
       mockApi.get.mockRejectedValue({})
-      await store.fetchReport()
+      await expect(store.fetchReport()).rejects.toBeTruthy()
       expect(store.error).toBe('Failed to fetch financial plan report')
     })
   })

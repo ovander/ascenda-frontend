@@ -94,6 +94,13 @@ const globalStubs = {
     template: '<div class="k-form-legend" />',
     props: ['variant', 'description', 'extras'],
   },
+  // PrimeVue Select and vue-chartjs Bar require their host plugins; stub them out.
+  Select: {
+    template: '<div class="p-select" />',
+    props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'placeholder'],
+    emits: ['update:modelValue'],
+  },
+  Bar: { template: '<canvas class="bar-chart" />', props: ['data', 'options'] },
 }
 
 function mountView() {

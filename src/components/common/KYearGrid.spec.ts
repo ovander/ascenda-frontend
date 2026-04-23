@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, shallowMount } from '@vue/test-utils'
+import { setActivePinia, createPinia } from 'pinia'
 import KYearGrid from './KYearGrid.vue'
 import type { GridRow } from './KYearGrid.vue'
 
@@ -82,6 +83,7 @@ describe('KYearGrid', () => {
   ]
 
   beforeEach(() => {
+    setActivePinia(createPinia())
     vi.clearAllMocks()
   })
 

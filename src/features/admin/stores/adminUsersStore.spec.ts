@@ -115,6 +115,27 @@ describe('useAdminUsersStore', () => {
       await store.updateUser(1, { role: 'user' })
       expect(mockApi.put).toHaveBeenCalledWith('/api/v1/admin/users/1', { role: 'user' })
     })
+
+    // ── Plan upgrade/downgrade ────────────────────────────────────────────
+    it('sends plan field in the PUT payload', async () => {
+      mockApi.put.mockResolvedValue({ data: { ...mockUser, plan: 'pro' } })
+      await store.updateUser(1, { plan: 'pro' })
+      expect(mockApi.put).toHaveBeenCalledWith('/api/v1/admin/users/1', { plan: 'pro' })
+    })
+
+    it('reflects updated plan in the local users list', async () => {
+      store.users = [{ ...mockUser, plan: 'freemium' }]
+      const updated = { ...mockUser, plan: 'enterprise' }
+      mockApi.put.mockResolvedValue({ data: updated })
+      await store.updateUser(1, { plan: 'enterprise' })
+      expect(store.users[0].plan).toBe('enterprise')
+    })
+
+    it('can update plan together with fullName', async () => {
+      mockApi.put.mockResolvedValue({ data: { ...mockUser, name: 'Alice Pro', plan: 'pro' } })
+      await store.updateUser(1, { fullName: 'Alice Pro', plan: 'pro' })
+      expect(mockApi.put).toHaveBeenCalledWith('/api/v1/admin/users/1', { fullName: 'Alice Pro', plan: 'pro' })
+    })
   })
 
   describe('deleteUser', () => {

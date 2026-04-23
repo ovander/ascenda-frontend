@@ -3,6 +3,12 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useScenarioStore } from './scenarioStore'
 import type { Scenario } from '@/types'
 
+const mockInvalidate = vi.fn()
+
+vi.mock('@/features/scenarios/stores/scenarioAnalysisStore', () => ({
+  useScenarioAnalysisStore: () => ({ invalidate: mockInvalidate }),
+}))
+
 vi.mock('@/composables/useApi', () => ({
   default: {
     get: vi.fn(),
@@ -149,5 +155,37 @@ describe('Scenario Store', () => {
     resolveGet({ data: [] })
     await promise
     expect(store.loading).toBe(false)
+  })
+
+  // ── Cache invalidation wiring ─────────────────────────────────────────────
+
+  it('updateScenario calls analysisStore.invalidate with scenarioId', async () => {
+    const updated = { ...mockScenario, name: 'Updated' }
+    mockApi.get.mockResolvedValue({ data: [mockScenario] })
+    mockApi.put.mockResolvedValue({ data: updated })
+    const store = useScenarioStore()
+
+    await store.fetchScenarios('p1')
+    store.setActive(mockScenario)
+    mockInvalidate.mockClear()
+
+    await store.updateScenario('p1', 's1', { name: 'Updated' })
+
+    expect(mockInvalidate).toHaveBeenCalledOnce()
+    expect(mockInvalidate).toHaveBeenCalledWith('s1')
+  })
+
+  it('deleteScenario calls analysisStore.invalidate with scenarioId', async () => {
+    mockApi.get.mockResolvedValue({ data: [mockScenario] })
+    mockApi.delete.mockResolvedValue({})
+    const store = useScenarioStore()
+
+    await store.fetchScenarios('p1')
+    mockInvalidate.mockClear()
+
+    await store.deleteScenario('p1', 's1')
+
+    expect(mockInvalidate).toHaveBeenCalledOnce()
+    expect(mockInvalidate).toHaveBeenCalledWith('s1')
   })
 })

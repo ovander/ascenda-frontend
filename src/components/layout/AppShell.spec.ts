@@ -7,7 +7,15 @@ vi.mock('@/stores/ui', () => ({
   useUiStore: vi.fn(() => ({
     toastMessages: [],
     sidebarCollapsed: false,
+    mobileDrawerOpen: false,
+    isMobile: false,
+    isTablet: false,
+    isDesktop: true,
+    canEdit: true,
+    activeLayer: 'understand',
     toggleSidebar: vi.fn(),
+    setLayer: vi.fn(),
+    closeDrawer: vi.fn(),
   })),
 }))
 
@@ -16,6 +24,7 @@ vi.mock('@/stores/auth', () => ({
     user: { name: 'Test User', email: 'test@test.com', role: 'editor' },
     accessToken: 'tok',
     isAuthenticated: true,
+    fetchMe: vi.fn(),
   })),
 }))
 
@@ -25,6 +34,7 @@ vi.mock('@/composables/useAuth', () => ({
     isOwner: { value: false },
     isAdmin: { value: false },
     isBusinessUser: { value: true },
+    canOperate: { value: true },
     user: { value: { name: 'Test User', email: 'test@test.com', role: 'editor' } },
     logout: vi.fn(),
   })),
@@ -44,7 +54,9 @@ vi.mock('@/features/scenarios/stores/scenarioStore', () => ({
 
 vi.mock('@/features/settings/stores/settingsStore', () => ({
   useSettingsStore: vi.fn(() => ({
-    configComputed: null,
+    config: null,               // config is the reactive ref value used by settingsGuardReady
+    configComputed: null,       // legacy alias kept for other consumers
+    fetchConfig: vi.fn(),       // called by AppShell watcher when entering scenario routes
   })),
 }))
 
@@ -68,6 +80,20 @@ vi.mock('@/stores/tenant', () => ({
   useTenantStore: vi.fn(() => ({
     tenant: { id: 'tenant-1', tier: 'free' },
     fetchTenant: vi.fn(),
+  })),
+}))
+
+vi.mock('@/composables/useTierGate', () => ({
+  useTierGate: vi.fn(() => ({
+    currentTier: { value: 'pro' },
+    isFreemium: { value: false },
+    isPro: { value: true },
+    isEnterprise: { value: false },
+    upgradeVisible: { value: false },
+    upgradeFeatureName: { value: '' },
+    upgradeTargetTier: { value: '' },
+    showUpgradeModal: vi.fn(),
+    hideUpgradeModal: vi.fn(),
   })),
 }))
 
@@ -108,7 +134,7 @@ describe('Layout Components', () => {
         },
       })
       const aside = wrapper.find('aside')
-      // Should have w-64 since sidebarCollapsed is false
+      // isMobile=false, sidebarCollapsed=false → desktop expanded → w-64
       expect(aside.classes()).toContain('w-64')
     })
 
@@ -156,7 +182,7 @@ describe('Layout Components', () => {
           },
         },
       })
-      expect(wrapper.text()).toContain('Ascenda')
+      expect(wrapper.html()).toContain('Ascenda')
     })
 
     it('shows unit label', async () => {
@@ -186,6 +212,8 @@ describe('Layout Components', () => {
           stubs: {
             AppSidebar: { template: '<aside />' },
             AppTopbar: { template: '<header />' },
+            MobileReadOnlyBanner: PrimeStub,
+            UpgradeModal: PrimeStub,
             Toast: PrimeStub,
             RouterView: { template: '<div />' },
           },
@@ -201,6 +229,7 @@ describe('Layout Components', () => {
           stubs: {
             AppSidebar: { template: '<aside data-testid="sidebar" />' },
             AppTopbar: { template: '<header data-testid="topbar" />' },
+            UpgradeModal: PrimeStub,
             Toast: PrimeStub,
             RouterView: { template: '<div data-testid="content" />' },
           },
@@ -218,12 +247,141 @@ describe('Layout Components', () => {
           stubs: {
             AppSidebar: { template: '<aside />' },
             AppTopbar: { template: '<header />' },
+            MobileReadOnlyBanner: PrimeStub,
+            UpgradeModal: PrimeStub,
             Toast: PrimeStub,
             RouterView: { template: '<div />' },
           },
         },
       })
       expect(wrapper.find('main').classes()).toContain('overflow-y-auto')
+    })
+
+    // ── settingsGuardReady flicker guard ──────────────────────────────────────
+
+    it('renders router-view on non-scenario route even when settings are not loaded', async () => {
+      // Default mock: route.params = {} (no sid) → settingsGuardReady should be true
+      const { useSettingsStore } = await import('@/features/settings/stores/settingsStore')
+      vi.mocked(useSettingsStore).mockReturnValueOnce({
+        config: null, configComputed: null, fetchConfig: vi.fn(),
+      } as any)
+
+      const AppShell = (await import('./AppShell.vue')).default
+      const wrapper = mount(AppShell, {
+        global: {
+          stubs: {
+            AppSidebar: { template: '<aside />' },
+            AppTopbar: { template: '<header />' },
+            MobileReadOnlyBanner: PrimeStub,
+            UpgradeModal: PrimeStub,
+            Toast: PrimeStub,
+            RouterView: { template: '<div data-testid="router-view" />' },
+          },
+        },
+      })
+      // On non-scenario routes (no sid param) the router-view must be visible
+      expect(wrapper.find('[data-testid="router-view"]').exists()).toBe(true)
+    })
+
+    it('renders router-view on wizard route (sid=new) without waiting for settings', async () => {
+      const { useRoute } = await import('vue-router')
+      const { useSettingsStore } = await import('@/features/settings/stores/settingsStore')
+      const fetchConfigMock = vi.fn()
+
+      // Wizard uses a non-UUID sid value ('new') — guard must pass through immediately
+      vi.mocked(useRoute).mockReturnValueOnce({ path: '/plans/p1/scenarios/new/wizard', params: { sid: 'new' } } as any)
+      vi.mocked(useSettingsStore).mockReturnValueOnce({
+        config: null, configComputed: null, fetchConfig: fetchConfigMock,
+      } as any)
+
+      const AppShell = (await import('./AppShell.vue')).default
+      const wrapper = mount(AppShell, {
+        global: {
+          stubs: {
+            AppSidebar: { template: '<aside />' },
+            AppTopbar: { template: '<header />' },
+            MobileReadOnlyBanner: PrimeStub,
+            UpgradeModal: PrimeStub,
+            Toast: PrimeStub,
+            RouterView: { template: '<div data-testid="router-view" />' },
+          },
+        },
+      })
+      // Wizard route bypasses the guard → router-view must be visible
+      expect(wrapper.find('[data-testid="router-view"]').exists()).toBe(true)
+      expect(wrapper.find('.pi-spinner').exists()).toBe(false)
+      // No settings fetch for non-UUID sids
+      expect(fetchConfigMock).not.toHaveBeenCalled()
+    })
+
+    it('shows spinner and hides router-view on UUID scenario route when settings are loading', async () => {
+      const { useRoute } = await import('vue-router')
+      const { useSettingsStore } = await import('@/features/settings/stores/settingsStore')
+      const fetchConfigMock = vi.fn()
+      const UUID_SID = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+
+      // Simulate: real scenario route (UUID sid), but settings not yet loaded
+      vi.mocked(useRoute).mockReturnValueOnce({
+        path: `/plans/p1/scenarios/${UUID_SID}/dashboard`,
+        params: { sid: UUID_SID },
+      } as any)
+      vi.mocked(useSettingsStore).mockReturnValueOnce({
+        config: null, configComputed: null, fetchConfig: fetchConfigMock,
+      } as any)
+
+      const AppShell = (await import('./AppShell.vue')).default
+      const wrapper = mount(AppShell, {
+        global: {
+          stubs: {
+            AppSidebar: { template: '<aside />' },
+            AppTopbar: { template: '<header />' },
+            MobileReadOnlyBanner: PrimeStub,
+            UpgradeModal: PrimeStub,
+            Toast: PrimeStub,
+            RouterView: { template: '<div data-testid="router-view" />' },
+          },
+        },
+      })
+      // Router-view should be gated (not rendered) while settings are loading
+      expect(wrapper.find('[data-testid="router-view"]').exists()).toBe(false)
+      // A spinner element should be shown instead
+      expect(wrapper.find('.pi-spinner').exists()).toBe(true)
+      // The eager fetch must have been triggered for UUID sids
+      expect(fetchConfigMock).toHaveBeenCalled()
+    })
+
+    it('shows router-view on UUID scenario route once settings are loaded', async () => {
+      const { useRoute } = await import('vue-router')
+      const { useSettingsStore } = await import('@/features/settings/stores/settingsStore')
+      const UUID_SID = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+
+      // Simulate: real scenario route + settings already loaded
+      vi.mocked(useRoute).mockReturnValueOnce({
+        path: `/plans/p1/scenarios/${UUID_SID}/dashboard`,
+        params: { sid: UUID_SID },
+      } as any)
+      vi.mocked(useSettingsStore).mockReturnValueOnce({
+        config: { language: 'fr', currency: 'EUR' },
+        configComputed: null,
+        fetchConfig: vi.fn(),
+      } as any)
+
+      const AppShell = (await import('./AppShell.vue')).default
+      const wrapper = mount(AppShell, {
+        global: {
+          stubs: {
+            AppSidebar: { template: '<aside />' },
+            AppTopbar: { template: '<header />' },
+            MobileReadOnlyBanner: PrimeStub,
+            UpgradeModal: PrimeStub,
+            Toast: PrimeStub,
+            RouterView: { template: '<div data-testid="router-view" />' },
+          },
+        },
+      })
+      // Settings loaded → router-view must be rendered
+      expect(wrapper.find('[data-testid="router-view"]').exists()).toBe(true)
+      expect(wrapper.find('.pi-spinner').exists()).toBe(false)
     })
   })
 })

@@ -54,7 +54,7 @@ describe('usePnlCashStore', () => {
 
     it('sets error on failure', async () => {
       mockApi.get.mockRejectedValue({})
-      await store.fetchEntries()
+      await expect(store.fetchEntries()).rejects.toBeTruthy()
       expect(store.error).toBe('Failed to fetch P&L Cash entries')
     })
   })
@@ -91,7 +91,7 @@ describe('usePnlCashStore', () => {
 
     it('sets error on failure', async () => {
       mockApi.get.mockRejectedValue({})
-      await store.fetchReport()
+      await expect(store.fetchReport()).rejects.toBeTruthy()
       expect(store.error).toBe('Failed to fetch P&L Cash report')
     })
   })
@@ -111,7 +111,7 @@ describe('usePnlCashStore', () => {
 
     it('sets error on failure', async () => {
       mockApi.get.mockRejectedValue({})
-      await store.fetchChart()
+      await expect(store.fetchChart()).rejects.toBeTruthy()
       expect(store.error).toBe('Failed to fetch P&L Cash chart')
     })
   })

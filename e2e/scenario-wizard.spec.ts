@@ -105,15 +105,26 @@ const expectStep = (page: Page, heading: string) =>
 
 // ─── Boot helpers ─────────────────────────────────────────────────────────────
 
-/** Seeds auth + plan/scenario context via addInitScript, then navigates to /. */
-async function bootApp(page: Page) {
+/**
+ * Seeds auth + plan context via addInitScript.
+ * Pass planTier='freemium' for free-tier tests, omit (or pass 'pro') for pro tests.
+ * Note: scenario is intentionally NOT seeded so scenarioStore.scenarios starts empty,
+ * preventing the freemium gate (isFreemium && count >= 1) from firing.
+ */
+async function bootApp(page: Page, planTier?: string) {
+  const user = planTier ? { ...MOCK_USER, plan: planTier } : MOCK_USER
   const authPayload = {
-    accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_USER,
+    accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user,
   }
   await page.addInitScript((d: any) => { ;(window as any).__E2E_AUTH__ = d }, authPayload)
 
-  const ctxPayload = { plan: MOCK_PLAN, scenario: MOCK_SCENARIO }
+  // Only seed the plan (not scenario) — wizard creates a new scenario from scratch.
+  const ctxPayload = { plan: MOCK_PLAN }
   await page.addInitScript((d: any) => { ;(window as any).__E2E_PLAN_CTX__ = d }, ctxPayload)
+
+  // Return the user so callers can pass it to mockApiCalls, ensuring fetchMe()
+  // in AppShell doesn't overwrite the injected auth with a different plan/role.
+  return user
 }
 
 /** Go to the wizard as a free-tier user (direct goto is fine). */
@@ -139,8 +150,8 @@ async function gotoWizardPro(page: Page) {
 test.describe('ScenarioWizard — Free tier (5 steps)', () => {
 
   test('full happy path: correct API payloads for Belgian SaaS startup', async ({ page }) => {
-    await bootApp(page)
-    await mockApiCalls(page)          // catch-all registered first (lower priority)
+    const user = await bootApp(page, 'freemium')
+    await mockApiCalls(page, user)          // catch-all registered first (lower priority)
     const capture = await mockWizardRoutes(page) // specific routes second (wins)
     await gotoWizardFree(page)
 
@@ -218,7 +229,7 @@ test.describe('ScenarioWizard — Free tier (5 steps)', () => {
   })
 
   test('blocks Continue on step 0 when name is empty', async ({ page }) => {
-    await bootApp(page)
+    await bootApp(page, 'freemium')
     await mockApiCalls(page)
     await gotoWizardFree(page)
 
@@ -232,8 +243,8 @@ test.describe('ScenarioWizard — Free tier (5 steps)', () => {
   })
 
   test('blocks Continue on revenue step when no product has a name', async ({ page }) => {
-    await bootApp(page)
-    await mockApiCalls(page)
+    const user = await bootApp(page, 'freemium')
+    await mockApiCalls(page, user)
     await gotoWizardFree(page)
 
     await page.getByPlaceholder('e.g. Base Case, Conservative, Optimistic').fill('Test')
@@ -250,7 +261,7 @@ test.describe('ScenarioWizard — Free tier (5 steps)', () => {
   })
 
   test('Back button returns to previous step', async ({ page }) => {
-    await bootApp(page)
+    await bootApp(page, 'freemium')
     await mockApiCalls(page)
     await gotoWizardFree(page)
 
@@ -263,7 +274,7 @@ test.describe('ScenarioWizard — Free tier (5 steps)', () => {
   })
 
   test('country preset auto-fills currency symbol when country is selected', async ({ page }) => {
-    await bootApp(page)
+    await bootApp(page, 'freemium')
     await mockApiCalls(page)
     await gotoWizardFree(page)
 
@@ -275,8 +286,8 @@ test.describe('ScenarioWizard — Free tier (5 steps)', () => {
   })
 
   test('step counter shows correct current step', async ({ page }) => {
-    await bootApp(page)
-    await mockApiCalls(page)
+    const user = await bootApp(page, 'freemium')
+    await mockApiCalls(page, user)
     await gotoWizardFree(page)
 
     await expect(page.getByText('Step 1 of 5')).toBeVisible()
@@ -286,8 +297,8 @@ test.describe('ScenarioWizard — Free tier (5 steps)', () => {
   })
 
   test('step bar shows 5 items for free tier', async ({ page }) => {
-    await bootApp(page)
-    await mockApiCalls(page)
+    const user = await bootApp(page, 'freemium')
+    await mockApiCalls(page, user)
     await gotoWizardFree(page)
 
     await expect(page.locator('.p-steps-item')).toHaveCount(5)

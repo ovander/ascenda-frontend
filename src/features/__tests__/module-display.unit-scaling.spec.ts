@@ -95,6 +95,19 @@ vi.mock('@/composables/useYearHeaders', () => ({
 
 vi.mock('@/composables/useApi', () => ({
   default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
+  useAIApi: () => ({ get: vi.fn().mockResolvedValue({ data: null }) }),
+  useApi:   () => ({ get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() }),
+}))
+
+vi.mock('@/features/scenarios/stores/scenarioAnalysisStore', () => ({
+  useScenarioAnalysisStore: () => ({
+    getAnalysis: vi.fn(() => null),
+    isLoading:   vi.fn(() => false),
+    getError:    vi.fn(() => null),
+    fetchIfNeeded: vi.fn().mockResolvedValue(undefined),
+    invalidate:  vi.fn(),
+    reset:       vi.fn(),
+  }),
 }))
 
 vi.mock('@/features/plans/stores/planStore', () => ({
