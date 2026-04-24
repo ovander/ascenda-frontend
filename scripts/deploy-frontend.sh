@@ -61,6 +61,9 @@ sudo chown -R $USER:$USER "$RELEASE_DIR"
 sudo find "$RELEASE_DIR" -type d -exec chmod 755 {} \;
 sudo find "$RELEASE_DIR" -type f -exec chmod 644 {} \;
 
+# Ensure caddy (running as 'caddy' user, group 'olivier') can traverse the path
+sudo chmod o+x "$APP_DIR" "$APP_DIR/releases" "$RELEASES_DIR"
+
 ASSET_COUNT=$(find "$RELEASE_DIR" -type f | wc -l | tr -d ' ')
 echo "✔ Release created: $RELEASE_DIR ($ASSET_COUNT files)"
 
@@ -69,13 +72,19 @@ echo "✔ Release created: $RELEASE_DIR ($ASSET_COUNT files)"
 # -----------------------------
 echo "🔁 Switching release..."
 
-# Capture previous target for rollback
-PREVIOUS="$(readlink -f $FRONTEND_LINK 2>/dev/null || echo "")"
+# Capture previous target for rollback.
+# Only set PREVIOUS if current frontend is already a symlink —
+# avoids a circular symlink if this is the first deploy.
+if [ -L "$FRONTEND_LINK" ]; then
+    PREVIOUS="$(readlink -f $FRONTEND_LINK 2>/dev/null || echo "")"
+else
+    PREVIOUS=""
+fi
 
-# First deploy: if frontend is a plain directory, back it up
+# First deploy: if frontend is a plain directory, remove it (was empty)
 if [ -d "$FRONTEND_LINK" ] && [ ! -L "$FRONTEND_LINK" ]; then
-    echo "⚠️  $FRONTEND_LINK is a plain directory — backing up and converting to symlink..."
-    sudo mv "$FRONTEND_LINK" "${FRONTEND_LINK}.bak"
+    echo "⚠️  $FRONTEND_LINK is a plain directory — removing and converting to symlink..."
+    sudo rm -rf "$FRONTEND_LINK"
 fi
 
 sudo ln -sfn "$RELEASE_DIR" "$FRONTEND_LINK"
