@@ -40,9 +40,24 @@ function toFormValues(config: Record<string, any>): Record<string, any> {
   return r
 }
 
+// Fields computed by the backend — must NOT be sent back in PUT requests.
+// The backend returns them in GET responses (PlanConfigComputed) but rejects
+// them with 422 if included in the PUT body.
+const COMPUTED_FIELDS = new Set([
+  'currentDate', 'firstCivilYear', 'overdraftRate', 'yearHeaders', 'unitLabel',
+  // read-only identifiers
+  'id', 'scenarioId',
+  // derived / optional ISO code
+  'currency',
+])
+
 // Convert form values → API payload (percentages → fractions, Date → ISO)
 function toApiValues(formVals: Record<string, any>): Record<string, any> {
-  const r = { ...formVals }
+  const r: Record<string, any> = {}
+  for (const [k, v] of Object.entries(formVals)) {
+    if (COMPUTED_FIELDS.has(k)) continue
+    r[k] = v
+  }
   for (const f of PCT_FIELDS) {
     if (r[f] != null) r[f] = Number(r[f]) / 100
   }

@@ -46,10 +46,12 @@ const props = withDefaults(defineProps<{
   groupBy?: boolean
   columnHeaders?: string[]   // override yearHeaders (e.g. ['Q1','Q2','Q3','Q4'])
   unit?: string              // e.g. 'k€' — shown in column headers and on editable cells
+  readonly?: boolean         // when true, disable all input fields and cell buttons
 }>(), {
   showTotal: false,
   totalLabel: 'Total',
   groupBy: false,
+  readonly: false,
 })
 
 const emit = defineEmits<{
@@ -160,6 +162,8 @@ function getSignClass(row: GridRow, val: string | number): string {
             class="w-full text-right"
             inputClass="text-right w-full p-1 text-sm"
             :suffix="data.suffix ? ` ${data.suffix}` : (unit ? ` ${unit}` : undefined)"
+            :readonly="readonly"
+            :disabled="readonly"
           />
           <span v-else class="text-sm" :class="getSignClass(data, data.values[idx] ?? 0)">
             {{ formatUnit(data.values[idx] ?? 0) }}
@@ -189,9 +193,9 @@ function getSignClass(row: GridRow, val: string | number): string {
               {{ badgeLabel(data.cellBadges[idx]) }}
             </span>
           </div>
-          <!-- Per-cell action button (shown only when no badge is present) -->
+          <!-- Per-cell action button (shown only when no badge is present and not readonly) -->
           <div
-            v-else-if="data.cellButtons && data.cellButtons[idx]"
+            v-if="!readonly && data.cellButtons && data.cellButtons[idx]"
             class="mt-0.5 flex justify-end"
           >
             <button

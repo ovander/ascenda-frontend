@@ -1,28 +1,36 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useUiStore } from '@/stores/ui'
 import { useRouter } from 'vue-router'
 import { devlog } from '@/utils/logger'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useScenarioStore } from '@/features/scenarios/stores/scenarioStore'
 import { useAuth } from '@/composables/useAuth'
+import { useTierGate } from '@/composables/useTierGate'
 import { useToast } from 'primevue/usetoast'
 import PlanMembersPanel from '../components/PlanMembersPanel.vue'
 import SafeDeleteModal from '@/components/SafeDeleteModal.vue'
+import PageContainer from '@/components/layout/PageContainer.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
 import Card from 'primevue/card'
 import Tag from 'primevue/tag'
-import Dialog from 'primevue/dialog'
+import ResponsiveDialog from '@/components/common/ResponsiveDialog.vue'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Toast from 'primevue/toast'
 
 const props = defineProps<{ planId: string }>()
+const { t, locale } = useI18n()
 const router = useRouter()
 const planStore = usePlanStore()
 const scenarioStore = useScenarioStore()
 const { isOwner } = useAuth()
+const { isFreemium, isEnterprise, showUpgradeModal } = useTierGate()
+const uiStore = useUiStore()
 const toast = useToast()
 
 const showNewDialog = ref(false)
@@ -40,6 +48,20 @@ onMounted(async () => {
 function openScenario(scenario: any) {
   scenarioStore.setActive(scenario)
   router.push(`/plans/${props.planId}/scenarios/${scenario.id}`)
+}
+
+/** Open the new-scenario dialog only when the user hasn't hit their tier limit. */
+function requestNewScenario() {
+  const count = scenarioStore.scenarios.length
+  if (isFreemium.value && count >= 1) {
+    showUpgradeModal('Additional Scenarios', 'pro')
+    return
+  }
+  if (!isEnterprise.value && !isFreemium.value && count >= 3) {
+    showUpgradeModal('Additional Scenarios', 'enterprise')
+    return
+  }
+  showNewDialog.value = true
 }
 
 async function createScenario() {
@@ -67,11 +89,11 @@ function statusSeverity(status: string | undefined): string {
 
 function statusLabel(status: string | undefined): string {
   switch (status) {
-    case 'draft':    return 'Draft'
-    case 'review':   return 'In Review'
-    case 'approved': return 'Approved / Locked'
-    case 'archived': return 'Archived'
-    default:         return status || 'Draft'
+    case 'draft':    return t('enums.planStatus.draft')
+    case 'review':   return t('messages.statusInReview')
+    case 'approved': return t('messages.statusApprovedLocked')
+    case 'archived': return t('enums.planStatus.archived')
+    default:         return status || t('enums.planStatus.draft')
   }
 }
 
@@ -83,9 +105,9 @@ async function lockPlan() {
   lifecycleLoading.value = true
   try {
     await planStore.lockPlan(props.planId)
-    toast.add({ severity: 'success', summary: 'Plan locked', detail: 'Plan is now approved and locked for investor sharing.', life: 3000 })
+    toast.add({ severity: 'success', summary: t('messages.planLocked'), detail: t('messages.planLockedDetail'), life: 3000 })
   } catch (err: any) {
-    toast.add({ severity: 'error', summary: 'Error', detail: err.response?.data?.error?.message || 'Failed to lock plan', life: 5000 })
+    toast.add({ severity: 'error', summary: t('messages.error'), detail: err.response?.data?.error?.message || t('messages.failedLockPlan'), life: 5000 })
   } finally {
     lifecycleLoading.value = false
   }
@@ -95,9 +117,9 @@ async function unlockPlan() {
   lifecycleLoading.value = true
   try {
     await planStore.unlockPlan(props.planId)
-    toast.add({ severity: 'success', summary: 'Plan unlocked', detail: 'Plan is back in review.', life: 3000 })
+    toast.add({ severity: 'success', summary: t('messages.planUnlocked'), detail: t('messages.planUnlockedDetail'), life: 3000 })
   } catch (err: any) {
-    toast.add({ severity: 'error', summary: 'Error', detail: err.response?.data?.error?.message || 'Failed to unlock plan', life: 5000 })
+    toast.add({ severity: 'error', summary: t('messages.error'), detail: err.response?.data?.error?.message || t('messages.failedUnlockPlan'), life: 5000 })
   } finally {
     lifecycleLoading.value = false
   }
@@ -107,10 +129,10 @@ async function archivePlan() {
   lifecycleLoading.value = true
   try {
     await planStore.archivePlan(props.planId)
-    toast.add({ severity: 'info', summary: 'Archived', detail: 'Plan has been archived.', life: 3000 })
+    toast.add({ severity: 'info', summary: t('messages.archived'), detail: t('messages.planArchivedDetail'), life: 3000 })
     router.push('/plans')
   } catch (err: any) {
-    toast.add({ severity: 'error', summary: 'Error', detail: err.response?.data?.error?.message || 'Failed to archive plan', life: 5000 })
+    toast.add({ severity: 'error', summary: t('messages.error'), detail: err.response?.data?.error?.message || t('messages.failedArchivePlan'), life: 5000 })
   } finally {
     lifecycleLoading.value = false
   }
@@ -150,8 +172,8 @@ async function deleteScenarioAction(id: string, name: string) {
 function scenarioImpactLines(impact: ScenarioImpactResult | null): string[] {
   if (!impact) return []
   const lines: string[] = []
-  if (impact.isDefault) lines.push('This is the base / default scenario')
-  if (impact.isLastInPlan) lines.push('Last remaining scenario in this plan')
+  if (impact.isDefault) lines.push(t('messages.thisIsDefault'))
+  if (impact.isLastInPlan) lines.push(t('messages.lastScenario'))
   return lines
 }
 
@@ -161,10 +183,10 @@ async function confirmDeleteScenario() {
   try {
     await scenarioStore.deleteScenario(props.planId, deleteTarget.value.id)
     showDeleteModal.value = false
-    toast.add({ severity: 'success', summary: 'Deleted', detail: 'Scenario removed.', life: 3000 })
+    toast.add({ severity: 'success', summary: t('messages.deleted'), detail: t('messages.scenarioDeleted'), life: 3000 })
     deleteTarget.value = null
   } catch (err: any) {
-    toast.add({ severity: 'error', summary: 'Error', detail: err.response?.data?.error?.message || 'Failed to delete scenario', life: 5000 })
+    toast.add({ severity: 'error', summary: t('messages.error'), detail: err.response?.data?.error?.message || t('messages.failedDeleteScenario'), life: 5000 })
   } finally {
     deleteLoading.value = false
   }
@@ -174,59 +196,59 @@ async function confirmDeleteScenario() {
 <template>
   <div>
     <Toast />
+    <PageContainer>
+      <PageHeader>
+        <template #title>{{ planStore.activePlan?.name || 'Plan' }}</template>
+        <template #subtitle>{{ planStore.activePlan?.description }}</template>
+        <template #actions>
+          <div class="flex items-center gap-2">
+            <Tag
+              :value="statusLabel(planStore.activePlan?.status)"
+              :severity="statusSeverity(planStore.activePlan?.status)"
+            />
 
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-800">{{ planStore.activePlan?.name || 'Plan' }}</h1>
-        <p class="text-gray-500 mt-1">{{ planStore.activePlan?.description }}</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <Tag
-          :value="statusLabel(planStore.activePlan?.status)"
-          :severity="statusSeverity(planStore.activePlan?.status)"
-        />
+            <!-- Lifecycle buttons + New Scenario — owner only, tablet+ only -->
+            <template v-if="isOwner && !uiStore.isMobile">
+              <Button
+                v-if="(planStore.activePlan?.status as any) === 'review'"
+                :label="t('messages.lockPlan')"
+                icon="pi pi-lock"
+                severity="warn"
+                size="small"
+                :loading="lifecycleLoading"
+                :v-tooltip="t('messages.markAsApproved')"
+                @click="lockPlan"
+              />
+              <Button
+                v-if="(planStore.activePlan?.status as any) === 'approved'"
+                :label="t('messages.unlock')"
+                icon="pi pi-lock-open"
+                severity="secondary"
+                size="small"
+                :loading="lifecycleLoading"
+                :v-tooltip="t('messages.moveBackReview')"
+                @click="unlockPlan"
+              />
+              <Button
+                v-if="['draft', 'review', 'approved'].includes(planStore.activePlan?.status ?? '')"
+                :label="t('messages.archive')"
+                icon="pi pi-inbox"
+                severity="secondary"
+                text
+                size="small"
+                :loading="lifecycleLoading"
+                :v-tooltip="t('messages.archiveThisPlan')"
+                @click="archivePlan"
+              />
+            </template>
 
-        <!-- Lifecycle buttons — owner only -->
-        <template v-if="isOwner">
-          <Button
-            v-if="planStore.activePlan?.status === 'review'"
-            label="Lock Plan"
-            icon="pi pi-lock"
-            severity="warn"
-            size="small"
-            :loading="lifecycleLoading"
-            v-tooltip="'Mark as Approved — restricts further editing'"
-            @click="lockPlan"
-          />
-          <Button
-            v-if="planStore.activePlan?.status === 'approved'"
-            label="Unlock"
-            icon="pi pi-lock-open"
-            severity="secondary"
-            size="small"
-            :loading="lifecycleLoading"
-            v-tooltip="'Move back to In Review'"
-            @click="unlockPlan"
-          />
-          <Button
-            v-if="['draft', 'review', 'approved'].includes(planStore.activePlan?.status ?? '')"
-            label="Archive"
-            icon="pi pi-inbox"
-            severity="secondary"
-            text
-            size="small"
-            :loading="lifecycleLoading"
-            v-tooltip="'Archive this plan'"
-            @click="archivePlan"
-          />
+            <Button v-if="!uiStore.isMobile" :label="t('messages.newScenario')" icon="pi pi-plus" @click="requestNewScenario" />
+          </div>
         </template>
-
-        <Button label="New Scenario" icon="pi pi-plus" @click="showNewDialog = true" />
-      </div>
-    </div>
+      </PageHeader>
 
     <Card>
-      <template #title>Scenarios</template>
+      <template #title>{{ t('messages.scenarios') }}</template>
       <template #content>
         <DataTable
           :value="scenarioStore.scenarios"
@@ -242,41 +264,53 @@ async function confirmDeleteScenario() {
               <p>No scenarios yet. Create your first scenario to start building your business plan.</p>
             </div>
           </template>
-          <Column field="name" header="Name" sortable class="font-medium" />
-          <Column field="description" header="Description" />
-          <Column field="isBase" header="Base" style="width: 80px">
+
+          <!-- Name — always visible; shows Base tag inline on mobile -->
+          <Column field="name" header="Name" sortable class="font-medium">
             <template #body="{ data }">
-              <Tag v-if="data.isBase" value="Base" severity="info" />
+              <div class="flex items-center gap-2">
+                <span>{{ data.name }}</span>
+                <Tag v-if="data.isBase" value="Base" severity="info" class="text-xs" />
+              </div>
             </template>
           </Column>
-          <Column field="updatedAt" header="Last Updated" sortable style="width: 160px">
+
+          <!-- Tablet+ only columns -->
+          <Column v-if="!uiStore.isMobile" field="description" header="Description" />
+          <Column v-if="!uiStore.isMobile" field="updatedAt" header="Last Updated" sortable style="width: 160px">
             <template #body="{ data }">
-              {{ new Date(data.updatedAt).toLocaleDateString() }}
+              {{ new Date(data.updatedAt).toLocaleDateString(locale) }}
             </template>
           </Column>
-          <Column header="Actions" style="width: 120px">
+
+          <!-- Actions: open always; clone + delete tablet+ only -->
+          <Column header="" :style="uiStore.isMobile ? 'width: 56px' : 'width: 120px'">
             <template #body="{ data }">
               <div class="flex gap-1">
-                <Button
-                  icon="pi pi-copy"
-                  text
-                  severity="secondary"
-                  v-tooltip="'Clone'"
-                  @click.stop="cloneScenarioAction(data.id)"
-                />
+                <template v-if="!uiStore.isMobile">
+                  <Button
+                    icon="pi pi-copy"
+                    text
+                    severity="secondary"
+                    v-tooltip="'Clone'"
+                    @click.stop="cloneScenarioAction(data.id)"
+                  />
+                </template>
                 <Button
                   icon="pi pi-arrow-right"
                   text
                   severity="primary"
                   @click.stop="openScenario(data)"
                 />
-                <Button
-                  icon="pi pi-trash"
-                  text
-                  severity="danger"
-                  v-tooltip="'Delete'"
-                  @click.stop="deleteScenarioAction(data.id, data.name)"
-                />
+                <template v-if="!uiStore.isMobile">
+                  <Button
+                    icon="pi pi-trash"
+                    text
+                    severity="danger"
+                    v-tooltip="'Delete'"
+                    @click.stop="deleteScenarioAction(data.id, data.name)"
+                  />
+                </template>
               </div>
             </template>
           </Column>
@@ -292,10 +326,10 @@ async function confirmDeleteScenario() {
     </Card>
 
     <!-- New Scenario Dialog -->
-    <Dialog v-model:visible="showNewDialog" header="New Scenario" :style="{ width: '450px' }" modal>
+    <ResponsiveDialog v-model:visible="showNewDialog" :header="t('messages.newScenario')" size="sm" modal>
       <div class="space-y-4 pt-2">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('messages.nameLabel') }}</label>
           <InputText
             v-model="newScenario.name"
             class="w-full"
@@ -303,20 +337,20 @@ async function confirmDeleteScenario() {
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('messages.descriptionLabel') }}</label>
           <Textarea v-model="newScenario.description" class="w-full" rows="3" />
         </div>
       </div>
       <template #footer>
-        <Button label="Cancel" text severity="secondary" @click="showNewDialog = false" />
+        <Button :label="t('common.cancel')" text severity="secondary" @click="showNewDialog = false" />
         <Button
-          label="Create"
+          :label="t('common.create')"
           icon="pi pi-check"
           @click="createScenario"
           :disabled="!newScenario.name"
         />
       </template>
-    </Dialog>
+    </ResponsiveDialog>
 
     <!-- Scenario Safe Delete Modal -->
     <SafeDeleteModal
@@ -329,5 +363,6 @@ async function confirmDeleteScenario() {
       :loading="deleteLoading || impactLoading"
       @confirm="confirmDeleteScenario"
     />
+    </PageContainer>
   </div>
 </template>

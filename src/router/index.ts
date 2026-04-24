@@ -8,14 +8,29 @@ import { useFeaturePolicyStore } from '@/features/admin/stores/featurePolicyStor
 const AppShell = () => import('@/components/layout/AppShell.vue')
 
 const routes: RouteRecordRaw[] = [
-  {
-    // Legacy login route — kept for magic-link callbacks and direct /login hits.
-    // New unauthenticated entry-point is the landing page (landing.html).
-    path: '/login',
-    name: 'login',
-    component: () => import('@/features/auth/views/LoginView.vue'),
-    meta: { public: true },
-  },
+    {
+        path: '/landing',
+        name: 'landing',
+        component: () => import('@/features/landing/views/LandingView.vue'),
+        meta: { public: true },
+    },
+    {
+        path: '/login',
+        name: 'login',
+        component: { template: '<div></div>' },
+        beforeEnter: async () => {
+            // Use the shared initiateLogin helper so that the PKCE code_verifier
+            // and the OAuth `state` nonce are both generated, stored in
+            // sessionStorage, AND included in the authorization URL.
+            // The previous inline builder omitted both — causing Socrate to
+            // reject the request with "state parameter is required".
+            const { useAuth } = await import('@/composables/useAuth')
+            const { initiateLogin } = useAuth()
+            await initiateLogin()
+            return false // prevent Vue Router from rendering the blank component
+        },
+        meta: { public: true },
+    },
   {
     path: '/callback',
     name: 'callback',
@@ -282,10 +297,10 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
-  {
-    path: '/:pathMatch(.*)*',
-    redirect: '/',
-  },
+    {
+        path: '/:pathMatch(.*)*',
+        redirect: '/landing',
+    },
 ]
 
 const router = createRouter({
@@ -294,7 +309,13 @@ const router = createRouter({
 })
 
 router.beforeEach((to, _from, next) => {
-  const auth = useAuthStore()
+
+    // 🔥 CRITIQUE — ne jamais interférer avec landing ni callback
+    if (to.meta.public) {
+        return next()
+    }
+
+    const auth = useAuthStore()
 
   if (to.meta.public) {
     return next()
@@ -302,8 +323,7 @@ router.beforeEach((to, _from, next) => {
 
   if (!auth.isAuthenticated) {
     const redirect = to.fullPath !== '/' ? `?redirect=${encodeURIComponent(to.fullPath)}` : ''
-    window.location.href = `/landing.html${redirect}`
-    return
+      return next(`/landing${redirect}`)
   }
 
   // Lazily fetch feature policies once per session (non-blocking).
@@ -327,7 +347,7 @@ router.beforeEach((to, _from, next) => {
   // Platform admin cannot access plan/tenant routes
   if (auth.user?.role === 'admin' && !to.meta.requiresAdmin && !to.meta.public) {
     const adminAllowed = ['admin-dashboard', 'admin-users', 'admin-tenants', 'admin-country-configs', 'admin-ai-usage', 'admin-feature-policies', 'admin-organizations']
-    if (!adminAllowed.includes(to.name as string)) {
+      if (!adminAllowed.includes(String(to.name))) {
       return next({ name: 'admin-dashboard' })
     }
   }

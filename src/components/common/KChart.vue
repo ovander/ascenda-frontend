@@ -10,6 +10,7 @@ import {
   DEFAULT_LINE_OPTIONS,
   DEFAULT_STACKED_BAR_OPTIONS,
 } from '@/plugins/chartjs'
+import { useResponsiveValue } from '@/composables/useResponsiveValue'
 
 export type ChartType = 'bar' | 'line' | 'stacked-bar' | 'radar' | 'area' | 'combo'
 
@@ -17,6 +18,7 @@ const props = withDefaults(
   defineProps<{
     data: ChartData | null
     type?: ChartType
+    /** Explicit height override. When omitted the chart auto-scales by device. */
     height?: string
     title?: string
     loading?: boolean
@@ -25,10 +27,18 @@ const props = withDefaults(
   }>(),
   {
     type: 'bar',
-    height: '320px',
     loading: false,
   }
 )
+
+// Responsive default heights: compact on mobile, medium on tablet, full on desktop.
+// Only applied when the caller doesn't provide an explicit `height` prop.
+const defaultHeight = useResponsiveValue({
+  mobile:  '220px',
+  tablet:  '280px',
+  default: '320px',
+})
+const resolvedHeight = computed(() => props.height ?? defaultHeight.value)
 
 // Transform API ChartData into vue-chartjs format with auto-coloring
 // Using 'any' to avoid complex Chart.js generic type gymnastics
@@ -107,7 +117,7 @@ const chartComponent = computed(() => {
 </script>
 
 <template>
-  <div class="kchart-wrapper" :style="{ height }">
+  <div class="kchart-wrapper" :style="{ height: resolvedHeight }">
     <h3 v-if="title" class="text-lg font-semibold text-gray-800 mb-3">{{ title }}</h3>
 
     <div v-if="loading" class="w-full h-full flex items-center justify-center bg-gray-50 rounded border border-gray-200">

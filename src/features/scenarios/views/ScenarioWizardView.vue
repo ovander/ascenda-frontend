@@ -27,7 +27,7 @@ const planStore = usePlanStore()
 const settingsStore = useSettingsStore()
 const productStore = useProductStore()
 const toast = useToast()
-const { isPro } = useTierGate()
+const { isFreemium, isPro, isEnterprise, showUpgradeModal } = useTierGate()
 
 // ── Step definition ───────────────────────────────────────────────────────────
 const FREE_STEPS = [
@@ -294,6 +294,19 @@ async function finishWizard() {
   if (!validateCurrentStep()) return
   if (!props.planId) {
     toast.add({ severity: 'error', summary: 'Error', detail: 'No plan selected', life: 3000 })
+    return
+  }
+
+  // Enforce per-tier scenario limits before hitting the API.
+  // scenarioStore.scenarios reflects the active plan's current scenarios.
+  const scenarioCount = scenarioStore.scenarios.length
+  const scenarioLimitReached =
+    (isFreemium.value && scenarioCount >= 1) ||
+    (!isEnterprise.value && !isFreemium.value && scenarioCount >= 3)  // Pro: max 3
+
+  if (scenarioLimitReached) {
+    const target = isFreemium.value ? 'pro' : 'enterprise'
+    showUpgradeModal('Additional Scenarios', target)
     return
   }
 

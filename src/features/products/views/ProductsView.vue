@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, nextTick, watch } from 'vue'
 import { devlog } from '@/utils/logger'
-import type { Product, ConsolidatedRevenue, DriverType, DriverParams } from '@/types'
+import type { Product, DriverType, DriverParams } from '@/types'
 import { useProductStore } from '@/features/products/stores/productStore'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useScenarioStore } from '@/features/scenarios/stores/scenarioStore'
 import { useDecimal } from '@/composables/useDecimal'
 import { useYearHeaders } from '@/composables/useYearHeaders'
 import ProductDetailPanel from '../components/ProductDetailPanel.vue'
-import DriverParamsForm from '../components/DriverParamsForm.vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
@@ -33,7 +32,7 @@ function isDriverLocked(dt: DriverType): boolean {
 const productStore = useProductStore()
 const planStore = usePlanStore()
 const scenarioStore = useScenarioStore()
-const { formatCurrency, formatPercent, getLocale, getUnitLabel, formatUnit } = useDecimal()
+const { formatPercent, getLocale, getUnitLabel, formatUnit } = useDecimal()
 const { yearHeaders } = useYearHeaders()
 
 // 'Days' when every product in the scenario is a service; 'Units' otherwise

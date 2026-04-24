@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useTenantStore } from '@/stores/tenant'
 import { useToast } from 'primevue/usetoast'
 import type { User } from '@/types'
@@ -8,31 +8,53 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
-import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
 import Toast from 'primevue/toast'
 import ProgressSpinner from 'primevue/progressspinner'
+import ResponsiveDialog from '@/components/common/ResponsiveDialog.vue'
 
 const tenantStore = useTenantStore()
 const toast = useToast()
 
 const showInviteDialog = ref(false)
-const inviteForm = ref({ email: '', name: '', role: 'user' })
+const inviteForm = ref({ email: '', name: '', role: 'editor' })
 const inviteLoading = ref(false)
 
-// Owners can only invite regular users. Platform admin (role=admin) is a
-// KerPlan operator role assigned directly — owners cannot grant it.
-const roleOptions = computed(() => [
-  { label: 'User', value: 'user', description: 'Business user — plan access via memberships' },
-])
+// Owners can invite team members as Editor or Reader.
+// Platform admin (role=admin) is an Ascenda operator role assigned directly.
+const roleOptions = [
+  {
+    label: 'Editor',
+    value: 'editor',
+    description: 'Full access to Operate and Analyse — cannot manage users or organisation settings',
+  },
+  {
+    label: 'Reader',
+    value: 'reader',
+    description: 'Read-only access to Analyse — no access to Operate',
+  },
+]
+
+const roleLabel = (role: string) => {
+  switch (role) {
+    case 'owner':  return 'Owner'
+    case 'editor': return 'Editor'
+    case 'reader': return 'Reader'
+    case 'user':   return 'Editor'   // legacy
+    case 'admin':  return 'Admin'
+    default:       return role
+  }
+}
 
 const roleSeverity = (role: string) => {
   switch (role) {
-    case 'owner': return 'danger'
-    case 'admin': return 'warn'
-    case 'user': return 'info'
-    default: return 'secondary'
+    case 'owner':  return 'danger'
+    case 'admin':  return 'warn'
+    case 'editor': return 'info'
+    case 'reader': return 'secondary'
+    case 'user':   return 'info'   // legacy
+    default:       return 'secondary'
   }
 }
 
@@ -51,7 +73,7 @@ async function handleInvite() {
     await tenantStore.inviteUser(inviteForm.value.email, inviteForm.value.role)
     toast.add({ severity: 'success', summary: 'Invited', detail: `Invitation sent to ${inviteForm.value.email}`, life: 3000 })
     showInviteDialog.value = false
-    inviteForm.value = { email: '', name: '', role: 'user' }
+    inviteForm.value = { email: '', name: '', role: 'editor' }
   } catch (err: any) {
     toast.add({ severity: 'error', summary: 'Error', detail: err.response?.data?.error?.message || 'Failed to invite user', life: 5000 })
   } finally {
@@ -174,10 +196,7 @@ function formatDate(d: string | undefined): string {
 
       <Column field="role" header="Role" sortable style="width: 160px">
         <template #body="{ data }">
-          <div v-if="data.role === 'owner'">
-            <Tag value="Owner" :severity="roleSeverity('owner')" />
-          </div>
-          <Tag v-else :value="data.role" :severity="roleSeverity(data.role)" />
+          <Tag :value="roleLabel(data.role)" :severity="roleSeverity(data.role)" />
         </template>
       </Column>
 
@@ -231,7 +250,7 @@ function formatDate(d: string | undefined): string {
     </DataTable>
 
     <!-- Invite Dialog -->
-    <Dialog v-model:visible="showInviteDialog" header="Invite User" :style="{ width: '450px' }" modal>
+    <ResponsiveDialog v-model:visible="showInviteDialog" header="Invite User" size="sm" modal>
       <div class="space-y-4 pt-2">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
@@ -274,7 +293,7 @@ function formatDate(d: string | undefined): string {
           :disabled="!inviteForm.email.trim()"
         />
       </template>
-    </Dialog>
+    </ResponsiveDialog>
 
     <!-- User Safe Delete Modal -->
     <SafeDeleteModal

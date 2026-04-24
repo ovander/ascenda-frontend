@@ -3,7 +3,6 @@ import { onMounted, ref, computed } from 'vue'
 import { useCapexStore } from '@/features/capex/stores/capexStore'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useScenarioStore } from '@/features/scenarios/stores/scenarioStore'
-import { useYearHeaders } from '@/composables/useYearHeaders'
 import { useDecimal } from '@/composables/useDecimal'
 import { ASSET_CATEGORIES, MAX_YEARS, DEBOUNCE_MS } from '@/utils/constants'
 import { debounce } from '@/utils/format'
@@ -13,7 +12,6 @@ import ProgressSpinner from 'primevue/progressspinner'
 import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import InputNumber from 'primevue/inputnumber'
 import KYearGrid from '@/components/common/KYearGrid.vue'
 import KFormLegend from '@/components/common/KFormLegend.vue'
 
@@ -82,8 +80,7 @@ async function fillSampleData() {
 const capexStore = useCapexStore()
 const planStore = usePlanStore()
 const scenarioStore = useScenarioStore()
-const { yearHeaders } = useYearHeaders()
-const { formatUnit, getUnitLabel } = useDecimal()
+const { getUnitLabel } = useDecimal()
 const unitLabel = computed(() => getUnitLabel())
 
 // ── Row tooltips ──────────────────────────────────────────────────────────────

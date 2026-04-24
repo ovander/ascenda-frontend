@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { ChartData } from '@/types'
+import { useUiStore } from '@/stores/ui'
 import { useRatiosStore } from '@/features/ratios/stores/ratiosStore'
+import { usePlanStore } from '@/features/plans/stores/planStore'
+import { useScenarioStore } from '@/features/scenarios/stores/scenarioStore'
+import { useScenarioAnalysisStore } from '@/features/scenarios/stores/scenarioAnalysisStore'
 import { useYearHeaders } from '@/composables/useYearHeaders'
 import { useDecimal } from '@/composables/useDecimal'
 import { useDisplayUnitStore } from '@/stores/displayUnit'
+import ShowOn from '@/components/common/ShowOn.vue'
+import KpiGrid, { type KpiItem } from '@/components/common/KpiGrid.vue'
+import SkeletonCard from '@/components/common/SkeletonCard.vue'
+import ScenarioAnalysisCard from '@/features/ai/components/ScenarioAnalysisCard.vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Card from 'primevue/card'
@@ -22,14 +31,82 @@ import KFormLegend from '@/components/common/KFormLegend.vue'
 
 defineProps<{ planId?: string; sid?: string }>()
 
+const { t } = useI18n()
+const uiStore = useUiStore()
 const ratiosStore = useRatiosStore()
+const planStore = usePlanStore()
+const scenarioStore = useScenarioStore()
+const analysisStore = useScenarioAnalysisStore()
 const { yearHeaders } = useYearHeaders()
 const { formatUnit, formatPercent, getLocale, getUnitLabel } = useDecimal()
 const displayUnitStore = useDisplayUnitStore()
 const unitLabel = computed(() => getUnitLabel())
 
+const analysis = computed(() => {
+  const pId = planStore.activePlan?.id
+  const sId = scenarioStore.activeScenario?.id
+  return pId && sId ? analysisStore.getAnalysis(pId, sId) : null
+})
+const analysisLoading = computed(() => {
+  const pId = planStore.activePlan?.id
+  const sId = scenarioStore.activeScenario?.id
+  return pId && sId ? analysisStore.isLoading(pId, sId) : false
+})
+
+const ratiosMobileKpis = computed<KpiItem[]>(() => {
+  const r = ratiosStore.report
+  if (!r) return []
+
+  // Show ratios unique to this module — not duplicating P&L margin metrics
+  const salesPerStaff    = r.operational?.salesPerStaff?.[0]
+  const payrollPct       = r.operational?.payrollPct?.[0]
+  const cashFlowToLoans  = r.equityLeverage?.cashFlowToLoans?.[0]
+  const wcrRotationDays  = r.equityLeverage?.wcrRotationDays?.[0]
+
+  // Zero means the underlying data isn't configured yet — show '—' rather than a
+  // misleading 0 / 0.0× / 0.0% which looks broken rather than empty.
+  const fmtCurrency = (v: number | undefined) =>
+    v != null && v !== 0 ? formatUnit(v, 0) : '—'
+  const fmtPct = (v: number | undefined) =>
+    v != null && v !== 0 ? `${(v * 100).toFixed(1)}%` : '—'
+  const fmtMultiple = (v: number | undefined) =>
+    v != null && v !== 0 ? `${v.toFixed(1)}×` : '—'
+  const fmtDays = (v: number | undefined) =>
+    v != null && v !== 0 ? `${v.toFixed(0)} d` : '—'
+
+  return [
+    {
+      id:       'revenue_per_fte',
+      label:    'Revenue / FTE (Y1)',
+      value:    fmtCurrency(salesPerStaff),
+      severity: 'neutral',
+    },
+    {
+      id:       'payroll_pct',
+      label:    'Payroll % of Rev. (Y1)',
+      value:    fmtPct(payrollPct),
+      severity: (payrollPct ?? 0) > 0 && (payrollPct ?? 0) < 0.5 ? 'positive' : 'negative',
+    },
+    {
+      id:       'cf_loans',
+      label:    'Cash Flow / Loans (Y1)',
+      value:    fmtMultiple(cashFlowToLoans),
+      severity: (cashFlowToLoans ?? 0) >= 1 ? 'positive' : 'negative',
+    },
+    {
+      id:       'wcr_days',
+      label:    'WCR Rotation (Y1)',
+      value:    fmtDays(wcrRotationDays),
+      severity: 'neutral',
+    },
+  ]
+})
+
 onMounted(async () => {
   await ratiosStore.fetchReport()
+  if (planStore.activePlan?.id && scenarioStore.activeScenario?.id) {
+    analysisStore.fetchIfNeeded(planStore.activePlan.id, scenarioStore.activeScenario.id)
+  }
 })
 
 // ── Value formatter ──────────────────────────────────────────────────────────
@@ -441,6 +518,7 @@ const salesMarginsChart = computed<ChartData | null>(() => {
     </div>
 
     <KFormLegend
+      v-if="!uiStore.isMobile"
       description="Key financial ratios and performance indicators derived from your model. All metrics are fully computed — no inputs required here. Ratios expressed as percentages unless noted. Valuation metrics (NPV, IRR, EV) use the Discount Rate from Configuration."
       :extras="[
         { icon: 'pi-chart-line', text: 'Valuation tab shows NPV, IRR, Payback, and Enterprise Value based on your discount rate' },
@@ -448,25 +526,39 @@ const salesMarginsChart = computed<ChartData | null>(() => {
       ]"
     />
 
+    <!-- ── Mobile: KPI summary ── -->
+    <ShowOn only="mobile">
+      <div class="space-y-4 p-4" data-testid="ratios-mobile-surface">
+        <ScenarioAnalysisCard v-if="analysis" :analysis="analysis" mode="compact" />
+        <SkeletonCard v-else-if="analysisLoading" :lines="2" />
+        <KpiGrid :items="ratiosMobileKpis" />
+        <p class="text-xs text-center text-gray-400 pt-2">
+          Full ratios available on tablet and desktop
+        </p>
+      </div>
+    </ShowOn>
+
+    <!-- ── Tablet/Desktop: full tabs ── -->
+    <ShowOn from="tablet">
     <Tabs value="0" class="w-full">
       <TabList>
         <Tab value="0">
-          <span>Sales & Margins</span>
+          <span>{{ t('ratios.tab.salesMargins') }}</span>
         </Tab>
         <Tab value="1">
-          <span>Operational KPIs</span>
+          <span>{{ t('ratios.tab.operational') }}</span>
         </Tab>
         <Tab value="2">
-          <span>Profitability</span>
+          <span>{{ t('ratios.tab.profitability') }}</span>
         </Tab>
         <Tab value="3">
-          <span>Equity & Leverage</span>
+          <span>{{ t('ratios.tab.equityLeverage') }}</span>
         </Tab>
         <Tab value="4">
-          <span>Valuation</span>
+          <span>{{ t('ratios.tab.valuation') }}</span>
         </Tab>
         <Tab value="5">
-          <span>Charts</span>
+          <span>{{ t('ratios.tab.charts') }}</span>
         </Tab>
       </TabList>
 
@@ -805,6 +897,7 @@ const salesMarginsChart = computed<ChartData | null>(() => {
         </TabPanel>
       </TabPanels>
     </Tabs>
+    </ShowOn>
   </div>
 </template>
 

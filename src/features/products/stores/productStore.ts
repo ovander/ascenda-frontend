@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import type {
   Product,
   ProductAssumption,
@@ -14,7 +14,7 @@ import type {
 import api from '@/composables/useApi'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useScenarioStore } from '@/features/scenarios/stores/scenarioStore'
-import { MAX_YEARS, DEBOUNCE_MS } from '@/utils/constants'
+import { DEBOUNCE_MS } from '@/utils/constants'
 import { debounce } from '@/utils/format'
 import { useDirtyState } from '@/composables/useDirtyState'
 

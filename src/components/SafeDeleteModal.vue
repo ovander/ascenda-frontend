@@ -23,7 +23,6 @@ import { ref, computed } from 'vue'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
-import Tag from 'primevue/tag'
 
 const props = withDefaults(defineProps<{
   /** Controls dialog visibility (v-model:visible) */

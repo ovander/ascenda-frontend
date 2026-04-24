@@ -288,7 +288,7 @@ export const useBEPStore = defineStore('bep', () => {
     }
   }
 
-  async function selectPlan(snapshotId: string, planId: string) {
+  async function selectPlan(_snapshotId: string, planId: string) {
     const found = plans.value.find(p => p.id === planId)
     if (found) activePlan.value = found
     await Promise.all([

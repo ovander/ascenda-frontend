@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import type { OpexManualEntry, OpexSummary } from '@/types'
 import api from '@/composables/useApi'
 import { usePlanStore } from '@/features/plans/stores/planStore'

@@ -8,7 +8,7 @@ import { formatDateTime } from '@/utils/format'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
+import ResponsiveDialog from '@/components/common/ResponsiveDialog.vue'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import ConfirmDialog from 'primevue/confirmdialog'
@@ -204,7 +204,7 @@ function omitMeta(obj: any): any {
 }
 
 /** Convert a flat array of { yearIndex, ...rest } into { y1: rest, y2: rest, … } */
-function byYear(rows: any[], valueKey: string): Record<string, any> {
+function byYear(rows: any[], _valueKey: string): Record<string, any> {
   const out: Record<string, any> = {}
   rows.forEach((r) => {
     const { yearIndex, ...rest } = omitMeta(r)
@@ -526,11 +526,11 @@ async function handleDownloadAI(snapshot: any) {
     </DataTable>
 
     <!-- Diff Dialog -->
-    <Dialog
+    <ResponsiveDialog
       v-model:visible="showDiffDialog"
       header="Snapshot Comparison"
+      size="lg"
       :modal="true"
-      :style="{ width: '860px', maxHeight: '80vh' }"
       :dismissableMask="true"
     >
       <div v-if="snapshotStore.diffResult" class="space-y-4">
@@ -580,10 +580,10 @@ async function handleDownloadAI(snapshot: any) {
       <template #footer>
         <Button label="Close" icon="pi pi-times" @click="showDiffDialog = false" severity="secondary" />
       </template>
-    </Dialog>
+    </ResponsiveDialog>
 
     <!-- Create Snapshot Dialog -->
-    <Dialog v-model:visible="showCreateDialog" header="Create Snapshot" :modal="true" :style="{ width: '500px' }">
+    <ResponsiveDialog v-model:visible="showCreateDialog" header="Create Snapshot" size="md" :modal="true">
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Label</label>
@@ -602,6 +602,6 @@ async function handleDownloadAI(snapshot: any) {
         <Button label="Cancel" icon="pi pi-times" @click="showCreateDialog = false" class="p-button-text" />
         <Button label="Create" icon="pi pi-check" @click="handleCreateSnapshot" />
       </template>
-    </Dialog>
+    </ResponsiveDialog>
   </div>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
-import { devlog } from '@/utils/logger'
+import { useI18n } from 'vue-i18n'
 import type { ChartData } from '@/types'
 import { usePnlCashStore } from '@/features/pnl-cash/stores/pnlCashStore'
 import { usePlanStore } from '@/features/plans/stores/planStore'
@@ -21,9 +21,13 @@ import { Bar } from 'vue-chartjs'
 import '@/plugins/chartjs'
 import KChart from '@/components/common/KChart.vue'
 import KFormLegend from '@/components/common/KFormLegend.vue'
+import ShowOn from '@/components/common/ShowOn.vue'
+import KpiGrid from '@/components/common/KpiGrid.vue'
+import type { KpiItem } from '@/components/common/KpiGrid.vue'
 
 defineProps<{ planId?: string; sid?: string }>()
 
+const { t } = useI18n()
 const pnlCashStore = usePnlCashStore()
 const planStore = usePlanStore()
 const scenarioStore = useScenarioStore()
@@ -177,32 +181,34 @@ const functionalPnlRows = computed(() => {
   return rows
 })
 
-function onCellEdit(payload: { rowId: string; yearIndex: number; value: number }) {
-  // lineId in DB is 'misc_sales_costs'; match on both rowId and yearIndex
-  if (payload.rowId !== 'misc_sales_costs') return
-  const existing = pnlCashStore.entries.find(
-    (e) => e.lineId === 'misc_sales_costs' && e.yearIndex === payload.yearIndex,
-  )
-  if (existing) {
-    existing.amount = String(payload.value)
-  } else {
-    // Entry doesn't exist yet — create it in-place so it gets persisted on save
-    pnlCashStore.entries.push({
-      lineId: 'misc_sales_costs',
-      yearIndex: payload.yearIndex,
-      amount: String(payload.value),
-    } as any)
-  }
-  debouncedSave()
-}
+// TODO: Future cell editing capability for misc_sales_costs
+// function onCellEdit(payload: { rowId: string; yearIndex: number; value: number }) {
+//   // lineId in DB is 'misc_sales_costs'; match on both rowId and yearIndex
+//   if (payload.rowId !== 'misc_sales_costs') return
+//   const existing = pnlCashStore.entries.find(
+//     (e) => e.lineId === 'misc_sales_costs' && e.yearIndex === payload.yearIndex,
+//   )
+//   if (existing) {
+//     existing.amount = String(payload.value)
+//   } else {
+//     // Entry doesn't exist yet — create it in-place so it gets persisted on save
+//     pnlCashStore.entries.push({
+//       lineId: 'misc_sales_costs',
+//       yearIndex: payload.yearIndex,
+//       amount: String(payload.value),
+//     } as any)
+//   }
+//   debouncedSave()
+// }
 
-let saveTimeout: ReturnType<typeof setTimeout> | null = null
-function debouncedSave() {
-  if (saveTimeout) clearTimeout(saveTimeout)
-  saveTimeout = setTimeout(() => {
-    pnlCashStore.updateEntries(pnlCashStore.entries).catch((err) => devlog.error('[pnl-cash] debounced save failed', err))
-  }, 300)
-}
+// TODO: Future debounced save capability
+// let saveTimeout: ReturnType<typeof setTimeout> | null = null
+// function debouncedSave() {
+//   if (saveTimeout) clearTimeout(saveTimeout)
+//   saveTimeout = setTimeout(() => {
+//     pnlCashStore.updateEntries(pnlCashStore.entries).catch((err) => devlog.error('[pnl-cash] debounced save failed', err))
+//   }, 300)
+// }
 
 // ── Chart computed properties ────────────────────────────────────────────────
 
@@ -448,6 +454,49 @@ onMounted(async () => {
     await pnlCashStore.fetchAll()
   }
 })
+
+// ── Mobile KPI summary ────────────────────────────────────────────────────────
+// Shows the functional cost breakdown that distinguishes this module from the
+// standard P&L — costs by function as % of revenue, plus EBIT margin.
+const pnlCashMobileKpis = computed<KpiItem[]>(() => {
+  const y0 = pnlCashStore.report?.years?.[0]
+  if (!y0) return []
+  const s = y0.sales
+
+  const pct = (v: number) => s > 0 ? ((Math.abs(v) / s) * 100).toFixed(1) + ' %' : '—'
+  const ebitMargin = s > 0 ? ((y0.ebit / s) * 100).toFixed(1) + ' %' : '—'
+
+  const rdTotal  = Math.abs(y0.rdPayroll) + Math.abs(y0.outsourcedRd) + Math.abs(y0.royaltiesMisc)
+  const smTotal  = Math.abs(y0.salesPayroll) + Math.abs(y0.advertisingPromo) + Math.abs(y0.miscSalesCosts)
+  const gaTotal  = Math.abs(y0.gaPayroll) + Math.abs(y0.insuranceRent) + Math.abs(y0.leasedEquip) + Math.abs(y0.legalConsulting) + Math.abs(y0.travelMisc)
+
+  return [
+    {
+      id:       'ebit-margin',
+      label:    'EBIT Margin (Y1)',
+      value:    ebitMargin,
+      severity: y0.ebit >= 0 ? 'positive' : 'negative',
+    },
+    {
+      id:       'rd-pct',
+      label:    'R&D Cost (% Rev.)',
+      value:    pct(rdTotal),
+      severity: 'neutral',
+    },
+    {
+      id:       'sm-pct',
+      label:    'Sales & Mktg (% Rev.)',
+      value:    pct(smTotal),
+      severity: 'neutral',
+    },
+    {
+      id:       'ga-pct',
+      label:    'G&A (% Rev.)',
+      value:    pct(gaTotal),
+      severity: 'neutral',
+    },
+  ]
+})
 </script>
 
 <template>
@@ -472,10 +521,28 @@ onMounted(async () => {
       <ProgressSpinner />
     </div>
 
-    <Tabs v-else :value="activeTab" @update:value="(v: any) => activeTab = v" class="flex-1">
+    <template v-else>
+    <!-- ── Mobile KPI summary ───────────────────────────────────── -->
+    <ShowOn only="mobile">
+      <div class="space-y-4" data-testid="pnlcash-kpi-grid">
+        <KpiGrid v-if="pnlCashMobileKpis.length" :items="pnlCashMobileKpis" />
+
+        <!-- Waterfall chart (primary mobile surface) -->
+        <div v-if="salesMarginChart" class="bg-white border border-gray-200 rounded-xl p-4">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Sales & Margins</p>
+          <KChart :data="salesMarginChart" type="bar" class="h-48" />
+        </div>
+
+        <p class="text-xs text-center text-gray-400">Full functional P&L table available on tablet+</p>
+      </div>
+    </ShowOn>
+
+    <!-- ── Tablet + Desktop: full tabs ──────────────────────────── -->
+    <ShowOn from="tablet">
+    <Tabs :value="activeTab" @update:value="(v: any) => activeTab = v" class="flex-1">
       <TabList>
-        <Tab value="functional">Functional P&L</Tab>
-        <Tab value="graphs">Graphs</Tab>
+        <Tab value="functional">{{ t('pnlCash.tab.functional') }}</Tab>
+        <Tab value="graphs">{{ t('pnlCash.tab.graphs') }}</Tab>
       </TabList>
       <TabPanels>
         <!-- Functional P&L Tab -->
@@ -608,6 +675,8 @@ onMounted(async () => {
         </TabPanel>
       </TabPanels>
     </Tabs>
+    </ShowOn><!-- end ShowOn from="tablet" -->
+    </template><!-- end v-else -->
   </div>
 </template>
 

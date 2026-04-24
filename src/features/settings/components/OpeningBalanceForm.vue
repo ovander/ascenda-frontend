@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useSettingsStore } from '@/features/settings/stores/settingsStore'
 import { useUiStore } from '@/stores/ui'
 import InputNumber from 'primevue/inputnumber'
@@ -10,6 +11,7 @@ import KFormLegend from '@/components/common/KFormLegend.vue'
 import { debounce } from '@/utils/format'
 import { useDecimal } from '@/composables/useDecimal'
 
+const { t } = useI18n()
 const settingsStore = useSettingsStore()
 const { getLocale } = useDecimal()
 const ui = useUiStore()
@@ -77,7 +79,7 @@ const assetFields = [
   {
     key:     'cashAndSecurities',
     label:   'Cash & Securities',
-    tooltip: 'Cash in bank accounts and short-term liquid investments (money market funds, treasury bills). This is the starting cash balance for the cash flow model.',
+    tooltip: t('settings.tooltip.cashAndSecurities'),
   },
 ]
 

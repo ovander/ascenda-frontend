@@ -8,6 +8,7 @@ export interface AdminStats {
     active: number
     inactive: number
     byRole: { owner: number; admin: number; user: number }
+    byPlan: { freemium: number; pro: number; enterprise: number }
   }
   plans: {
     total: number

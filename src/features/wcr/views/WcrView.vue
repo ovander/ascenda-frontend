@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useUiStore } from '@/stores/ui'
 import { useWcrStore } from '@/features/wcr/stores/wcrStore'
 import { useYearHeaders } from '@/composables/useYearHeaders'
 import { useDecimal } from '@/composables/useDecimal'
 import { useDisplayUnitStore } from '@/stores/displayUnit'
 import type { ChartData } from '@/types'
+import type { KpiItem } from '@/components/common/KpiGrid.vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Card from 'primevue/card'
@@ -17,9 +20,13 @@ import TabPanels from 'primevue/tabpanels'
 import TabPanel from 'primevue/tabpanel'
 import KChart from '@/components/common/KChart.vue'
 import KFormLegend from '@/components/common/KFormLegend.vue'
+import ShowOn from '@/components/common/ShowOn.vue'
+import KpiGrid from '@/components/common/KpiGrid.vue'
 
 defineProps<{ planId?: string; sid?: string }>()
 
+const { t } = useI18n()
+const uiStore = useUiStore()
 const wcrStore = useWcrStore()
 const { yearHeaders } = useYearHeaders()
 const { formatUnit, formatPercent, getUnitLabel } = useDecimal()
@@ -233,6 +240,47 @@ const wcrChartData = computed<ChartData | null>(() => {
   }
 })
 
+// ── Mobile adaptive ───────────────────────────────────────────────────────────
+
+const wcrMobileKpis = computed<KpiItem[]>(() => {
+  const { formatUnit } = useDecimal()
+  const sum = wcrStore.report?.summary
+  const adj = wcrStore.report?.adjusted
+  if (!sum || !adj) return []
+  const basicWcr   = sum.basicWcr?.[0]   ?? 0
+  const adjWcr     = adj.adjustedWcr?.[0] ?? 0
+  const adjWcrDays = adj.adjustedWcrDays?.[0] ?? 0
+  const adjChange  = adj.adjustedWcrChange?.[1] ?? 0   // Y1→Y2 change
+  return [
+    {
+      id:       'basic-wcr',
+      label:    'Basic WCR (Y1)',
+      value:    formatUnit(basicWcr),
+      severity: basicWcr > 0 ? 'negative' : 'positive',
+    },
+    {
+      id:       'adjusted-wcr',
+      label:    'Adjusted WCR (Y1)',
+      value:    formatUnit(adjWcr),
+      severity: adjWcr > 0 ? 'negative' : 'positive',
+    },
+    {
+      id:       'wcr-days',
+      label:    'WCR Days (Y1)',
+      value:    Number(adjWcrDays).toFixed(1),
+      unit:     'd',
+      severity: 'neutral',
+    },
+    {
+      id:       'wcr-change',
+      label:    'WCR Change (Y1→Y2)',
+      value:    formatUnit(adjChange),
+      trend:    adjChange < 0 ? 'down' : adjChange > 0 ? 'up' : 'flat',
+      severity: adjChange < 0 ? 'positive' : adjChange > 0 ? 'negative' : 'neutral',
+    },
+  ]
+})
+
 // ── DEV audit trail ──────────────────────────────────────────────────────────
 function downloadAuditTrail() {
   if (!wcrStore.report) return
@@ -286,15 +334,30 @@ async function saveAdjustments() {
     </div>
 
     <KFormLegend
+      v-if="!uiStore.isMobile"
       variant="grid"
       description="Working Capital Requirement = Customer Receivables + Inventory − Supplier Payables − Fiscal/Social Debts. Values are computed from payment terms in Settings. Use the Adjustments section to add prepaid expenses, deferred revenue, or tax receivables not captured elsewhere."
       :extras="[{ icon: 'pi-pencil', text: 'Only the Adjustments rows are editable — all other rows are computed automatically' }]"
     />
 
+    <!-- ── Mobile surface ─────────────────────────────────────────── -->
+    <ShowOn only="mobile">
+      <div class="space-y-4" data-testid="wcr-kpi-grid">
+        <!-- KPI summary -->
+        <div v-if="wcrStore.loading" class="text-center py-8 text-gray-500 text-sm">Loading WCR…</div>
+        <KpiGrid v-else-if="wcrMobileKpis.length" :items="wcrMobileKpis" />
+
+        <p class="text-xs text-center text-gray-400">Full WCR tables available on tablet and desktop</p>
+      </div>
+    </ShowOn>
+
+    <!-- ── Tablet + Desktop surface ───────────────────────────────── -->
+    <ShowOn from="tablet">
+
     <Tabs value="0" class="w-full">
       <TabList>
-        <Tab value="0"><span>WCR Analysis</span></Tab>
-        <Tab value="1"><span>WCR Chart</span></Tab>
+        <Tab value="0"><span>{{ t('wcr.tab.analysis') }}</span></Tab>
+        <Tab value="1"><span>{{ t('wcr.tab.chart') }}</span></Tab>
       </TabList>
 
       <TabPanels>
@@ -637,6 +700,8 @@ async function saveAdjustments() {
         </TabPanel>
       </TabPanels>
     </Tabs>
+
+    </ShowOn><!-- end ShowOn from="tablet" -->
   </div>
 </template>
 

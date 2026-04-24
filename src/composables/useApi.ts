@@ -125,6 +125,14 @@ export function useSnapshotApi(): AxiosInstance {
   return createTimedApi(60_000)
 }
 
+/**
+ * useAIApi — 120s timeout for AI narration / LLM endpoints.
+ * LLM inference is slow and must not be cancelled by the default 5s timeout.
+ */
+export function useAIApi(): AxiosInstance {
+  return createTimedApi(120_000)
+}
+
 export function useApi() {
   return api
 }

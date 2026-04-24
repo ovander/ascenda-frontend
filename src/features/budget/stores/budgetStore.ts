@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { BudgetMonthlyOverride, Budget1Report, Budget2Report, Budget2View } from '@/types'
+import type { BudgetMonthlyOverride, Budget1Report, Budget2Report } from '@/types'
 import api from '@/composables/useApi'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useScenarioStore } from '@/features/scenarios/stores/scenarioStore'

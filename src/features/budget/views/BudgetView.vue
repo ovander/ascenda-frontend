@@ -13,6 +13,7 @@ import TabPanel from 'primevue/tabpanel'
 import ProgressSpinner from 'primevue/progressspinner'
 import KMonthGrid from '@/components/common/KMonthGrid.vue'
 import KYearGrid from '@/components/common/KYearGrid.vue'
+import DataContainer from '@/components/layout/DataContainer.vue'
 import type { MonthGridRow } from '@/components/common/KMonthGrid.vue'
 import type { GridRow } from '@/components/common/KYearGrid.vue'
 
@@ -22,7 +23,7 @@ const budgetStore = useBudgetStore()
 const planStore = usePlanStore()
 const settingsStore = useSettingsStore()
 const { monthHeaders } = useYearHeaders()
-const { formatUnit, getLocale, getUnitLabel } = useDecimal()
+const { getLocale, getUnitLabel } = useDecimal()
 const unitLabel = computed(() => getUnitLabel())
 
 const activeTab = ref('year1')
@@ -128,8 +129,7 @@ onMounted(async () => {
   }
 })
 
-async function onCellEdit(payload: any) {
-  const { rowId, month, value } = payload
+async function onCellEdit(_payload: any) {
   // This would update the override in the store
 }
 
@@ -389,15 +389,17 @@ function downloadBudgetAuditTrail() {
             <p class="text-sm text-gray-600 mb-4">
               Monthly P&amp;L budget with editable overrides. Shows sections for revenue, cost of goods sold, and operating expenses.
             </p>
-            <KMonthGrid
-              v-if="monthGridRows.length > 0"
-              :years="gridYears"
-              :rows="monthGridRows"
-              @cell-edit="onCellEdit"
-            />
-            <div v-else class="text-center py-12 text-gray-500">
-              No budget data available.
-            </div>
+            <DataContainer min-width="900px">
+              <KMonthGrid
+                v-if="monthGridRows.length > 0"
+                :years="gridYears"
+                :rows="monthGridRows"
+                @cell-edit="onCellEdit"
+              />
+              <div v-else class="text-center py-12 text-gray-500">
+                No budget data available.
+              </div>
+            </DataContainer>
           </div>
         </TabPanel>
 
@@ -406,17 +408,19 @@ function downloadBudgetAuditTrail() {
             <p class="text-sm text-gray-600 mb-4">
               Year 2 quarterly P&amp;L budget (read-only). Shows Q1, Q2, Q3, Q4, and annual total.
             </p>
-            <KYearGrid
-              v-if="quarterlyRows.length > 0"
-              :rows="quarterlyRows"
-              :unit="unitLabel"
-              :columnHeaders="quarterlyColumns"
-              showTotal
-              totalLabel="Annual Total"
-            />
-            <div v-else class="text-center py-12 text-gray-500">
-              No budget data available.
-            </div>
+            <DataContainer min-width="700px">
+              <KYearGrid
+                v-if="quarterlyRows.length > 0"
+                :rows="quarterlyRows"
+                :unit="unitLabel"
+                :columnHeaders="quarterlyColumns"
+                showTotal
+                totalLabel="Annual Total"
+              />
+              <div v-else class="text-center py-12 text-gray-500">
+                No budget data available.
+              </div>
+            </DataContainer>
           </div>
         </TabPanel>
       </TabPanels>

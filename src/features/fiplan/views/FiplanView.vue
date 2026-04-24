@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { devlog } from '@/utils/logger'
 import { useFiplanStore } from '@/features/fiplan/stores/fiplanStore'
 import { useScenarioCapTableStore } from '@/features/captable/stores/scenarioCapTableStore'
@@ -16,6 +17,7 @@ import type { ChartData, FiplanEntry } from '@/types'
 import KYearGrid, { type GridRow } from '@/components/common/KYearGrid.vue'
 import KFormLegend from '@/components/common/KFormLegend.vue'
 import KChart from '@/components/common/KChart.vue'
+import DataContainer from '@/components/layout/DataContainer.vue'
 import { Bar } from 'vue-chartjs'
 import '@/plugins/chartjs'
 import Tabs from 'primevue/tabs'
@@ -24,13 +26,14 @@ import Tab from 'primevue/tab'
 import TabPanels from 'primevue/tabpanels'
 import TabPanel from 'primevue/tabpanel'
 import ProgressSpinner from 'primevue/progressspinner'
-import Dialog from 'primevue/dialog'
 import Select from 'primevue/select'
 import InputNumber from 'primevue/inputnumber'
 import Button from 'primevue/button'
+import ResponsiveDialog from '@/components/common/ResponsiveDialog.vue'
 
 defineProps<{ planId?: string; sid?: string }>()
 
+const { t } = useI18n()
 const fiplanStore    = useFiplanStore()
 const capTableStore  = useScenarioCapTableStore()
 const pnlStore       = usePnlStore()
@@ -157,48 +160,48 @@ const planRows = computed<GridRow[]>(() => {
   const r = fiplanStore.report?.plan
   const rows: GridRow[] = []
 
-  rows.push({ id: 'req_header', label: 'REQUIREMENTS', values: z5(), editable: false, isAggregate: true })
-  rows.push({ id: 'capex',            label: 'Capex',                     values: toNumbers(r?.requirements.capex),            editable: false,
-    tooltip: 'Total capital expenditure for the year, pulled automatically from the Capex module. Represents cash needed to purchase or build fixed assets.' })
-  rows.push({ id: 'wcrChange',        label: 'WCR Increase',              values: toNumbers(r?.requirements.wcrChange),        editable: false,
-    tooltip: 'Increase in Working Capital Requirement — additional cash tied up as receivables and inventory grow faster than payables. A positive value means more cash is needed.' })
-  rows.push({ id: 'dividends',        label: 'Dividends',                 values: entryValues('dividends'),                    editable: true,
-    tooltip: 'Cash dividends paid out to shareholders. Enter your planned distribution for each year. Leave at zero if no distribution is planned.' })
-  rows.push({ id: 'loanRepayments',   label: 'Loan Repayments',           values: toNumbers(r?.requirements.loanRepayments),   editable: false,
-    tooltip: 'Principal repayments on outstanding loans, computed from the debt repayment schedule configured in Settings.' })
-  rows.push({ id: 'grantRepayments',  label: 'Grant Repayments',          values: entryValues('grant_repayments'),             editable: true,
-    tooltip: 'Repayment of repayable grants (avances remboursables). Enter the scheduled repayment amount per year.' })
-  rows.push({ id: 'negativeCashFlow', label: 'Negative Operating Flow',   values: toNumbers(r?.requirements.negativeCashFlow), editable: false,
-    tooltip: 'Cash shortfall when operating activities consume more cash than they generate. This gap must be covered by financing resources.' })
-  rows.push({ id: 'total_req',        label: 'Total Requirements',        values: toNumbers(r?.requirements.total),            editable: false, isSubtotal: true,
-    tooltip: 'Sum of all financing requirements: capex, WCR increase, dividends, loan repayments, grant repayments, and negative operating flows.' })
+  rows.push({ id: 'req_header', label: t('fiplan.label.requirements'), values: z5(), editable: false, isAggregate: true })
+  rows.push({ id: 'capex',            label: t('fiplan.label.capex'),                  values: toNumbers(r?.requirements.capex),            editable: false,
+    tooltip: t('fiplan.tooltip.capex') })
+  rows.push({ id: 'wcrChange',        label: t('fiplan.label.wcrIncrease'),             values: toNumbers(r?.requirements.wcrChange),        editable: false,
+    tooltip: t('fiplan.tooltip.wcrIncrease') })
+  rows.push({ id: 'dividends',        label: t('fiplan.label.dividends'),               values: entryValues('dividends'),                    editable: true,
+    tooltip: t('fiplan.tooltip.dividends') })
+  rows.push({ id: 'loanRepayments',   label: t('fiplan.label.loanRepayments'),          values: toNumbers(r?.requirements.loanRepayments),   editable: false,
+    tooltip: t('fiplan.tooltip.loanRepayments') })
+  rows.push({ id: 'grantRepayments',  label: t('fiplan.label.grantRepayments'),         values: entryValues('grant_repayments'),             editable: true,
+    tooltip: t('fiplan.tooltip.grantRepayments') })
+  rows.push({ id: 'negativeCashFlow', label: t('fiplan.label.negativeOperatingFlow'),   values: toNumbers(r?.requirements.negativeCashFlow), editable: false,
+    tooltip: t('fiplan.tooltip.negativeOperatingFlow') })
+  rows.push({ id: 'total_req',        label: t('fiplan.label.totalRequirements'),       values: toNumbers(r?.requirements.total),            editable: false, isSubtotal: true,
+    tooltip: t('fiplan.tooltip.totalRequirements') })
 
-  rows.push({ id: 'res_header', label: 'RESOURCES', values: z5(), editable: false, isAggregate: true })
-  rows.push({ id: 'positiveCashFlow',   label: 'Operating Cash Flow',       values: toNumbers(r?.resources.positiveCashFlow),   editable: false,
-    tooltip: 'Self-financing capacity when operating activities are cash-positive: net profit + depreciation. Automatically sourced from the P&L.' })
-  rows.push({ id: 'capital_increase',   label: 'Capital Increase',          values: entryValues('capital_increase'),            editable: true, cellBadges: capitalIncreaseBadges.value, cellButtons: capitalIncreaseButtons.value,
-    tooltip: 'Cash raised from new equity issuances. Enter planned fundraising amounts per year. Use the "Structure raise" button to link an amount to a Cap Table round.' })
-  rows.push({ id: 'current_account',    label: 'Current Account Contrib.',  values: entryValues('current_account_contrib'),     editable: true,
-    tooltip: 'Shareholder current account contributions — short-term cash injections by shareholders, typically interest-free and repayable on demand.' })
-  rows.push({ id: 'lt_loans',           label: 'Long-Term Loans',           values: entryValues('lt_loans'),                    editable: true,
-    tooltip: 'Principal received from new long-term bank loans or bonds. Enter the drawdown amount per year. Repayments are recorded under Requirements.' })
-  rows.push({ id: 'subsidies',          label: 'Subsidies',                 values: entryValues('subsidies'),                   editable: true,
-    tooltip: 'Non-repayable grants and subsidies received (e.g. BPI innovation grants, public aid). These do not need to be repaid.' })
-  rows.push({ id: 'other_grants',       label: 'Other Grants',              values: entryValues('other_grants'),                editable: true,
-    tooltip: 'Other non-repayable grants or contributions not classified elsewhere (e.g. EU programmes, regional subsidies).' })
-  rows.push({ id: 'repayable_grants',   label: 'Repayable Grants',          values: entryValues('repayable_grants'),            editable: true,
-    tooltip: 'Soft loans or repayable innovation grants received (avances remboursables). Enter amounts received per year; schedule repayments under Grant Repayments.' })
-  rows.push({ id: 'asset_sales',        label: 'Asset Sales',               values: entryValues('asset_sales'),                 editable: true,
-    tooltip: 'Cash proceeds from the disposal of fixed assets. Enter the expected sale price per year.' })
-  rows.push({ id: 'total_res',          label: 'Total Resources',           values: toNumbers(r?.resources.total),              editable: false, isSubtotal: true,
-    tooltip: 'Sum of all financing resources: operating cash flow, equity raises, loans, subsidies, grants, and asset sale proceeds.' })
+  rows.push({ id: 'res_header', label: t('fiplan.label.resources'), values: z5(), editable: false, isAggregate: true })
+  rows.push({ id: 'positiveCashFlow',   label: t('fiplan.label.operatingCashFlow'),     values: toNumbers(r?.resources.positiveCashFlow),   editable: false,
+    tooltip: t('fiplan.tooltip.operatingCashFlow') })
+  rows.push({ id: 'capital_increase',   label: t('fiplan.label.capitalIncrease'),       values: entryValues('capital_increase'),            editable: true, cellBadges: capitalIncreaseBadges.value, cellButtons: capitalIncreaseButtons.value,
+    tooltip: t('fiplan.tooltip.capitalIncrease') })
+  rows.push({ id: 'current_account',    label: t('fiplan.label.currentAccountContrib'), values: entryValues('current_account_contrib'),     editable: true,
+    tooltip: t('fiplan.tooltip.currentAccountContrib') })
+  rows.push({ id: 'lt_loans',           label: t('fiplan.label.longTermLoans'),         values: entryValues('lt_loans'),                    editable: true,
+    tooltip: t('fiplan.tooltip.longTermLoans') })
+  rows.push({ id: 'subsidies',          label: t('fiplan.label.subsidies'),             values: entryValues('subsidies'),                   editable: true,
+    tooltip: t('fiplan.tooltip.subsidies') })
+  rows.push({ id: 'other_grants',       label: t('fiplan.label.otherGrants'),           values: entryValues('other_grants'),                editable: true,
+    tooltip: t('fiplan.tooltip.otherGrants') })
+  rows.push({ id: 'repayable_grants',   label: t('fiplan.label.repayableGrants'),       values: entryValues('repayable_grants'),            editable: true,
+    tooltip: t('fiplan.tooltip.repayableGrants') })
+  rows.push({ id: 'asset_sales',        label: t('fiplan.label.assetSales'),            values: entryValues('asset_sales'),                 editable: true,
+    tooltip: t('fiplan.tooltip.assetSales') })
+  rows.push({ id: 'total_res',          label: t('fiplan.label.totalResources'),        values: toNumbers(r?.resources.total),              editable: false, isSubtotal: true,
+    tooltip: t('fiplan.tooltip.totalResources') })
 
   const balance = toNumbers(r?.balance.annualBalance)
   const cumulative = toNumbers(r?.balance.cumulativeCash)
-  rows.push({ id: 'annual_balance', label: 'Annual Balance',  values: balance,    editable: false, isAggregate: true, colorBySign: true,
-    tooltip: 'Annual surplus or deficit: total resources minus total requirements. Green = fully funded; red = funding gap that still needs to be covered.' })
-  rows.push({ id: 'cum_cash',       label: 'Cumulative Cash', values: cumulative, editable: false, isSubtotal: true,  colorBySign: true,
-    tooltip: 'Cumulative cash position at year-end, starting from the opening balance. Persistent negative values indicate structural under-financing.' })
+  rows.push({ id: 'annual_balance', label: t('fiplan.label.annualBalance'),  values: balance,    editable: false, isAggregate: true, colorBySign: true,
+    tooltip: t('fiplan.tooltip.annualBalance') })
+  rows.push({ id: 'cum_cash',       label: t('fiplan.label.cumulativeCash'), values: cumulative, editable: false, isSubtotal: true,  colorBySign: true,
+    tooltip: t('fiplan.tooltip.cumulativeCash') })
 
   return rows
 })
@@ -208,59 +211,54 @@ const cashFlowRows = computed<GridRow[]>(() => {
   const cf = fiplanStore.report?.cashFlow
   const rows: GridRow[] = []
 
-  rows.push({ id: 'op_header', label: 'Operating Activities', values: z5(), editable: false, isAggregate: true })
-  rows.push({ id: 'cf_net_profit',      label: 'Net Profit',            values: toNumbers(cf?.operating.netProfit),        editable: false,
-    tooltip: 'Net profit for the year as reported in the P&L statement. Starting point for the indirect cash flow method.' })
-  rows.push({ id: 'cf_depreciation',    label: 'Depreciation',          values: toNumbers(cf?.operating.depreciation),     editable: false,
-    tooltip: 'Add-back of non-cash depreciation and amortisation charges. Depreciation reduces profit but does not consume cash.' })
-  rows.push({ id: 'cf_disposal',        label: 'Disposal Gain/Loss',    values: toNumbers(cf?.operating.disposalGainLoss), editable: false,
-    tooltip: 'Gain or loss on asset disposals recognised in the P&L. Added back here to avoid double-counting — cash proceeds appear in Investing Activities.' })
-  rows.push({ id: 'cf_wcr',            label: 'Change in WCR',          values: toNumbers(cf?.operating.wcrChange),        editable: false,
-    tooltip: 'Change in Working Capital Requirement: an increase ties up cash (negative); a decrease releases cash (positive). Computed from receivables, inventory, and payables movements.' })
-  rows.push({ id: 'cf_op_total',       label: 'Total Operating',        values: toNumbers(cf?.operating.operatingFlows),   editable: false, isSubtotal: true, colorBySign: true,
-    tooltip: 'Net cash generated or consumed by operating activities: net profit + depreciation ± WCR change. The core measure of cash-generation ability.' })
+  rows.push({ id: 'op_header', label: t('fiplan.label.operatingActivities'), values: z5(), editable: false, isAggregate: true })
+  rows.push({ id: 'cf_net_profit',      label: t('fiplan.label.netProfit'),       values: toNumbers(cf?.operating.netProfit),        editable: false,
+    tooltip: t('fiplan.tooltip.netProfit') })
+  rows.push({ id: 'cf_depreciation',    label: t('fiplan.label.depreciation'),    values: toNumbers(cf?.operating.depreciation),     editable: false,
+    tooltip: t('fiplan.tooltip.depreciation') })
+  rows.push({ id: 'cf_disposal',        label: t('fiplan.label.disposalGainLoss'),values: toNumbers(cf?.operating.disposalGainLoss), editable: false,
+    tooltip: t('fiplan.tooltip.disposalGainLoss') })
+  rows.push({ id: 'cf_wcr',            label: t('fiplan.label.changeInWCR'),      values: toNumbers(cf?.operating.wcrChange),        editable: false,
+    tooltip: t('fiplan.tooltip.changeInWCR') })
+  rows.push({ id: 'cf_op_total',       label: t('fiplan.label.totalOperating'),   values: toNumbers(cf?.operating.operatingFlows),   editable: false, isSubtotal: true, colorBySign: true,
+    tooltip: t('fiplan.tooltip.totalOperating') })
 
-  rows.push({ id: 'inv_header', label: 'Investing Activities', values: z5(), editable: false, isAggregate: true })
-  rows.push({ id: 'cf_capex',          label: 'Capex',                  values: toNumbers(cf?.investing.capexOutflow),     editable: false,
-    tooltip: 'Cash paid for capital expenditures (fixed asset purchases), drawn from the Capex module. Shown as a negative outflow.' })
-  rows.push({ id: 'cf_disposals',      label: 'Asset Disposals',        values: toNumbers(cf?.investing.assetDisposals),   editable: false,
-    tooltip: 'Cash received from the sale of fixed assets, sourced from the Asset Sales entry in the Financing Plan.' })
-  rows.push({ id: 'cf_disposal_gains', label: 'Disposal Gains/Losses',  values: entryValues('disposal_gains_losses'),      editable: true,
-    tooltip: 'Net P&L gain or loss on asset disposals (book value minus sale price). Enter as positive for a gain, negative for a loss.' })
-  rows.push({ id: 'cf_inv_total',      label: 'Total Investing',        values: toNumbers(cf?.investing.investmentFlows),  editable: false, isSubtotal: true,
-    tooltip: 'Net cash used in investing activities: capex outflows minus asset disposal proceeds.' })
+  rows.push({ id: 'inv_header', label: t('fiplan.label.investingActivities'), values: z5(), editable: false, isAggregate: true })
+  rows.push({ id: 'cf_capex',          label: t('fiplan.label.capex'),           values: toNumbers(cf?.investing.capexOutflow),     editable: false,
+    tooltip: t('fiplan.tooltip.cfCapex') })
+  rows.push({ id: 'cf_disposals',      label: t('fiplan.label.assetDisposals'),  values: toNumbers(cf?.investing.assetDisposals),   editable: false,
+    tooltip: t('fiplan.tooltip.assetDisposals') })
+  rows.push({ id: 'cf_disposal_gains', label: t('fiplan.label.disposalGainsLosses'), values: entryValues('disposal_gains_losses'),  editable: true,
+    tooltip: t('fiplan.tooltip.disposalGainsLosses') })
+  rows.push({ id: 'cf_inv_total',      label: t('fiplan.label.totalInvesting'),  values: toNumbers(cf?.investing.investmentFlows),  editable: false, isSubtotal: true,
+    tooltip: t('fiplan.tooltip.totalInvesting') })
 
-  rows.push({ id: 'fin_header', label: 'Financing Activities', values: z5(), editable: false, isAggregate: true })
-  rows.push({ id: 'cf_cap_inc',        label: 'Capital Increase',       values: toNumbers(cf?.financing.capitalIncrease),     editable: false,
-    tooltip: 'Cash received from new equity issuances. Sourced from the Capital Increase entry in the Financing Plan.' })
-  rows.push({ id: 'cf_curr_acc',       label: 'Current Account',        values: toNumbers(cf?.financing.currentAccountCont),  editable: false,
-    tooltip: 'Cash received from shareholder current account contributions. Sourced from the Financing Plan.' })
-  rows.push({ id: 'cf_loans_grants',   label: 'New Loans & Grants',     values: toNumbers(cf?.financing.newLoansAndGrants),   editable: false,
-    tooltip: 'Total cash inflows from new long-term loans, subsidies, repayable and non-repayable grants combined.' })
-  rows.push({ id: 'cf_dividends',      label: 'Dividends',              values: toNumbers(cf?.financing.dividends),           editable: false,
-    tooltip: 'Cash paid out to shareholders as dividends. Sourced from the Dividends entry in the Financing Plan.' })
-  rows.push({ id: 'cf_repayments',     label: 'Loan & Grant Repayments',values: toNumbers(cf?.financing.loanGrantRepayments), editable: false,
-    tooltip: 'Cash paid for loan principal repayments and repayable grant repayments combined.' })
-  rows.push({ id: 'cf_fin_total',      label: 'Total Financing',        values: toNumbers(cf?.financing.financingFlows),      editable: false, isSubtotal: true,
-    tooltip: 'Net cash from financing activities: inflows from equity, debt, and grants minus outflows for dividends and repayments.' })
+  rows.push({ id: 'fin_header', label: t('fiplan.label.financingActivities'), values: z5(), editable: false, isAggregate: true })
+  rows.push({ id: 'cf_cap_inc',        label: t('fiplan.label.capitalIncrease'),     values: toNumbers(cf?.financing.capitalIncrease),     editable: false,
+    tooltip: t('fiplan.tooltip.capitalIncreaseFlow') })
+  rows.push({ id: 'cf_curr_acc',       label: t('fiplan.label.currentAccount'),      values: toNumbers(cf?.financing.currentAccountCont),  editable: false,
+    tooltip: t('fiplan.tooltip.currentAccountFlow') })
+  rows.push({ id: 'cf_loans_grants',   label: t('fiplan.label.newLoansAndGrants'),   values: toNumbers(cf?.financing.newLoansAndGrants),   editable: false,
+    tooltip: t('fiplan.tooltip.newLoansAndGrants') })
+  rows.push({ id: 'cf_dividends',      label: t('fiplan.label.dividends'),           values: toNumbers(cf?.financing.dividends),           editable: false,
+    tooltip: t('fiplan.tooltip.dividendsFlow') })
+  rows.push({ id: 'cf_repayments',     label: t('fiplan.label.loanGrantRepayments'), values: toNumbers(cf?.financing.loanGrantRepayments), editable: false,
+    tooltip: t('fiplan.tooltip.loanGrantRepayments') })
+  rows.push({ id: 'cf_fin_total',      label: t('fiplan.label.totalFinancing'),      values: toNumbers(cf?.financing.financingFlows),      editable: false, isSubtotal: true,
+    tooltip: t('fiplan.tooltip.totalFinancing') })
 
   const initialCash = parseFloat(cf?.summary.initialCash ?? '0') || 0
-  rows.push({ id: 'cf_net_change',  label: 'Net Change in Cash', values: toNumbers(cf?.summary.changeInCash),  editable: false, isSubtotal: true,  colorBySign: true,
-    tooltip: 'Total net cash movement for the year: operating + investing + financing flows combined. Positive = cash accumulated; negative = cash consumed.' })
-  rows.push({ id: 'cf_opening',     label: 'Opening Cash',       values: [initialCash, ...toNumbers(cf?.summary.cumulativeCash).slice(0, 4)], editable: false, colorBySign: true,
-    tooltip: 'Cash balance at the start of the year (closing balance of the prior year). Year 1 opening cash is set in Settings → Opening Balance.' })
-  rows.push({ id: 'cf_closing',     label: 'Closing Cash',       values: toNumbers(cf?.summary.cumulativeCash), editable: false, isAggregate: true, colorBySign: true,
-    tooltip: 'Cash balance at year-end: opening cash + net change in cash. This is the actual bank balance and matches the Balance Sheet cash line.' })
+  rows.push({ id: 'cf_net_change',  label: t('fiplan.label.netChangeInCash'), values: toNumbers(cf?.summary.changeInCash),  editable: false, isSubtotal: true,  colorBySign: true,
+    tooltip: t('fiplan.tooltip.netChangeInCash') })
+  rows.push({ id: 'cf_opening',     label: t('fiplan.label.openingCash'),     values: [initialCash, ...toNumbers(cf?.summary.cumulativeCash).slice(0, 4)], editable: false, colorBySign: true,
+    tooltip: t('fiplan.tooltip.openingCash') })
+  rows.push({ id: 'cf_closing',     label: t('fiplan.label.closingCash'),     values: toNumbers(cf?.summary.cumulativeCash), editable: false, isAggregate: true, colorBySign: true,
+    tooltip: t('fiplan.tooltip.closingCash') })
 
   return rows
 })
 
 // ── Cell editing ──────────────────────────────────────────────────────────────
-const editableLineIds = new Set([
-  'dividends', 'grant_repayments', 'capital_increase', 'current_account_contrib',
-  'lt_loans', 'subsidies', 'other_grants', 'repayable_grants', 'asset_sales',
-  'disposal_gains_losses',
-])
 
 // Map GridRow id → FiplanEntry lineId for editable rows
 const rowToLineId: Record<string, string> = {
@@ -1024,12 +1022,14 @@ onMounted(async () => {
               :extras="[{ color: '#fed7aa', text: 'Orange rows — enter your financing amounts here' },
                         { color: '#dcfce7', text: 'Green rows — pulled automatically from other modules' }]"
             />
-            <KYearGrid
-              :rows="planRows"
-              :unit="unitLabel"
-              @cell-edit="onCellEdit"
-              @cell-button-click="(p) => { if (p.rowId === 'capital_increase') openStructureRaiseDialog(p.yearIndex) }"
-            />
+            <DataContainer min-width="700px">
+              <KYearGrid
+                :rows="planRows"
+                :unit="unitLabel"
+                @cell-edit="onCellEdit"
+                @cell-button-click="(p) => { if (p.rowId === 'capital_increase') openStructureRaiseDialog(p.yearIndex) }"
+              />
+            </DataContainer>
           </div>
         </TabPanel>
 
@@ -1037,7 +1037,9 @@ onMounted(async () => {
         <TabPanel value="cashflow" class="p-0">
           <div class="bg-white rounded border border-gray-200 p-4">
             <h2 class="text-lg font-semibold mb-4 text-gray-700">Cash Flow Statement</h2>
-            <KYearGrid :rows="cashFlowRows" :unit="unitLabel" />
+            <DataContainer min-width="700px">
+              <KYearGrid :rows="cashFlowRows" :unit="unitLabel" />
+            </DataContainer>
           </div>
         </TabPanel>
 
@@ -1127,12 +1129,12 @@ onMounted(async () => {
     </Tabs>
 
     <!-- ── Structure this raise (Flow A: FiPlan → Cap Table) ────────────── -->
-    <Dialog
+    <ResponsiveDialog
       v-model:visible="showStructureRaiseDialog"
       header="Structure this raise"
       :modal="true"
       :closable="true"
-      :style="{ width: '480px' }"
+      size="sm"
     >
       <div class="flex flex-col gap-4">
         <p class="text-sm text-gray-500 leading-relaxed">
@@ -1212,15 +1214,15 @@ onMounted(async () => {
           />
         </div>
       </template>
-    </Dialog>
+    </ResponsiveDialog>
 
     <!-- ── Balance Financing Plan modal ─────────────────────────────────── -->
-    <Dialog
+    <ResponsiveDialog
       v-model:visible="showBalanceModal"
       header="Balance Financing Plan"
       :modal="true"
       :closable="true"
-      :style="{ width: '780px' }"
+      size="lg"
     >
       <!-- Intro + controls row -->
       <div class="flex items-start justify-between gap-6 mb-4">
@@ -1429,7 +1431,7 @@ onMounted(async () => {
           @click="applyBalance"
         />
       </template>
-    </Dialog>
+    </ResponsiveDialog>
   </div>
 </template>
 

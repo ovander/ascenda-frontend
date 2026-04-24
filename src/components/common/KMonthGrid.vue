@@ -29,8 +29,10 @@ const props = withDefaults(defineProps<{
   years: number  // number of year tabs (1-3)
   rows: MonthGridRow[][]  // rows per year
   locale?: string
+  readonly?: boolean         // when true, disable all input fields
 }>(), {
   years: 3,
+  readonly: false,
 })
 
 const emit = defineEmits<{
@@ -130,6 +132,8 @@ function getRuleSeverity(rule?: string) {
               mode="decimal"
               class="w-full"
               :inputClass="['text-right w-full p-1 text-xs', isNegative(data.months[mIdx]) ? 'text-red-600 font-medium' : ''].join(' ')"
+              :readonly="readonly"
+              :disabled="readonly"
             />
             <span
               v-else

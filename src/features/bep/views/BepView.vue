@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useBEPStore } from '@/features/bep/stores/bepStore'
 import { useTierGate } from '@/composables/useTierGate'
 import { usePlanAccess } from '@/composables/usePlanAccess'
-import type { BEPSnapshot, FixedCostLine, VariableCostLine, OptimisationPlan } from '@/types'
+import type { OptimisationPlan } from '@/types'
 import UpgradeModal from '@/components/common/UpgradeModal.vue'
 import ProBadge from '@/components/common/ProBadge.vue'
 import Tabs from 'primevue/tabs'
@@ -27,6 +27,9 @@ import { useDecimal } from '@/composables/useDecimal'
 import { useDisplayUnitStore } from '@/stores/displayUnit'
 import KChart from '@/components/common/KChart.vue'
 import type { ChartData } from '@/types'
+import ShowOn from '@/components/common/ShowOn.vue'
+import KpiGrid from '@/components/common/KpiGrid.vue'
+import type { KpiItem } from '@/components/common/KpiGrid.vue'
 
 defineProps<{ planId?: string; sid?: string }>()
 
@@ -356,6 +359,26 @@ const selectedSnapshotId = computed({
     await store.fetchReport(id)
   },
 })
+
+// ── Mobile KPI summary ────────────────────────────────────────────────────────
+const bepMobileKpis = computed<KpiItem[]>(() => {
+  const c = core.value
+  if (!c) return []
+  return [
+    {
+      id:       'bep-revenue',
+      label:    'BEP Revenue',
+      value:    fmtK(c.bepRevenue),
+      severity: 'neutral',
+    },
+    {
+      id:       'variable-cost',
+      label:    'Variable Cost %',
+      value:    fmtPct(c.variableCostPct),
+      severity: parseFloat(c.variableCostPct ?? '0') <= 70 ? 'positive' : 'negative',
+    },
+  ]
+})
 </script>
 
 <template>
@@ -415,6 +438,35 @@ const selectedSnapshotId = computed({
         />
       </div>
 
+      <!-- ── Mobile surface ──────────────────────────────────────────── -->
+      <ShowOn only="mobile">
+        <div class="space-y-4 mb-6">
+          <!-- BEP KPI summary -->
+          <div v-if="store.loading" class="text-center py-8 text-gray-400 text-sm">
+            <i class="pi pi-spin pi-spinner mr-2" />Loading BEP data…
+          </div>
+          <template v-else-if="core">
+            <KpiGrid :items="bepMobileKpis" data-testid="bep-kpi-grid" />
+          </template>
+
+          <!-- BEP chart (primary mobile surface) -->
+          <div v-if="bepChartData" class="bg-white border border-gray-200 rounded-xl p-4">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Revenue vs. Costs</p>
+            <KChart :data="bepChartData" type="line" class="h-48" />
+          </div>
+
+          <!-- No snapshot state -->
+          <div v-else-if="!store.activeSnapshot" class="text-center py-12 text-gray-400">
+            <i class="pi pi-calculator text-4xl mb-3 block" />
+            <p class="text-sm">Create a BEP snapshot to see your break-even point</p>
+          </div>
+
+          <p class="text-xs text-center text-gray-400">Full analysis (sensitivity, optimisation) on tablet+</p>
+        </div>
+      </ShowOn>
+
+      <!-- ── Tablet + Desktop: full 4-tab interface ─────────────────── -->
+      <ShowOn from="tablet">
       <!-- Main tabs (Overview always visible; snapshot tabs shown when snapshot exists) -->
       <Tabs v-model:value="activeTab">
         <TabList>
@@ -615,7 +667,7 @@ const selectedSnapshotId = computed({
               >{{ w.message }}</Message>
 
               <!-- KPI cards -->
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
                   <p class="text-xs text-blue-500 uppercase tracking-wide mb-1">BEP Revenue</p>
                   <p class="text-2xl font-bold text-blue-800">{{ fmtK(core?.bepRevenue) }}</p>
@@ -711,7 +763,7 @@ const selectedSnapshotId = computed({
                     />
                   </div>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div><span class="text-gray-400">Fixed costs:</span> {{ fmtK(store.activeSnapshot.fixedCostsTotal) }}</div>
                   <div><span class="text-gray-400">Margin:</span> {{ fmtPct(store.activeSnapshot.contributionMarginPct) }}</div>
                   <div><span class="text-gray-400">Avg order:</span> {{ store.activeSnapshot.avgOrderValue ? fmtEur(store.activeSnapshot.avgOrderValue) : '—' }}</div>
@@ -968,6 +1020,7 @@ const selectedSnapshotId = computed({
           </TabPanel>
         </TabPanels>
       </Tabs>
+      </ShowOn><!-- end ShowOn from="tablet" -->
     </template>
 
     <!-- ── Snapshot dialog ──────────────────────────────────────── -->

@@ -29,7 +29,7 @@ ChartJS.register(
   RadialLinearScale
 )
 
-// Shared color palette for KerPlan charts
+// Shared color palette for Ascenda charts
 export const CHART_COLORS = {
   blue: { bg: 'rgba(59, 130, 246, 0.6)', border: 'rgb(59, 130, 246)' },
   green: { bg: 'rgba(34, 197, 94, 0.6)', border: 'rgb(34, 197, 94)' },

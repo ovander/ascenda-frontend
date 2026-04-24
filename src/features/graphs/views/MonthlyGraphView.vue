@@ -49,7 +49,7 @@ onMounted(async () => {
   <div class="p-6">
     <h1 class="text-2xl font-bold text-gray-800 mb-6">Monthly Financial Analysis</h1>
 
-    <div class="grid grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <Card>
         <template #title>
           <span class="text-lg font-semibold">Cash, Equity & Debt</span>

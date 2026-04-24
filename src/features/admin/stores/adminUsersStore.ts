@@ -11,10 +11,11 @@ export interface AdminUser {
   role: string
   status: string
   isVerified: boolean
-  kerplanId?: string
+  ascendaId?: string
   tenantId?: string
   tenantName?: string
-  kerplanRole?: string
+  ascendaRole?: string
+  plan?: string            // commercial plan: freemium | pro | enterprise
   isActive: boolean
   lastLogin?: string
   createdAt: string
@@ -32,6 +33,10 @@ export interface AdminTenant {
   name: string
   slug: string
   tier: string
+  type?: string           // 'workspace' | 'enterprise'
+  plan?: string           // commercial plan (enterprise tenants)
+  organizationId?: string
+  organizationName?: string
   isActive: boolean
   maxUsers: number
   maxPlans: number
@@ -53,7 +58,9 @@ export interface CreateUserPayload {
 
 export interface UpdateUserPayload {
   fullName?: string
-  role?: string
+  role?: string            // Socrate platform role: admin | user
+  ascendaRole?: string     // Ascenda tenant role: owner | user (local-only)
+  plan?: string            // commercial plan: freemium | pro | enterprise
 }
 
 export interface CreateTenantPayload {
@@ -119,9 +126,28 @@ export const useAdminUsersStore = defineStore('adminUsers', () => {
 
   async function updateUser(socrateId: number, payload: UpdateUserPayload): Promise<AdminUser> {
     const res = await api.put<AdminUser>(`/api/v1/admin/users/${socrateId}`, payload)
+
+    // Guard: only mutate the cache on genuine success; throw on error responses.
+    if (!res || res.status >= 400) {
+      const msg = (res?.data as any)?.error?.message || 'Failed to update user'
+      throw new Error(msg)
+    }
+
     const idx = users.value.findIndex(u => u.socrateId === socrateId)
-    if (idx >= 0) users.value[idx] = res.data
-    return res.data
+    if (idx >= 0) {
+      if (res.status === 204) {
+        // Local-only change (plan / ascendaRole): merge payload into cached user.
+        users.value[idx] = {
+          ...users.value[idx],
+          ...(payload.plan        !== undefined && { plan:        payload.plan }),
+          ...(payload.ascendaRole !== undefined && { ascendaRole: payload.ascendaRole }),
+        }
+      } else if (res.data && typeof res.data === 'object') {
+        // Full update returned from Socrate — replace cached entry.
+        users.value[idx] = res.data
+      }
+    }
+    return users.value[idx] ?? res.data
   }
 
   async function deleteUser(socrateId: number): Promise<void> {

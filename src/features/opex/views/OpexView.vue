@@ -163,7 +163,7 @@ const opexStore = useOpexStore()
 const planStore = usePlanStore()
 const scenarioStore = useScenarioStore()
 const { yearHeaders } = useYearHeaders()
-const { getUnitLabel, formatUnit } = useDecimal()
+const { getUnitLabel } = useDecimal()
 const displayUnitStore = useDisplayUnitStore()
 const unitLabel = computed(() => getUnitLabel())
 

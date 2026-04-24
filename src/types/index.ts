@@ -1,24 +1,18 @@
-import type Decimal from 'decimal.js'
-
 // ---- Auth & User ----
-// Tenant-level roles: owner manages everything, admin manages users, user is base
-export type TenantRole = 'owner' | 'admin' | 'user'
-// Plan-level roles: editor can modify plan data, viewer is read-only
+// Ascenda tenant roles — enriched by TenantMiddleware from the DB.
+// Socrate issues only "user" or "admin" in the JWT; all other values are Ascenda-specific.
+export type UserRole = 'admin' | 'owner' | 'editor' | 'reader'
 export type PlanRole = 'editor' | 'viewer'
-// Combined for backward compatibility
-export type UserRole = TenantRole | PlanRole
 
 export interface User {
   id: string
-  tenantId: string
-  email: string
   name: string
-  role: TenantRole
-  isActive: boolean
-  invitedBy?: string
-  joinedAt?: string
-  createdAt: string
-  updatedAt: string
+  email?: string
+  role: UserRole // Ascenda RBAC role injected by TenantMiddleware
+  /** Commercial plan: 'freemium' | 'pro' | 'enterprise'. For enterprise-tenant members the
+   *  backend overrides this with the tenant plan — use tenant.tier as the authoritative source. */
+  plan?: string
+  isActive?: boolean
 }
 
 export interface PlanMember {

@@ -21,7 +21,7 @@ const router = useRouter()
 const planStore = usePlanStore()
 const scenarioStore = useScenarioStore()
 const { getLocale } = useDecimal()
-const { isPro } = useTierGate()
+const { isFreemium, isPro, isEnterprise, showUpgradeModal } = useTierGate()
 const toast = useToast()
 
 const currentStep = ref(0)
@@ -363,8 +363,23 @@ function scenarioPath(planId: string, scenarioId: string) {
   return `/api/v1/plans/${planId}/scenarios/${scenarioId}`
 }
 
+// ── Plan limit per tier ─────────────────────────────────────────
+const planLimitReached = computed(() => {
+  const count = planStore.plans.length
+  if (isFreemium.value) return count >= 1
+  if (!isEnterprise.value) return count >= 3   // Pro: max 3 plans
+  return false                                  // Enterprise: unlimited
+})
+
 // ── Finish wizard ───────────────────────────────────────────────
 async function finishWizard() {
+  // Enforce per-tier plan limits before hitting the API.
+  if (planLimitReached.value) {
+    const target = isFreemium.value ? 'pro' : 'enterprise'
+    showUpgradeModal('Additional Business Plans', target)
+    return
+  }
+
   isLoading.value = true
   try {
     // 1. Create plan

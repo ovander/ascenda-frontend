@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, computed, ref, watch } from 'vue'
 import type { ChartData } from '@/types'
+import { useI18n } from 'vue-i18n'
 import { useProductStore } from '@/features/products/stores/productStore'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useScenarioStore } from '@/features/scenarios/stores/scenarioStore'
@@ -20,6 +21,7 @@ import TabPanel from 'primevue/tabpanel'
 
 defineProps<{ planId?: string; sid?: string }>()
 
+const { t } = useI18n()
 const productStore = useProductStore()
 const planStore = usePlanStore()
 const scenarioStore = useScenarioStore()
@@ -157,8 +159,8 @@ const grossMarginPctChart = computed<ChartData | null>(() => {
     labels: yearHeaders.value,
     datasets: [
       {
-        label: 'Gross Margin %',
-        data: cr.totals.map((t) => Number(t.grossMarginPct) * 100),
+        label: t('revenues.grossMarginPct'),
+        data: cr.totals.map((total) => Number(total.grossMarginPct) * 100),
         type: 'line',
         borderColor: '#10b981',
         backgroundColor: '#10b981',
@@ -176,7 +178,7 @@ function fmtPct(val: number): string {
 <template>
   <div class="flex flex-col h-full gap-4">
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-800">Revenues</h1>
+      <h1 class="text-2xl font-bold text-gray-800">{{ t('revenues.title') }}</h1>
     </div>
 
     <div v-if="loading" class="flex justify-center py-12">
@@ -186,13 +188,13 @@ function fmtPct(val: number): string {
     <template v-else>
       <KFormLegend
         variant="grid"
-        description="Revenue summary across all products: sales per segment and gross margin per segment. All amounts in the plan unit."
+        :description="t('revenues.description')"
       />
 
       <Tabs :value="activeTab" @update:value="(v: any) => activeTab = v" class="flex-1">
         <TabList>
-          <Tab value="table">Summary Table</Tab>
-          <Tab value="charts">Charts</Tab>
+          <Tab value="table">{{ t('revenues.tab.table') }}</Tab>
+          <Tab value="charts">{{ t('revenues.tab.charts') }}</Tab>
         </TabList>
 
         <TabPanels>
@@ -200,7 +202,7 @@ function fmtPct(val: number): string {
           <TabPanel value="table" class="p-0 pt-4">
             <div v-if="!consolidated || consolidated.products.length === 0"
               class="flex items-center justify-center py-16 text-gray-400">
-              No revenue data — add products and define sales volumes first.
+              {{ t('revenues.noData') }}
             </div>
 
             <DataTable
@@ -213,7 +215,7 @@ function fmtPct(val: number): string {
               size="small"
             >
               <!-- Product name column -->
-              <Column field="productName" header="Segment / Product" frozen class="min-w-[200px]">
+              <Column field="productName" :header="t('revenues.col.segment')" frozen class="min-w-[200px]">
                 <template #body="{ data }">
                   <span :class="data.isTotal ? 'font-bold text-gray-900' : 'text-gray-700'">
                     {{ data.productName }}
@@ -264,7 +266,7 @@ function fmtPct(val: number): string {
               </Column>
 
               <!-- Gross Margin % (first year only, as a quick reference) -->
-              <Column header="GM % (Y1)" class="text-right min-w-[90px]">
+              <Column :header="t('revenues.col.gmY1')" class="text-right min-w-[90px]">
                 <template #body="{ data }">
                   <span
                     :class="[
@@ -285,14 +287,14 @@ function fmtPct(val: number): string {
               v-if="!consolidated || consolidated.products.length === 0"
               class="flex items-center justify-center py-16 text-gray-400"
             >
-              No revenue data — add products and define sales volumes first.
+              {{ t('revenues.noData') }}
             </div>
 
             <div v-else class="grid grid-cols-1 gap-6">
               <!-- Turnover by segment -->
               <div class="bg-white rounded border border-gray-200 p-4">
                 <h2 class="text-lg font-semibold mb-4 text-gray-700">
-                  Turnover by Segment ({{ unitLabel }})
+                  {{ t('revenues.chart.turnoverBySegment') }} ({{ unitLabel }})
                 </h2>
                 <KChart
                   :key="`turnover-${unitLabel}`"
@@ -306,7 +308,7 @@ function fmtPct(val: number): string {
               <!-- Gross Margin by segment -->
               <div class="bg-white rounded border border-gray-200 p-4">
                 <h2 class="text-lg font-semibold mb-4 text-gray-700">
-                  Gross Margin by Segment ({{ unitLabel }})
+                  {{ t('revenues.chart.grossMarginBySegment') }} ({{ unitLabel }})
                 </h2>
                 <KChart
                   :key="`grossMargin-${unitLabel}`"
@@ -320,7 +322,7 @@ function fmtPct(val: number): string {
               <!-- Gross Margin % trend -->
               <div class="bg-white rounded border border-gray-200 p-4">
                 <h2 class="text-lg font-semibold mb-4 text-gray-700">
-                  Overall Gross Margin % Trend
+                  {{ t('revenues.chart.grossMarginTrend') }}
                 </h2>
                 <KChart
                   :data="grossMarginPctChart"

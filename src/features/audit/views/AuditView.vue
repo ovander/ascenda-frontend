@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
 import { useApi } from '@/composables/useApi'
 import { useDecimal } from '@/composables/useDecimal'
 import DataTable from 'primevue/datatable'
@@ -10,9 +9,9 @@ import Card from 'primevue/card'
 import Select from 'primevue/select'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import ShowOn from '@/components/common/ShowOn.vue'
 
 const api = useApi()
-const auth = useAuthStore()
 const { getLocale } = useDecimal()
 
 interface AuditEntry {
@@ -323,6 +322,62 @@ async function downloadAudit() {
       </div>
     </div>
 
+    <!-- ── Mobile feed ────────────────────────────────────────────── -->
+    <ShowOn only="mobile">
+      <!-- Single search field -->
+      <div class="mb-4">
+        <InputText
+          v-model="globalSearch"
+          placeholder="Search audit entries…"
+          class="w-full"
+        />
+      </div>
+
+      <!-- Timeline feed -->
+      <div v-if="loading" class="text-center py-12 text-gray-400">
+        <i class="pi pi-spin pi-spinner text-2xl" />
+        <p class="mt-2 text-sm">Loading audit trail…</p>
+      </div>
+
+      <div v-else-if="filtered.length === 0" class="text-center py-12 text-gray-400">
+        <i class="pi pi-history text-4xl mb-2 block" />
+        <p class="text-sm">No audit entries found.</p>
+      </div>
+
+      <div v-else class="space-y-2" data-testid="audit-mobile-feed">
+        <div
+          v-for="entry in filtered.slice(0, 30)"
+          :key="entry.id"
+          class="flex items-start gap-3 bg-white border border-gray-100 rounded-lg px-3 py-2.5 shadow-sm"
+        >
+          <div class="mt-0.5 flex-shrink-0">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200">
+              <i :class="entityIcon(entry.entityType)" class="text-gray-500 text-xs" />
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <Tag
+                :value="entry.action.charAt(0).toUpperCase() + entry.action.slice(1)"
+                :severity="actionSeverity(entry.action)"
+                class="text-xs"
+              />
+              <span class="text-sm font-medium text-gray-700 capitalize">{{ entry.entityType }}</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-0.5">{{ formatDate(entry.createdAt) }}</p>
+            <p v-if="changesPreview(entry.changes) !== '—'" class="text-xs text-gray-500 mt-0.5 italic">
+              {{ changesPreview(entry.changes) }}
+            </p>
+          </div>
+        </div>
+        <p v-if="filtered.length > 30" class="text-xs text-center text-gray-400 py-2">
+          Showing first 30 of {{ filtered.length }} entries — use desktop for full table
+        </p>
+      </div>
+    </ShowOn>
+
+    <!-- ── Tablet + Desktop: full table ───────────────────────────── -->
+    <ShowOn from="tablet">
     <Card>
       <template #content>
         <!-- Toolbar -->
@@ -456,5 +511,6 @@ async function downloadAudit() {
         </DataTable>
       </template>
     </Card>
+    </ShowOn><!-- end ShowOn from="tablet" -->
   </div>
 </template>

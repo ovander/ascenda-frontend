@@ -35,7 +35,7 @@ const props = defineProps<Props>()
 
 const productStore = useProductStore()
 const { yearHeaders } = useYearHeaders()
-const { formatCurrency, formatPercent, formatUnit, getLocale, getUnitLabel } = useDecimal()
+const { formatUnit, formatPercent, getLocale, getUnitLabel } = useDecimal()
 const unitLabel = computed(() => getUnitLabel())
 
 // 'service' products bill in days; physical products sell in units
@@ -91,12 +91,13 @@ const debouncedSaveDriver = debounce(async () => {
   }
 }, 800)
 
-function handleDriverTypeChange(dt: DriverType) {
-  localDriverType.value = dt
-  // Reset params when switching driver type so defaults are seeded by DriverParamsForm
-  localDriverParams.value = null
-  debouncedSaveDriver()
-}
+// TODO: Future driver type change handler
+// function handleDriverTypeChange(dt: DriverType) {
+//   localDriverType.value = dt
+//   // Reset params when switching driver type so defaults are seeded by DriverParamsForm
+//   localDriverParams.value = null
+//   debouncedSaveDriver()
+// }
 
 function handleDriverParamsChange(params: DriverParams) {
   localDriverParams.value = params

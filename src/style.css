@@ -2,8 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Landing page fonts ──────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap');
+
 :root {
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px;
   line-height: 1.5;
   color-scheme: light;
@@ -13,12 +16,64 @@
 
 body {
   margin: 0;
-  min-width: 768px;
+  /* min-width removed: mobile layout is now supported */
 }
 
 #app {
-  min-width: 768px;
+  /* min-width removed: mobile layout is now supported */
 }
+
+/* ── Landing page global utilities ──────────────────────────────────────── */
+.font-display { font-family: 'Sora', sans-serif; }
+
+.hero-bg {
+  background: linear-gradient(135deg, #eef2ff 0%, #ffffff 55%, #f8fafc 100%);
+}
+.accent-gradient {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+}
+.card-glow {
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.1), 0 4px 20px rgba(0,0,0,0.06);
+}
+.card-glow-pro {
+  box-shadow: 0 0 0 2px #6366f1, 0 8px 40px rgba(99,102,241,0.25);
+}
+.gradient-text {
+  background: linear-gradient(135deg, #6366f1, #4f46e5, #059669);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(99,102,241,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.icon-ring {
+  background: rgba(99,102,241,0.08);
+  border: 1px solid rgba(99,102,241,0.18);
+}
+.nav-blur {
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(226,232,240,0.8);
+}
+.badge-pill {
+  background: rgba(99,102,241,0.08);
+  border: 1px solid rgba(99,102,241,0.2);
+  color: #4f46e5;
+}
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+html { scroll-behavior: smooth; }
 
 /* ── DataTable cursor & hover ────────────────────────────────────────────── */
 .p-datatable .p-datatable-tbody > tr {

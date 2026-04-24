@@ -4,7 +4,12 @@ import { useReportStore } from '@/features/report/stores/reportStore'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useSettingsStore } from '@/features/settings/stores/settingsStore'
 import { useDecimal } from '@/composables/useDecimal'
+import { useTierGate } from '@/composables/useTierGate'
+import { useDocxGenerator } from '@/features/report/composables/useDocxGenerator'
 import Fieldset from 'primevue/fieldset'
+import PageContainer from '@/components/layout/PageContainer.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
+import KSection from '@/components/layout/KSection.vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
@@ -17,6 +22,13 @@ const reportStore = useReportStore()
 const planStore = usePlanStore()
 const settingsStore = useSettingsStore()
 const { formatUnit, getLocale } = useDecimal()
+const { isPro, gate } = useTierGate()
+const { downloadDocxReport, generating } = useDocxGenerator()
+
+function exportDocx() {
+  if (!gate('pro', 'Dossier Word / Business Plan')) return
+  downloadDocxReport()
+}
 
 // ── shared helpers ────────────────────────────────────────────────────────────
 interface Row { label: string; bold?: boolean; indent?: boolean; tooltip?: string; [key: string]: unknown }
@@ -470,6 +482,7 @@ function exportPDF() {
     .header h1 { font-size:15px; font-weight:800; color:#1e3a5f; }
     .header .meta { font-size:8.5px; color:#64748b; text-align:right; }
     @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+    .report-copyright { position:fixed; bottom:0; left:0; right:0; text-align:center; font-size:7px; color:#94a3b8; padding:2px 0; border-top:1px solid #e2e8f0; background:#fff; }
   </style>
 </head>
 <body>
@@ -502,6 +515,8 @@ function exportPDF() {
   ${buildPivotTable('Working Capital Requirement', wcrRows.value, yrs, 'y')}
 
   ${buildCashSummaryTable()}
+
+  <div class="report-copyright">© 2026 Ascenda</div>
 </body>
 </html>`
 
@@ -573,26 +588,37 @@ function downloadFullReportAuditTrail() {
 </script>
 
 <template>
-  <div class="p-6 max-w-7xl mx-auto">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">Full Financial Report</h1>
-      <div class="flex items-center gap-3">
-        <!-- DEV ONLY — remove before production -->
-        <button
-          v-if="reportStore.fullReport"
-          title="DEV: download full report audit trail as JSON"
-          @click="downloadFullReportAuditTrail"
-          style="display:inline-flex; align-items:center; gap:6px; padding:5px 12px; font-size:0.72rem; font-weight:600; color:#92400e; background:#fef3c7; border:1px dashed #f59e0b; border-radius:6px; cursor:pointer; letter-spacing:0.04em"
-        >
-          <span>⬇ DEV</span>
-          <span style="font-weight:400; color:#b45309">audit trail</span>
-        </button>
-        <Button label="Export PDF" icon="pi pi-download" @click="exportPDF" />
-      </div>
-    </div>
+  <PageContainer>
+    <PageHeader>
+      <template #title>
+        <h1 class="text-lg sm:text-xl md:text-2xl">Full Financial Report</h1>
+      </template>
+      <template #actions>
+        <div class="flex items-center gap-3">
+          <!-- DEV ONLY — remove before production -->
+          <button
+            v-if="reportStore.fullReport"
+            title="DEV: download full report audit trail as JSON"
+            @click="downloadFullReportAuditTrail"
+            style="display:inline-flex; align-items:center; gap:6px; padding:5px 12px; font-size:0.72rem; font-weight:600; color:#92400e; background:#fef3c7; border:1px dashed #f59e0b; border-radius:6px; cursor:pointer; letter-spacing:0.04em"
+          >
+            <span>⬇ DEV</span>
+            <span style="font-weight:400; color:#b45309">audit trail</span>
+          </button>
+          <Button label="Export PDF" icon="pi pi-download" @click="exportPDF" />
+          <Button
+            :label="generating ? '…' : (settingsStore.config?.language === 'fr' ? 'Télécharger le dossier' : 'Download Report')"
+            icon="pi pi-file-word"
+            :disabled="generating"
+            :class="isPro ? 'p-button-success' : 'p-button-secondary'"
+            @click="exportDocx"
+          />
+        </div>
+      </template>
+    </PageHeader>
 
     <!-- Warnings Banner -->
-    <div v-if="criticalWarnings.length > 0" class="mb-6">
+    <KSection v-if="criticalWarnings.length > 0">
       <Message
         v-for="warning in criticalWarnings"
         :key="warning.field"
@@ -600,11 +626,11 @@ function downloadFullReportAuditTrail() {
         :text="warning.message"
         class="w-full mb-2"
       />
-    </div>
+    </KSection>
 
-    <div v-if="reportStore.loading" class="flex justify-center py-12">
+    <KSection v-if="reportStore.loading" class="flex justify-center py-12">
       <ProgressSpinner />
-    </div>
+    </KSection>
 
     <div v-else-if="reportStore.fullReport" class="space-y-4">
 
@@ -910,10 +936,10 @@ function downloadFullReportAuditTrail() {
 
     </div>
 
-    <div v-else class="text-center py-12 text-gray-500">
+    <KSection v-else class="text-center py-12 text-gray-500">
       No report data available. Please configure the scenario.
-    </div>
-  </div>
+    </KSection>
+  </PageContainer>
 </template>
 
 <style scoped>

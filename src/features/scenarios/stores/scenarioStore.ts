@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Scenario } from '@/types'
 import api from '@/composables/useApi'
+import { useScenarioAnalysisStore } from '@/features/scenarios/stores/scenarioAnalysisStore'
 
 export const useScenarioStore = defineStore('scenarios', () => {
   // E2E hook: Playwright seeds window.__E2E_PLAN_CTX__ via addInitScript so
@@ -47,6 +48,8 @@ export const useScenarioStore = defineStore('scenarios', () => {
     const idx = scenarios.value.findIndex((s) => s.id === id)
     if (idx !== -1) scenarios.value[idx] = response.data
     if (activeScenario.value?.id === id) activeScenario.value = response.data
+    // Invalidate cached ScenarioAnalysis for this scenario — data may have changed
+    useScenarioAnalysisStore().invalidate(id)
     return response.data
   }
 
@@ -54,6 +57,8 @@ export const useScenarioStore = defineStore('scenarios', () => {
     await api.delete(`${basePath(planId)}/${id}`)
     scenarios.value = scenarios.value.filter((s) => s.id !== id)
     if (activeScenario.value?.id === id) activeScenario.value = null
+    // Remove cached analysis for the deleted scenario
+    useScenarioAnalysisStore().invalidate(id)
   }
 
   async function cloneScenario(planId: string, id: string) {

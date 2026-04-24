@@ -7,6 +7,10 @@ import { useTierGate } from '@/composables/useTierGate'
 import { usePlanAccess } from '@/composables/usePlanAccess'
 import type { ShareholderType, Shareholder, CapTableRound } from '@/types'
 import UpgradeModal from '@/components/common/UpgradeModal.vue'
+import PageContainer from '@/components/layout/PageContainer.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
+import KSection from '@/components/layout/KSection.vue'
+import DataContainer from '@/components/layout/DataContainer.vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
@@ -19,6 +23,7 @@ import Message from 'primevue/message'
 import Tag from 'primevue/tag'
 import { useToast } from 'primevue/usetoast'
 import Toast from 'primevue/toast'
+import ShowOn from '@/components/common/ShowOn.vue'
 
 defineProps<{ planId?: string }>()
 
@@ -218,29 +223,32 @@ function fmtPct(val: string) {
 </script>
 
 <template>
-  <div class="p-6 max-w-5xl mx-auto">
+  <PageContainer>
     <Toast />
     <UpgradeModal />
 
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+    <PageHeader>
+      <template #title>
+        <h1 class="text-lg sm:text-xl md:text-2xl flex items-center gap-3">
           <i class="pi pi-chart-pie text-primary-500"></i>
           Cap Table
         </h1>
-        <p class="text-gray-500 mt-1">Manage shareholders and equity ownership for this plan</p>
-      </div>
-      <Button
-        v-if="canEdit && isPro"
-        label="Add Shareholder"
-        icon="pi pi-plus"
-        @click="openCreate"
-      />
-    </div>
+      </template>
+      <template #subtitle>
+        <p class="text-sm text-gray-500">Manage shareholders and equity ownership for this plan</p>
+      </template>
+      <template #actions>
+        <Button
+          v-if="canEdit && isPro"
+          label="Add Shareholder"
+          icon="pi pi-plus"
+          @click="openCreate"
+        />
+      </template>
+    </PageHeader>
 
     <!-- Pro gate: show upgrade banner when not pro -->
-    <div v-if="!isPro" class="flex flex-col items-center justify-center py-24 gap-4">
+    <KSection v-if="!isPro" class="flex flex-col items-center justify-center py-24 gap-4">
       <div class="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
         <i class="pi pi-lock text-2xl text-amber-500"></i>
       </div>
@@ -249,20 +257,23 @@ function fmtPct(val: string) {
         Cap Table management is available on the <strong>Pro</strong> plan.<br>
         Upgrade to track founders, investors and employee equity.
       </p>
-    </div>
+    </KSection>
 
     <template v-else>
       <!-- Loading -->
-      <div v-if="store.loading" class="text-center py-16 text-gray-400">
+      <KSection v-if="store.loading" class="text-center py-16 text-gray-400">
         <i class="pi pi-spin pi-spinner text-3xl"></i>
-      </div>
+      </KSection>
 
       <!-- Error -->
-      <Message v-else-if="store.error" severity="error" class="mb-4">{{ store.error }}</Message>
+      <KSection v-else-if="store.error">
+        <Message severity="error" class="mb-4">{{ store.error }}</Message>
+      </KSection>
 
       <template v-else>
         <!-- Summary cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <KSection>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-white rounded-xl border border-gray-200 p-4">
             <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Shareholders</p>
             <p class="text-3xl font-bold text-gray-800">{{ shareholders.length }}</p>
@@ -276,18 +287,51 @@ function fmtPct(val: string) {
             <p class="text-3xl font-bold text-gray-800">{{ fmtCurrency(String(totalInvested)) }}</p>
           </div>
         </div>
+        </KSection>
 
         <!-- Empty state -->
-        <div v-if="shareholders.length === 0" class="text-center py-16 text-gray-400">
+        <KSection v-if="shareholders.length === 0" class="text-center py-16 text-gray-400">
           <i class="pi pi-users text-5xl mb-4 block"></i>
           <p class="text-lg font-medium">No shareholders yet</p>
           <p class="text-sm mt-1 mb-4">Add founders, investors or employees to build your cap table</p>
           <Button v-if="canEdit" label="Add first shareholder" icon="pi pi-plus" @click="openCreate" />
-        </div>
+        </KSection>
 
+        <!-- Mobile: read-only shareholder cards -->
+        <ShowOn only="mobile">
+          <KSection v-if="shareholders.length > 0">
+            <div class="space-y-3" data-testid="captable-mobile-cards">
+              <div
+                v-for="sh in shareholders"
+                :key="sh.id"
+                class="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-3"
+              >
+                <div class="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center flex-shrink-0">
+                  <i class="pi pi-user text-primary-600" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-semibold text-gray-800 text-sm">{{ sh.name }}</span>
+                    <Tag :value="typeLabel(sh.type)" :severity="typeSeverity(sh.type)" class="text-xs" />
+                  </div>
+                  <div class="flex gap-3 mt-1 text-xs text-gray-500">
+                    <span>{{ fmtPct(sh.ownershipPct) }}</span>
+                    <span class="text-gray-300">·</span>
+                    <span>{{ sh.shares.toLocaleString('fr-FR') }} shares</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="text-xs text-center text-gray-400 mt-3">Edit shareholders on tablet or desktop</p>
+          </KSection>
+        </ShowOn>
+
+        <!-- Tablet + Desktop: full DataTable with CRUD -->
+        <ShowOn from="tablet">
         <!-- Table -->
+        <KSection v-if="shareholders.length > 0">
+        <DataContainer min-width="700px">
         <DataTable
-          v-else
           :value="shareholders"
           stripedRows
           class="p-datatable-sm rounded-xl overflow-hidden border border-gray-200"
@@ -334,9 +378,11 @@ function fmtPct(val: string) {
             </template>
           </Column>
         </DataTable>
+        </DataContainer>
+        </KSection>
 
         <!-- Ownership donut (CSS-only bar chart as lightweight alternative) -->
-        <div v-if="shareholders.length > 0" class="mt-6 bg-white rounded-xl border border-gray-200 p-5">
+        <KSection v-if="shareholders.length > 0" class="bg-white rounded-xl border border-gray-200 p-5">
           <h3 class="text-sm font-semibold text-gray-700 mb-4">Ownership Breakdown</h3>
           <div class="space-y-2">
             <div v-for="(label, i) in donutData.labels" :key="i" class="flex items-center gap-3">
@@ -355,12 +401,13 @@ function fmtPct(val: string) {
               </span>
             </div>
           </div>
-        </div>
+        </KSection>
+        </ShowOn><!-- end ShowOn from="tablet" -->
       </template>
     </template>
 
     <!-- ── Rounds panel ──────────────────────────────────────────────── -->
-    <div v-if="isPro" class="mt-6 bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <KSection v-if="isPro" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
       <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i class="pi pi-money-bill text-primary-500"></i>
@@ -460,7 +507,7 @@ function fmtPct(val: string) {
           </div>
         </div>
       </div>
-    </div>
+    </KSection>
 
     <!-- Country Profile panel -->
     <div
@@ -622,5 +669,5 @@ function fmtPct(val: string) {
         </div>
       </template>
     </Dialog>
-  </div>
+  </PageContainer>
 </template>

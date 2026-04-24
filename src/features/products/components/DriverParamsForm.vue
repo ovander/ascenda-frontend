@@ -7,6 +7,7 @@
  * debounce-save via productStore.updateDriverParams.
  */
 import { computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type {
   DriverType,
   DriverParams,
@@ -18,7 +19,6 @@ import type {
   SessionBasedParams,
 } from '@/types'
 import InputNumber from 'primevue/inputnumber'
-import InputText from 'primevue/inputtext'
 import KFieldLabel from '@/components/common/KFieldLabel.vue'
 
 // ── Props / Emits ──────────────────────────────────────────────────────────
@@ -28,6 +28,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 const emit = defineEmits<{
   (e: 'update:modelValue', value: DriverParams): void
 }>()
@@ -190,7 +191,7 @@ watch(
       <table class="driver-table">
         <thead>
           <tr>
-            <th class="label-col">Parameter</th>
+            <th class="label-col">{{ t('products.driver.parameter') }}</th>
             <th v-for="y in YEAR_LABELS" :key="y">{{ y }}</th>
           </tr>
         </thead>
@@ -251,7 +252,7 @@ watch(
       <table class="driver-table">
         <thead>
           <tr>
-            <th class="label-col">Parameter</th>
+            <th class="label-col">{{ t('products.driver.parameter') }}</th>
             <th v-for="y in YEAR_LABELS" :key="y">{{ y }}</th>
           </tr>
         </thead>
@@ -324,7 +325,7 @@ watch(
       <table class="driver-table">
         <thead>
           <tr>
-            <th class="label-col">Parameter</th>
+            <th class="label-col">{{ t('products.driver.parameter') }}</th>
             <th v-for="y in YEAR_LABELS" :key="y">{{ y }}</th>
           </tr>
         </thead>
@@ -385,7 +386,7 @@ watch(
       <table class="driver-table">
         <thead>
           <tr>
-            <th class="label-col">Parameter</th>
+            <th class="label-col">{{ t('products.driver.parameter') }}</th>
             <th v-for="y in YEAR_LABELS" :key="y">{{ y }}</th>
           </tr>
         </thead>
@@ -472,7 +473,7 @@ watch(
       <table class="driver-table">
         <thead>
           <tr>
-            <th class="label-col">Parameter</th>
+            <th class="label-col">{{ t('products.driver.parameter') }}</th>
             <th v-for="y in YEAR_LABELS" :key="y">{{ y }}</th>
           </tr>
         </thead>
@@ -559,7 +560,7 @@ watch(
       <table class="driver-table">
         <thead>
           <tr>
-            <th class="label-col">Parameter</th>
+            <th class="label-col">{{ t('products.driver.parameter') }}</th>
             <th v-for="y in YEAR_LABELS" :key="y">{{ y }}</th>
           </tr>
         </thead>

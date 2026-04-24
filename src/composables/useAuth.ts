@@ -24,12 +24,23 @@ export function useAuth() {
 
   const isAuthenticated = computed(() => store.isAuthenticated)
   const user = computed(() => store.user)
+  // Workspace owner: full plan access + team management
   const isOwner = computed(() => store.user?.role === 'owner')
-  // Platform-wide admin — NOT a tenant role. Sees all tenants; no plan access.
+  // Platform-wide admin — sees all tenants; no plan routes
   const isAdmin = computed(() => store.user?.role === 'admin')
-  // Business users: owner (manages workspace + plans) or regular user (plans only)
+  // Can write plan data (owner or editor)
+  const isEditor = computed(() =>
+    store.user?.role === 'owner' || store.user?.role === 'editor'
+  )
+  // Read-only plan access
+  const isReader = computed(() => store.user?.role === 'reader')
+  // Any business user (not platform admin)
   const isBusinessUser = computed(() =>
-    store.user?.role === 'owner' || store.user?.role === 'user'
+    store.user?.role === 'owner' || store.user?.role === 'editor' || store.user?.role === 'reader'
+  )
+  // Can access the Operate (data entry) section — owners and editors only
+  const canOperate = computed(() =>
+    store.user?.role === 'owner' || store.user?.role === 'editor'
   )
 
   async function initiateLogin() {
@@ -79,7 +90,10 @@ export function useAuth() {
     user,
     isOwner,
     isAdmin,
+    isEditor,
+    isReader,
     isBusinessUser,
+    canOperate,
     initiateLogin,
     handleCallback,
     logout,

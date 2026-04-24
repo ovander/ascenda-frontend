@@ -21,6 +21,17 @@ export interface UpdateCountryRateConfigRequest {
   mltInterestRate?: number
 }
 
+export interface CreateCountryRateConfigRequest {
+  countryCode: string
+  countryName: string
+  corporateTaxRate: number
+  vatRate: number
+  employerTaxRate: number
+  mltInterestRate: number
+  language: string
+  currencySymbol: string
+}
+
 export const useAdminCountryConfigStore = defineStore('adminCountryConfig', () => {
   const configs = ref<CountryRateConfig[]>([])
   const loading = ref(false)
@@ -31,7 +42,7 @@ export const useAdminCountryConfigStore = defineStore('adminCountryConfig', () =
     loading.value = true
     error.value = null
     try {
-      const res = await api.get<CountryRateConfig[]>('/admin/country-configs')
+      const res = await api.get<CountryRateConfig[]>('/api/v1/admin/country-configs')
       configs.value = res.data ?? []
     } catch (e: any) {
       error.value = e?.response?.data?.message ?? 'Failed to load country configs'
@@ -40,11 +51,26 @@ export const useAdminCountryConfigStore = defineStore('adminCountryConfig', () =
     }
   }
 
+  async function create(req: CreateCountryRateConfigRequest): Promise<CountryRateConfig | null> {
+    saving.value = true
+    error.value = null
+    try {
+      const res = await api.post<CountryRateConfig>('/api/v1/admin/country-configs', req)
+      configs.value.push(res.data)
+      return res.data
+    } catch (e: any) {
+      error.value = e?.response?.data?.message ?? 'Failed to create country config'
+      return null
+    } finally {
+      saving.value = false
+    }
+  }
+
   async function update(code: string, req: UpdateCountryRateConfigRequest): Promise<CountryRateConfig | null> {
     saving.value = true
     error.value = null
     try {
-      const res = await api.put<CountryRateConfig>(`/admin/country-configs/${code}`, req)
+      const res = await api.put<CountryRateConfig>(`/api/v1/admin/country-configs/${code}`, req)
       const updated = res.data
       const idx = configs.value.findIndex(c => c.countryCode === code)
       if (idx !== -1) configs.value[idx] = updated
@@ -61,7 +87,7 @@ export const useAdminCountryConfigStore = defineStore('adminCountryConfig', () =
     saving.value = true
     error.value = null
     try {
-      const res = await api.post<CountryRateConfig>(`/admin/country-configs/${code}/reset`)
+      const res = await api.post<CountryRateConfig>(`/api/v1/admin/country-configs/${code}/reset`)
       const updated = res.data
       const idx = configs.value.findIndex(c => c.countryCode === code)
       if (idx !== -1) configs.value[idx] = updated
@@ -74,5 +100,5 @@ export const useAdminCountryConfigStore = defineStore('adminCountryConfig', () =
     }
   }
 
-  return { configs, loading, saving, error, fetchAll, update, resetToDefault }
+  return { configs, loading, saving, error, fetchAll, create, update, resetToDefault }
 })

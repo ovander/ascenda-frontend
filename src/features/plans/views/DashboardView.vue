@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useAuthStore } from '@/stores/auth'
@@ -7,6 +7,12 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import type { PlanStatus } from '@/types'
+import { useTierGate } from '@/composables/useTierGate'
+import { useUiStore } from '@/stores/ui'
+import PageContainer from '@/components/layout/PageContainer.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
+import KSection from '@/components/layout/KSection.vue'
+import ShowOn from '@/components/common/ShowOn.vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
@@ -16,23 +22,40 @@ import Card from 'primevue/card'
 import ConfirmDialog from 'primevue/confirmdialog'
 import Toast from 'primevue/toast'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const router = useRouter()
 const planStore = usePlanStore()
 const auth = useAuthStore()
 const confirm = useConfirm()
 const toast = useToast()
+const { isFreemium, isEnterprise, showUpgradeModal } = useTierGate()
+const uiStore = useUiStore()
 
 onMounted(() => {
   planStore.fetchPlans()
 })
 
-const STATUS_OPTIONS = [
-  { label: 'Draft',    value: 'draft' },
-  { label: 'Review',   value: 'review' },
-  { label: 'Approved', value: 'approved' },
-  { label: 'Archived', value: 'archived' },
-]
+/** Navigate to the new-plan wizard, gating freemium (≥1) and pro (≥3) users. */
+function goToNewPlan() {
+  const count = planStore.plans.length
+  if (isFreemium.value && count >= 1) {
+    showUpgradeModal('Additional Business Plans', 'pro')
+    return
+  }
+  if (!isEnterprise.value && !isFreemium.value && count >= 3) {
+    showUpgradeModal('Additional Business Plans', 'enterprise')
+    return
+  }
+  router.push('/plans/new')
+}
+
+// Computed so labels re-evaluate when locale changes (FR plan → 'Brouillon' etc.)
+const STATUS_OPTIONS = computed(() => [
+  { label: t('enums.planStatus.draft'),    value: 'draft' },
+  { label: t('enums.planStatus.review'),   value: 'review' },
+  { label: t('enums.planStatus.approved'), value: 'approved' },
+  { label: t('enums.planStatus.archived'), value: 'archived' },
+])
 
 function getStatusSeverity(status: string) {
   switch (status) {
@@ -48,9 +71,9 @@ async function changeStatus(plan: any, newStatus: PlanStatus) {
   if (plan.status === newStatus) return
   try {
     await planStore.updatePlan(plan.id, { name: plan.name, description: plan.description, status: newStatus })
-    toast.add({ severity: 'success', summary: 'Status updated', detail: `"${plan.name}" is now ${newStatus}.`, life: 2500 })
+    toast.add({ severity: 'success', summary: t('messages.statusUpdated'), detail: `"${plan.name}" is now ${newStatus}.`, life: 2500 })
   } catch {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to update status.', life: 4000 })
+    toast.add({ severity: 'error', summary: t('messages.error'), detail: t('messages.failedUpdateStatus'), life: 4000 })
   }
 }
 
@@ -71,15 +94,15 @@ function confirmResetDemo() {
         await planStore.resetDemoPlans()
         toast.add({
           severity: 'success',
-          summary: 'Done',
-          detail: 'Demo plans have been reset.',
+          summary: t('messages.done'),
+          detail: t('messages.demoReset'),
           life: 3000,
         })
       } catch (err: any) {
         const detail = err?.response?.data?.error?.message
           || err?.response?.data?.message
           || err?.message
-          || 'Failed to reset demo plans.'
+          || t('messages.failedResetDemo')
         console.error('[resetDemo]', err?.response?.status, detail, err)
         toast.add({
           severity: 'error',
@@ -105,15 +128,15 @@ function confirmDelete(plan: any) {
         await planStore.deletePlan(plan.id)
         toast.add({
           severity: 'success',
-          summary: 'Deleted',
+          summary: t('messages.deleted'),
           detail: `"${plan.name}" has been deleted.`,
           life: 3000,
         })
       } catch {
         toast.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to delete the plan. Please try again.',
+          summary: t('messages.error'),
+          detail: t('messages.failedDeletePlan'),
           life: 4000,
         })
       }
@@ -123,119 +146,147 @@ function confirmDelete(plan: any) {
 </script>
 
 <template>
-  <div>
+  <PageContainer>
     <ConfirmDialog />
     <Toast />
 
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-800">{{ t('nav.dashboard') }}</h1>
-        <p class="text-gray-500 mt-1">
-          {{ auth.user?.name ? `Welcome back, ${auth.user.name}` : 'Welcome back' }}
-        </p>
-      </div>
-      <div class="flex gap-2">
-        <Button
-          label="Reset demo plans"
-          icon="pi pi-refresh"
-          severity="secondary"
-          outlined
-          @click="confirmResetDemo"
-        />
-        <Button
-          :label="t('nav.newPlan')"
-          icon="pi pi-plus"
-          @click="router.push('/plans/new')"
-        />
-      </div>
-    </div>
-
-    <Card>
-      <template #content>
-        <DataTable
-          :value="planStore.plans"
-          :loading="planStore.loading"
-          stripedRows
-          :paginator="planStore.plans.length > 10"
-          :rows="10"
-          class="p-datatable-sm"
-          @row-click="(e: any) => openPlan(e.data)"
-          selectionMode="single"
-          dataKey="id"
-        >
-          <template #empty>
-            <div class="text-center py-8 text-gray-500">
-              <i class="pi pi-inbox text-4xl mb-2"></i>
-              <p>No plans yet. Create your first business plan!</p>
-            </div>
-          </template>
-          <Column field="name" header="Name" sortable class="font-medium">
-            <template #body="{ data }">
-              <div class="flex items-center gap-2">
-                <span>{{ data.name }}</span>
-                <Tag v-if="data.isDemo" value="Demo" severity="info" class="text-xs" />
-              </div>
-            </template>
-          </Column>
-          <Column field="description" header="Description" />
-          <Column field="status" header="Status" sortable style="width: 150px">
-            <template #body="{ data }">
-              <!-- Demo plans: read-only tag -->
-              <Tag
-                v-if="data.isDemo"
-                :value="data.status"
-                :severity="getStatusSeverity(data.status)"
-              />
-              <!-- Regular plans: inline status selector -->
-              <Select
-                v-else
-                :model-value="data.status"
-                :options="STATUS_OPTIONS"
-                option-label="label"
-                option-value="value"
-                class="w-full text-sm"
-                @change="(e: any) => changeStatus(data, e.value)"
-                @click.stop
-              >
-                <template #value="{ value }">
-                  <Tag :value="value" :severity="getStatusSeverity(value)" class="text-xs" />
-                </template>
-              </Select>
-            </template>
-          </Column>
-          <Column field="updatedAt" header="Last Updated" sortable>
-            <template #body="{ data }">
-              {{ new Date(data.updatedAt).toLocaleDateString() }}
-            </template>
-          </Column>
-          <Column header="" style="width: 120px">
-            <template #body="{ data }">
-              <div class="flex gap-1 items-center">
-                <Button
-                  icon="pi pi-arrow-right"
-                  text
-                  severity="secondary"
-                  v-tooltip.top="'Open plan'"
-                  @click.stop="openPlan(data)"
-                />
-                <Button
-                  v-if="!data.isDemo"
-                  icon="pi pi-trash"
-                  text
-                  severity="danger"
-                  v-tooltip.top="'Delete plan'"
-                  @click.stop="confirmDelete(data)"
-                />
-                <i
-                  v-else
-                  class="pi pi-lock text-gray-400 text-sm mx-2"
-                  v-tooltip.top="'Demo plans cannot be deleted'"
-                />
-              </div>
-            </template>
-          </Column>
-        </DataTable>
+    <PageHeader>
+      <template #title>
+        {{ t('nav.dashboard') }}
       </template>
-    </Card>
-  </div>
+      <template #subtitle>
+        {{ auth.user?.name ? `Welcome back, ${auth.user.name}` : 'Welcome back' }}
+      </template>
+      <template #actions>
+        <ShowOn not="mobile">
+          <div class="flex gap-2">
+            <Button
+              label="Reset demo plans"
+              icon="pi pi-refresh"
+              severity="secondary"
+              outlined
+              @click="confirmResetDemo"
+            />
+            <Button
+              :label="t('nav.newPlan')"
+              icon="pi pi-plus"
+              @click="goToNewPlan"
+            />
+          </div>
+        </ShowOn>
+      </template>
+    </PageHeader>
+
+    <KSection>
+      <Card class="overflow-hidden">
+        <template #content>
+          <DataTable
+            :value="planStore.plans"
+            :loading="planStore.loading"
+            stripedRows
+            :paginator="planStore.plans.length > 10"
+            :rows="10"
+            class="p-datatable-sm w-full"
+            :tableStyle="{ width: '100%', minWidth: 'unset' }"
+            @row-click="(e: any) => openPlan(e.data)"
+            selectionMode="single"
+            dataKey="id"
+          >
+            <template #empty>
+              <div class="text-center py-8 text-gray-500">
+                <i class="pi pi-inbox text-4xl mb-2"></i>
+                <p>No plans yet. Create your first business plan!</p>
+              </div>
+            </template>
+            <!-- Name: on mobile takes all remaining width; on tablet/desktop sizes naturally -->
+            <Column field="name" header="Name" sortable class="font-medium">
+              <template #body="{ data }">
+                <div class="flex flex-col gap-1">
+                  <div class="flex items-center gap-2">
+                    <span>{{ data.name }}</span>
+                    <Tag v-if="data.isDemo" value="Demo" severity="info" class="text-xs" />
+                  </div>
+                  <!-- Status visible inline on mobile only -->
+                  <ShowOn only="mobile">
+                    <Tag
+                      :value="data.status"
+                      :severity="getStatusSeverity(data.status)"
+                      class="text-xs self-start"
+                    />
+                  </ShowOn>
+                </div>
+              </template>
+            </Column>
+
+            <!-- Description: tablet+ only -->
+            <Column v-if="!uiStore.isMobile" field="description" header="Description" />
+
+            <!-- Status: tablet+ only — read-only Tag on mobile (shown inside Name column above) -->
+            <Column v-if="!uiStore.isMobile" field="status" header="Status" sortable style="width: 150px">
+              <template #body="{ data }">
+                <!-- Demo plans: read-only tag -->
+                <Tag
+                  v-if="data.isDemo"
+                  :value="data.status"
+                  :severity="getStatusSeverity(data.status)"
+                />
+                <!-- Regular plans: inline status selector -->
+                <Select
+                  v-else
+                  :model-value="data.status"
+                  :options="STATUS_OPTIONS"
+                  option-label="label"
+                  option-value="value"
+                  class="w-full text-sm"
+                  @change="(e: any) => changeStatus(data, e.value)"
+                  @click.stop
+                >
+                  <template #value="{ value }">
+                    <Tag :value="value" :severity="getStatusSeverity(value)" class="text-xs" />
+                  </template>
+                </Select>
+              </template>
+            </Column>
+
+            <!-- Last Updated: tablet+ only -->
+            <Column v-if="!uiStore.isMobile" field="updatedAt" header="Last Updated" sortable>
+              <template #body="{ data }">
+                {{ new Date(data.updatedAt).toLocaleDateString(locale) }}
+              </template>
+            </Column>
+
+            <!-- Actions: open always visible; delete desktop only -->
+            <Column header="">
+              <template #body="{ data }">
+                <div class="flex gap-1 items-center">
+                  <Button
+                    icon="pi pi-arrow-right"
+                    text
+                    severity="secondary"
+                    v-tooltip.top="'Open plan'"
+                    @click.stop="openPlan(data)"
+                  />
+                  <template v-if="!uiStore.isMobile">
+                    <Button
+                      v-if="!data.isDemo"
+                      icon="pi pi-trash"
+                      text
+                      severity="danger"
+                      v-tooltip.top="'Delete plan'"
+                      @click.stop="confirmDelete(data)"
+                    />
+                    <i
+                      v-else
+                      class="pi pi-lock text-gray-400 text-sm mx-2"
+                      v-tooltip.top="'Demo plans cannot be deleted'"
+                    />
+                  </template>
+                </div>
+              </template>
+            </Column>
+          </DataTable>
+        </template>
+      </Card>
+    </KSection>
+  </PageContainer>
 </template>

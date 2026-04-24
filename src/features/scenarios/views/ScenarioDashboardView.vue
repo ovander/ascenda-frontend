@@ -1,29 +1,39 @@
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useUiStore } from '@/stores/ui'
 import { useRouter } from 'vue-router'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useScenarioStore } from '@/features/scenarios/stores/scenarioStore'
 import { useSettingsStore } from '@/features/settings/stores/settingsStore'
 import { useRatiosStore } from '@/features/ratios/stores/ratiosStore'
 import { useFiplanStore } from '@/features/fiplan/stores/fiplanStore'
-import Card from 'primevue/card'
+import PageContainer from '@/components/layout/PageContainer.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
+import KSection from '@/components/layout/KSection.vue'
+import KPIGrid from '@/components/layout/KPIGrid.vue'
 import Button from 'primevue/button'
-import Tag from 'primevue/tag'
 import { usePlanAccess } from '@/composables/usePlanAccess'
 import { usePlanMembersStore } from '@/stores/planMembers'
 import { useDecimal } from '@/composables/useDecimal'
 import { useApi } from '@/composables/useApi'
+import { useScenarioAnalysis } from '@/features/scenarios/composables/useScenarioAnalysis'
+import { useScenarioAnalysisStore } from '@/features/scenarios/stores/scenarioAnalysisStore'
+import ScenarioIntelligenceSection from '@/features/scenarios/components/ScenarioIntelligenceSection.vue'
 
 const props = defineProps<{ planId: string; sid: string }>()
+const { t, locale } = useI18n()
 const router = useRouter()
 const planStore = usePlanStore()
 const scenarioStore = useScenarioStore()
 const settingsStore = useSettingsStore()
 const ratiosStore = useRatiosStore()
 const fiplanStore = useFiplanStore()
-const { canEdit, planRole } = usePlanAccess()
+const analysisStore = useScenarioAnalysisStore()
+usePlanAccess()
 const planMembers = usePlanMembersStore()
 const { formatUnit } = useDecimal()
+const scenarioAnalysis = useScenarioAnalysis()
 
 onMounted(async () => {
   if (!planStore.activePlan) await planStore.fetchPlan(props.planId)
@@ -33,7 +43,13 @@ onMounted(async () => {
     planMembers.fetchMembers(props.planId),
     ratiosStore.fetchReport(),
     fiplanStore.fetchReport(),
+    // v2: non-blocking — Promise.allSettled absorbs failures silently.
+    scenarioAnalysis.fetch(props.planId, props.sid),
   ])
+  // Pre-warm the store for child components
+  if (planStore.activePlan?.id && scenarioStore.activeScenario?.id) {
+    analysisStore.fetchIfNeeded(planStore.activePlan.id, scenarioStore.activeScenario.id)
+  }
 })
 
 const basePath = computed(() => `/plans/${props.planId}/scenarios/${props.sid}`)
@@ -55,6 +71,7 @@ function fmtPct(val: number): string {
 }
 
 const kpiCards = computed(() => {
+  void locale.value  // subscribe to locale changes so labels re-evaluate on switch
   const r = ratiosStore.report
   const loading = ratiosStore.loading
 
@@ -72,14 +89,14 @@ const kpiCards = computed(() => {
   const dash = loading ? '…' : '—'
 
   return [
-    { label: 'Revenue Y1',    value: revenueY1   ? fmtCurrency(revenueY1)   : dash, icon: 'pi pi-dollar',       color: 'bg-blue-50 text-blue-700' },
-    { label: 'Avg Growth',    value: avgGrowth   ? fmtPct(avgGrowth)         : dash, icon: 'pi pi-arrow-up',     color: 'bg-green-50 text-green-700' },
-    { label: 'EBITDA Y1',     value: ebitdaY1    ? fmtCurrency(ebitdaY1)    : dash, icon: 'pi pi-chart-bar',    color: 'bg-purple-50 text-purple-700' },
-    { label: 'Net Profit Y1', value: netProfitY1 ? fmtCurrency(netProfitY1) : dash, icon: 'pi pi-check-circle', color: 'bg-indigo-50 text-indigo-700' },
-    { label: 'Cash EOY5',     value: cashEOY     ? fmtCurrency(cashEOY)     : dash, icon: 'pi pi-wallet',       color: 'bg-teal-50 text-teal-700' },
-    { label: 'NPV',           value: npv         ? fmtCurrency(npv)         : dash, icon: 'pi pi-star',         color: 'bg-amber-50 text-amber-700' },
-    { label: 'IRR',           value: irr         ? fmtPct(irr)              : dash, icon: 'pi pi-percentage',   color: 'bg-rose-50 text-rose-700' },
-    { label: 'Payback',       value: dash,                                           icon: 'pi pi-clock',        color: 'bg-cyan-50 text-cyan-700' },
+    { label: t('dashboard.kpi.revenueY1'),   value: revenueY1   ? fmtCurrency(revenueY1)   : dash, icon: 'pi pi-dollar',       color: 'bg-blue-50 text-blue-700' },
+    { label: t('dashboard.kpi.avgGrowth'),   value: avgGrowth   ? fmtPct(avgGrowth)         : dash, icon: 'pi pi-arrow-up',     color: 'bg-green-50 text-green-700' },
+    { label: t('dashboard.kpi.ebitdaY1'),    value: ebitdaY1    ? fmtCurrency(ebitdaY1)    : dash, icon: 'pi pi-chart-bar',    color: 'bg-purple-50 text-purple-700' },
+    { label: t('dashboard.kpi.netProfitY1'), value: netProfitY1 ? fmtCurrency(netProfitY1) : dash, icon: 'pi pi-check-circle', color: 'bg-indigo-50 text-indigo-700' },
+    { label: t('dashboard.kpi.cashEOY5'),    value: cashEOY     ? fmtCurrency(cashEOY)     : dash, icon: 'pi pi-wallet',       color: 'bg-teal-50 text-teal-700' },
+    { label: t('dashboard.kpi.npv'),         value: npv         ? fmtCurrency(npv)         : dash, icon: 'pi pi-star',         color: 'bg-amber-50 text-amber-700' },
+    { label: t('dashboard.kpi.irr'),         value: irr         ? fmtPct(irr)              : dash, icon: 'pi pi-percentage',   color: 'bg-rose-50 text-rose-700' },
+    { label: t('dashboard.kpi.payback'),     value: dash,                                           icon: 'pi pi-clock',        color: 'bg-cyan-50 text-cyan-700' },
   ]
 })
 
@@ -94,6 +111,7 @@ const fiplanCashStatus = computed<{ hasNegative: boolean; negativeYears: number[
 
 // ── Dev-only audit download ───────────────────────────────────────────────────
 const isDev = import.meta.env.DEV
+const uiStore = useUiStore()
 const api = useApi()
 const auditDownloading = ref(false)
 
@@ -117,103 +135,123 @@ async function downloadAuditTrail() {
   }
 }
 
-const modules = [
-  { name: 'Settings', icon: 'pi pi-cog', path: '/settings', desc: 'Configuration, Opening Balance, Working Capital' },
-  { name: 'Products / Services', icon: 'pi pi-box', path: '/products', desc: 'Product & service pricing, volumes, margins' },
-  { name: 'Revenues', icon: 'pi pi-chart-bar', path: '/revenues', desc: 'Sales and gross margin by segment' },
-  { name: 'Staff', icon: 'pi pi-users', path: '/staff', desc: 'Headcounts, salaries, incentives' },
-  { name: 'CapEx', icon: 'pi pi-building', path: '/capex', desc: 'Capital expenditure and depreciation' },
-  { name: 'OpEx', icon: 'pi pi-shopping-cart', path: '/opex', desc: 'Operating expenses (22 lines)' },
-  { name: 'P&L Statement', icon: 'pi pi-chart-bar', path: '/pnl', desc: 'French-format P&L (A-G)' },
-  { name: 'Financial Plan', icon: 'pi pi-money-bill', path: '/fiplan', desc: 'Sources vs uses of funds' },
-  { name: 'Functional P&L', icon: 'pi pi-chart-line', path: '/pnl-cash', desc: 'Anglo-Saxon P&L by function' },
-  { name: 'Balance Sheet', icon: 'pi pi-server', path: '/bsheet', desc: '4 views + 6 charts' },
-  { name: 'Ratios', icon: 'pi pi-percentage', path: '/ratios', desc: 'Financial ratios and valuation' },
-  { name: 'WCR', icon: 'pi pi-sync', path: '/wcr', desc: 'Working capital requirement' },
-  { name: 'Cash Flow', icon: 'pi pi-wallet', path: '/cash', desc: '36-month cash flow' },
-  { name: 'Budget', icon: 'pi pi-calendar', path: '/budget', desc: 'Monthly budget Year 1' },
-  { name: 'Graphs', icon: 'pi pi-chart-pie', path: '/graphs', desc: 'Annual 2x2 dashboard' },
-  { name: 'Full Report', icon: 'pi pi-file', path: '/report', desc: 'Consolidated report' },
-  { name: 'Snapshots', icon: 'pi pi-history', path: '/snapshots', desc: 'Version history' },
-]
+// ALL_MODULES is a computed so t() re-evaluates when the locale changes.
+const ALL_MODULES = computed(() => [
+  { name: t('modules.settings.name'), icon: 'pi pi-cog',         path: '/settings',  desc: t('modules.settings.desc'), mobileBlocked: true },
+  { name: t('modules.products.name'), icon: 'pi pi-box',         path: '/products',  desc: t('modules.products.desc'), mobileBlocked: true },
+  { name: t('modules.revenues.name'), icon: 'pi pi-chart-bar',   path: '/revenues',  desc: t('modules.revenues.desc'), mobileBlocked: true },
+  { name: t('modules.staff.name'),    icon: 'pi pi-users',        path: '/staff',     desc: t('modules.staff.desc'),    mobileBlocked: true },
+  { name: t('modules.capex.name'),    icon: 'pi pi-building',     path: '/capex',     desc: t('modules.capex.desc'),    mobileBlocked: true },
+  { name: t('modules.opex.name'),     icon: 'pi pi-shopping-cart',path: '/opex',      desc: t('modules.opex.desc'),     mobileBlocked: true },
+  { name: t('modules.pnl.name'),      icon: 'pi pi-chart-bar',    path: '/pnl',       desc: t('modules.pnl.desc') },
+  { name: t('modules.fiplan.name'),   icon: 'pi pi-money-bill',   path: '/fiplan',    desc: t('modules.fiplan.desc'),   mobileBlocked: true },
+  { name: t('modules.pnlCash.name'),  icon: 'pi pi-chart-line',   path: '/pnl-cash',  desc: t('modules.pnlCash.desc') },
+  { name: t('modules.bsheet.name'),   icon: 'pi pi-server',       path: '/bsheet',    desc: t('modules.bsheet.desc') },
+  { name: t('modules.ratios.name'),   icon: 'pi pi-percentage',   path: '/ratios',    desc: t('modules.ratios.desc') },
+  { name: t('modules.wcr.name'),      icon: 'pi pi-sync',         path: '/wcr',       desc: t('modules.wcr.desc') },
+  { name: t('modules.cash.name'),     icon: 'pi pi-wallet',       path: '/cash',      desc: t('modules.cash.desc'),     mobileBlocked: true },
+  { name: t('modules.budget.name'),   icon: 'pi pi-calendar',     path: '/budget',    desc: t('modules.budget.desc'),   mobileBlocked: true },
+  { name: t('modules.graphs.name'),   icon: 'pi pi-chart-pie',    path: '/graphs',    desc: t('modules.graphs.desc') },
+  { name: t('modules.report.name'),   icon: 'pi pi-file',         path: '/report',    desc: t('modules.report.desc'),   mobileBlocked: true },
+  { name: t('modules.snapshots.name'),icon: 'pi pi-history',      path: '/snapshots', desc: t('modules.snapshots.desc'),mobileBlocked: true },
+])
+
+const modules = computed(() =>
+  uiStore.isMobile ? ALL_MODULES.value.filter(m => !m.mobileBlocked) : ALL_MODULES.value
+)
 </script>
 
 <template>
-  <div>
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-800">
-          {{ scenarioStore.activeScenario?.name || 'Scenario' }}
-        </h1>
-        <p class="text-gray-500">{{ planStore.activePlan?.name }} — {{ scenarioStore.activeScenario?.description }}</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <Button
-          v-if="isDev"
-          :label="auditDownloading ? 'Downloading…' : 'DEV⚡ Audit Trail'"
-          icon="pi pi-download"
-          severity="warn"
-          outlined
-          size="small"
-          :loading="auditDownloading"
-          @click="downloadAuditTrail"
-        />
-        <Button
-          label="Wizard"
-          icon="pi pi-compass"
-          severity="secondary"
-          outlined
-          @click="router.push(`${basePath}/wizard`)"
-        />
-      </div>
-    </div>
+  <PageContainer>
+    <PageHeader>
+      <template #title>
+        {{ scenarioStore.activeScenario?.name || 'Scenario' }}
+      </template>
+      <template #subtitle>
+        {{ planStore.activePlan?.name }} — {{ scenarioStore.activeScenario?.description }}
+      </template>
+      <template #actions>
+        <div class="flex items-center gap-2">
+          <Button
+            v-if="isDev"
+            :label="auditDownloading ? 'Downloading…' : 'DEV⚡ Audit Trail'"
+            icon="pi pi-download"
+            severity="warn"
+            outlined
+            size="small"
+            :loading="auditDownloading"
+            @click="downloadAuditTrail"
+          />
+          <Button
+            v-if="!uiStore.isMobile"
+            :label="t('scenario.wizard')"
+            icon="pi pi-compass"
+            severity="secondary"
+            outlined
+            @click="router.push(`${basePath}/wizard`)"
+          />
+        </div>
+      </template>
+    </PageHeader>
 
     <!-- KPI Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <div v-for="kpi in kpiCards" :key="kpi.label" :class="['rounded-lg p-4 border', kpi.color]">
-        <div class="flex items-center gap-2 mb-1">
-          <i :class="kpi.icon"></i>
-          <span class="text-xs font-medium opacity-75">{{ kpi.label }}</span>
+    <KSection>
+      <KPIGrid :cols="4">
+        <div v-for="kpi in kpiCards" :key="kpi.label" :class="['rounded-lg p-4 border', kpi.color]">
+          <div class="flex items-center gap-2 mb-1">
+            <i :class="kpi.icon"></i>
+            <span class="text-xs font-medium opacity-75">{{ kpi.label }}</span>
+          </div>
+          <div class="text-2xl font-bold">{{ kpi.value }}</div>
         </div>
-        <div class="text-2xl font-bold">{{ kpi.value }}</div>
-      </div>
-    </div>
+      </KPIGrid>
+    </KSection>
+
+    <!-- Scenario Intelligence (v2) -->
+    <ScenarioIntelligenceSection
+      :analysis="scenarioAnalysis.analysis.value"
+      :loading="scenarioAnalysis.loading.value"
+      :base-path="basePath"
+      @refresh="scenarioAnalysis.fetch(props.planId, props.sid)"
+    />
 
     <!-- Module Cards -->
-    <h2 class="text-lg font-semibold text-gray-700 mb-4">Modules</h2>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div
-        v-for="mod in modules"
-        :key="mod.path"
-        class="bg-white rounded-lg border border-gray-200 p-4 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer"
-        @click="router.push(`${basePath}${mod.path}`)"
-      >
-        <div class="flex items-center gap-3 mb-2">
-          <i :class="[mod.icon, 'text-xl text-blue-600']"></i>
-          <span class="font-semibold text-gray-800">{{ mod.name }}</span>
-        </div>
-        <p class="text-xs text-gray-500">{{ mod.desc }}</p>
-        <template v-if="mod.name === 'Financial Plan' && fiplanCashStatus">
-          <div class="mt-2">
-            <span
-              v-if="fiplanCashStatus.hasNegative"
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200"
-              :title="`Cumulative cash is negative in ${fiplanCashStatus.negativeYears.map(y => 'Y' + y).join(', ')}`"
-            >
-              <i class="pi pi-flag-fill" style="font-size: 0.65rem" />
-              {{ fiplanCashStatus.negativeYears.map(y => 'Y' + y).join(', ') }}
-            </span>
-            <span
-              v-else
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200"
-              title="Cumulative cash is positive in all five years"
-            >
-              <i class="pi pi-check-circle" style="font-size: 0.65rem" />
-              Cash positive
-            </span>
+    <KSection>
+      <h2 class="text-lg font-semibold text-gray-700 mb-4">{{ t('dashboard.modules') }}</h2>
+      <KPIGrid :cols="4">
+        <div
+          v-for="mod in modules"
+          :key="mod.path"
+          class="bg-white rounded-lg border border-gray-200 p-3 md:p-4 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer"
+          @click="router.push(`${basePath}${mod.path}`)"
+        >
+          <div class="flex items-center gap-3 mb-2">
+            <i :class="[mod.icon, 'text-xl text-blue-600']"></i>
+            <span class="font-semibold text-gray-800">{{ mod.name }}</span>
           </div>
-        </template>
-      </div>
-    </div>
-  </div>
+          <p class="text-xs text-gray-500">{{ mod.desc }}</p>
+          <template v-if="mod.path === '/fiplan' && fiplanCashStatus">
+            <div class="mt-2">
+              <span
+                v-if="fiplanCashStatus.hasNegative"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200"
+                :title="`Cumulative cash is negative in ${fiplanCashStatus.negativeYears.map(y => 'Y' + y).join(', ')}`"
+              >
+                <i class="pi pi-flag-fill" style="font-size: 0.65rem" />
+                {{ fiplanCashStatus.negativeYears.map(y => 'Y' + y).join(', ') }}
+              </span>
+              <span
+                v-else
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200"
+                title="Cumulative cash is positive in all five years"
+              >
+                <i class="pi pi-check-circle" style="font-size: 0.65rem" />
+                {{ t('dashboard.cashPositive') }}
+              </span>
+            </div>
+          </template>
+        </div>
+      </KPIGrid>
+    </KSection>
+  </PageContainer>
 </template>

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useUiStore } from '@/stores/ui'
 import { useBSheetStore } from '@/features/bsheet/stores/bsheetStore'
 import { useYearHeaders } from '@/composables/useYearHeaders'
 import { useDecimal } from '@/composables/useDecimal'
@@ -19,10 +21,15 @@ import '@/plugins/chartjs'
 import KChart from '@/components/common/KChart.vue'
 import KFormLegend from '@/components/common/KFormLegend.vue'
 import type { ChartData } from '@/types'
+import ShowOn from '@/components/common/ShowOn.vue'
+import KpiGrid from '@/components/common/KpiGrid.vue'
+import type { KpiItem } from '@/components/common/KpiGrid.vue'
 
 defineProps<{ planId?: string; sid?: string }>()
 
+const { t } = useI18n()
 const bsheetStore = useBSheetStore()
+const uiStore = useUiStore()
 const { yearHeaders } = useYearHeaders()
 const { formatUnit, getUnitLabel } = useDecimal()
 const displayUnitStore = useDisplayUnitStore()
@@ -40,7 +47,7 @@ onMounted(async () => {
 
 // ── Chart data derived from BSheetCharts ─────────────────────────────────
 const assetStructureChart = computed<ChartData | null>(() => {
-  if (!bsheetStore.report) return null
+  if (!bsheetStore.report?.charts) return null
   const c = bsheetStore.report.charts
   const factor = displayUnitStore.factor
   return {
@@ -53,7 +60,7 @@ const assetStructureChart = computed<ChartData | null>(() => {
 })
 
 const liabilityChart = computed<ChartData | null>(() => {
-  if (!bsheetStore.report) return null
+  if (!bsheetStore.report?.charts) return null
   const c = bsheetStore.report.charts
   const factor = displayUnitStore.factor
   return {
@@ -160,7 +167,7 @@ const CAPITAL_TOOLTIPS: Record<string, string> = {
 
 // ── Balance check: assets = liabilities for all 6 time points ────────────
 const balanceCheck = computed(() => {
-  if (!bsheetStore.report) return []
+  if (!bsheetStore.report?.detailed) return []
   const { detailed } = bsheetStore.report
   return Array.from({ length: 6 }, (_, i) => {
     const assets = Number(detailed.assets.totalAssets[i] ?? 0)
@@ -171,7 +178,7 @@ const balanceCheck = computed(() => {
 
 // ── Detailed balance sheet rows ───────────────────────────────────────────
 const detailedRows = computed(() => {
-  if (!bsheetStore.report) return []
+  if (!bsheetStore.report?.detailed) return []
   const a = bsheetStore.report.detailed.assets
   const l = bsheetStore.report.detailed.liabilities
   const t = DETAILED_TOOLTIPS
@@ -196,7 +203,7 @@ const detailedRows = computed(() => {
 
 // ── Condensed balance sheet rows ─────────────────────────────────────────
 const condensedRows = computed(() => {
-  if (!bsheetStore.report) return []
+  if (!bsheetStore.report?.condensed) return []
   const a = bsheetStore.report.condensed.assets
   const l = bsheetStore.report.condensed.liabilities
   const t = CONDENSED_TOOLTIPS
@@ -216,7 +223,7 @@ const condensedRows = computed(() => {
 
 // ── BS Analysis rows ──────────────────────────────────────────────────────
 const analysisRows = computed(() => {
-  if (!bsheetStore.report) return []
+  if (!bsheetStore.report?.analysis) return []
   const an = bsheetStore.report.analysis
   const t = ANALYSIS_TOOLTIPS
   return [
@@ -241,7 +248,7 @@ const analysisRows = computed(() => {
 
 // ── Capital employed rows ─────────────────────────────────────────────────
 const capitalEmployedRows = computed(() => {
-  if (!bsheetStore.report) return []
+  if (!bsheetStore.report?.capital) return []
   const cap = bsheetStore.report.capital
   const wc  = bsheetStore.report.workingCapital
   const t   = CAPITAL_TOOLTIPS
@@ -262,7 +269,7 @@ function toChartData(
 }
 
 const condensedBsChart = computed(() => {
-  if (!bsheetStore.report) return null
+  if (!bsheetStore.report?.condensed) return null
   const a = bsheetStore.report.condensed.assets
   const factor = displayUnitStore.factor
   const sc = (arr: any[]) => arr.map(v => Number(v) / factor)
@@ -274,7 +281,7 @@ const condensedBsChart = computed(() => {
 })
 
 const workingCapitalChart = computed(() => {
-  if (!bsheetStore.report) return null
+  if (!bsheetStore.report?.analysis) return null
   const an = bsheetStore.report.analysis
   const factor = displayUnitStore.factor
   const sc = (arr: any[]) => arr.map(v => Number(v) / factor)
@@ -286,7 +293,7 @@ const workingCapitalChart = computed(() => {
 })
 
 const assetsEvolutionChart = computed(() => {
-  if (!bsheetStore.report) return null
+  if (!bsheetStore.report?.detailed) return null
   const a = bsheetStore.report.detailed.assets
   const factor = displayUnitStore.factor
   const sc = (arr: any[]) => arr.map(v => Number(v) / factor)
@@ -299,7 +306,7 @@ const assetsEvolutionChart = computed(() => {
 })
 
 const fundingMixChart = computed(() => {
-  if (!bsheetStore.report) return null
+  if (!bsheetStore.report?.condensed) return null
   const l = bsheetStore.report.condensed.liabilities
   const factor = displayUnitStore.factor
   const sc = (arr: any[]) => arr.map(v => Number(v) / factor)
@@ -365,7 +372,7 @@ function toWfChartData(bars: ReturnType<typeof buildWfBar>[], unit: string) {
 // Assets build-up waterfall
 const assetsWfData = computed<any>(() => {
   const r = bsheetStore.report
-  if (!r) return null
+  if (!r?.detailed) return null
   const i = wfYearIndex.value
   const factor = displayUnitStore.factor
   const a = r.detailed.assets
@@ -398,7 +405,7 @@ const assetsWfData = computed<any>(() => {
 // Liabilities & Equity build-up waterfall
 const liabsWfData = computed<any>(() => {
   const r = bsheetStore.report
-  if (!r) return null
+  if (!r?.detailed) return null
   const i  = wfYearIndex.value
   const factor = displayUnitStore.factor
   const l  = r.detailed.liabilities
@@ -482,6 +489,44 @@ const wfOptions = computed<any>(() => {
   },
   }
 })
+
+// ── Mobile KPI summary ────────────────────────────────────────────────────────
+const bsheetMobileKpis = computed<KpiItem[]>(() => {
+  if (!bsheetStore.report?.detailed) return []
+  const a = bsheetStore.report.detailed.assets
+  const l = bsheetStore.report.detailed.liabilities
+  // Index 1 = Year 1 (index 0 is Opening)
+  const totalAssets = Number(a.totalAssets[1] ?? 0)
+  const cash        = Number(a.cash[1] ?? 0)
+  const equity      = Number(l.shareCapital[1] ?? 0) + Number(l.retainedEarnings[1] ?? 0) + Number(l.netProfit[1] ?? 0)
+  const ltDebt      = Number(l.longTermDebt[1] ?? 0)
+  return [
+    {
+      id:       'total-assets',
+      label:    'Total Assets (Y1)',
+      value:    formatUnit(totalAssets),
+      severity: 'neutral',
+    },
+    {
+      id:       'cash',
+      label:    'Cash (Y1)',
+      value:    formatUnit(cash),
+      severity: cash >= 0 ? 'positive' : 'negative',
+    },
+    {
+      id:       'equity',
+      label:    'Equity (Y1)',
+      value:    formatUnit(equity),
+      severity: equity >= 0 ? 'positive' : 'negative',
+    },
+    {
+      id:       'lt-debt',
+      label:    'LT Debt (Y1)',
+      value:    formatUnit(ltDebt),
+      severity: ltDebt > 0 ? 'negative' : 'positive',
+    },
+  ]
+})
 </script>
 
 <template>
@@ -490,8 +535,8 @@ const wfOptions = computed<any>(() => {
       <h1 class="text-3xl font-bold text-gray-800">Balance Sheet</h1>
 
       <div class="flex items-center gap-3">
-        <!-- Table / Chart toggle -->
-        <div class="flex rounded-lg border border-gray-300 overflow-hidden text-sm">
+        <!-- Table / Chart toggle — tablet+ only (mobile shows KPI summary, not the full table/charts) -->
+        <div v-if="!uiStore.isMobile" class="flex rounded-lg border border-gray-300 overflow-hidden text-sm">
           <button
             @click="viewMode = 'table'"
             :class="viewMode === 'table'
@@ -525,10 +570,22 @@ const wfOptions = computed<any>(() => {
     </div>
 
     <KFormLegend
+      v-if="!uiStore.isMobile"
       description="5-year projected balance sheet, fully computed from your inputs. Assets must equal Liabilities + Equity each year — any imbalance signals a modelling error. All amounts in thousands."
       :extras="[{ color: '#dcfce7', text: 'All cells are read-only — values flow from other modules' }]"
     />
 
+    <!-- ── Mobile KPI summary ─────────────────────────────────────── -->
+    <div v-if="uiStore.isMobile" class="space-y-4 mt-4" data-testid="bsheet-kpi-grid">
+      <div v-if="bsheetStore.loading" class="text-center py-8 text-gray-400 text-sm">
+        <i class="pi pi-spin pi-spinner mr-1" />Loading balance sheet…
+      </div>
+      <KpiGrid v-else-if="bsheetMobileKpis.length" :items="bsheetMobileKpis" />
+      <p class="text-xs text-center text-gray-400">Full balance sheet available on tablet+</p>
+    </div>
+
+    <!-- ── Tablet + Desktop: charts + table tabs ──────────────────── -->
+    <ShowOn from="tablet">
     <!-- ── Chart view ── -->
     <div v-if="viewMode === 'chart' && bsheetStore.report" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
       <div class="bg-white rounded-lg border p-4">
@@ -554,11 +611,11 @@ const wfOptions = computed<any>(() => {
     <!-- ── Table view ── -->
     <Tabs v-if="viewMode === 'table'" value="0" class="w-full">
       <TabList>
-        <Tab value="0"><span>Detailed Balance Sheet</span></Tab>
-        <Tab value="1"><span>Condensed Balance Sheet</span></Tab>
-        <Tab value="2"><span>BS Analysis</span></Tab>
-        <Tab value="3"><span>Capital Employed</span></Tab>
-        <Tab value="4"><span>Charts</span></Tab>
+        <Tab value="0"><span>{{ t('bsheet.tab.detailed') }}</span></Tab>
+        <Tab value="1"><span>{{ t('bsheet.tab.condensed') }}</span></Tab>
+        <Tab value="2"><span>{{ t('bsheet.tab.analysis') }}</span></Tab>
+        <Tab value="3"><span>{{ t('bsheet.tab.capitalEmployed') }}</span></Tab>
+        <Tab value="4"><span>{{ t('bsheet.tab.charts') }}</span></Tab>
       </TabList>
 
       <TabPanels>
@@ -848,6 +905,7 @@ const wfOptions = computed<any>(() => {
         </TabPanel>
       </TabPanels>
     </Tabs>
+    </ShowOn><!-- end ShowOn from="tablet" -->
   </div>
 </template>
 

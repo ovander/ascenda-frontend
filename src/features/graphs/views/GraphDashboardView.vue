@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useScenarioStore } from '@/features/scenarios/stores/scenarioStore'
 import { useGraphStore } from '@/features/graphs/stores/graphStore'
@@ -8,9 +9,14 @@ import { useDecimal } from '@/composables/useDecimal'
 import type { ChartData } from '@/types'
 import Card from 'primevue/card'
 import KChart from '@/components/common/KChart.vue'
+import ShowOn from '@/components/common/ShowOn.vue'
+import PageContainer from '@/components/layout/PageContainer.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
+import KSection from '@/components/layout/KSection.vue'
 
 defineProps<{ planId?: string; sid?: string }>()
 
+const { t } = useI18n()
 const planStore = usePlanStore()
 const scenarioStore = useScenarioStore()
 const graphStore = useGraphStore()
@@ -48,13 +54,57 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="p-6">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Annual Financial Graphs</h1>
+  <PageContainer>
+    <PageHeader>
+      <template #title>{{ t('graphs.title') }}</template>
+    </PageHeader>
 
-    <div class="grid grid-cols-2 gap-6">
+    <!-- ── Mobile: 2 highlight charts ──────────────────────────────── -->
+    <ShowOn only="mobile">
+      <KSection>
+        <div class="flex flex-col gap-6">
+          <Card>
+            <template #title>
+              <span class="text-base font-semibold">{{ t('graphs.revProfitCash') }}</span>
+            </template>
+            <template #content>
+              <KChart
+                :key="`mobile-revprofitcash-${unitLabel}`"
+                :data="revProfitCashChart"
+                type="combo"
+                height="260px"
+                :loading="graphStore.loading"
+              />
+            </template>
+          </Card>
+
+          <Card>
+            <template #title>
+              <span class="text-base font-semibold">{{ t('graphs.headcount') }}</span>
+            </template>
+            <template #content>
+              <KChart
+                key="mobile-headcount"
+                :data="headcountAnnualChart"
+                type="stacked-bar"
+                height="260px"
+                :loading="graphStore.loading"
+              />
+            </template>
+          </Card>
+
+          <p class="text-xs text-center text-gray-400">{{ t('graphs.allAvailable') }}</p>
+        </div>
+      </KSection>
+    </ShowOn>
+
+    <!-- ── Tablet + Desktop: full 7-chart grid ──────────────────────── -->
+    <ShowOn from="tablet">
+    <KSection>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <Card>
         <template #title>
-          <span class="text-lg font-semibold">Sales Analysis</span>
+          <span class="text-lg font-semibold">{{ t('graphs.salesAnalysis') }}</span>
         </template>
         <template #content>
           <KChart
@@ -69,7 +119,7 @@ onMounted(async () => {
 
       <Card>
         <template #title>
-          <span class="text-lg font-semibold">Cost Structure</span>
+          <span class="text-lg font-semibold">{{ t('graphs.costStructure') }}</span>
         </template>
         <template #content>
           <KChart
@@ -84,7 +134,7 @@ onMounted(async () => {
 
       <Card>
         <template #title>
-          <span class="text-lg font-semibold">Revenue, Profit & Cash Flow</span>
+          <span class="text-lg font-semibold">{{ t('graphs.revProfitCash') }}</span>
         </template>
         <template #content>
           <KChart
@@ -99,7 +149,7 @@ onMounted(async () => {
 
       <Card>
         <template #title>
-          <span class="text-lg font-semibold">Financial Requirements vs Cash Flow</span>
+          <span class="text-lg font-semibold">{{ t('graphs.reqVsCash') }}</span>
         </template>
         <template #content>
           <KChart
@@ -114,7 +164,7 @@ onMounted(async () => {
 
       <Card>
         <template #title>
-          <span class="text-lg font-semibold">Balance Sheet Structure</span>
+          <span class="text-lg font-semibold">{{ t('graphs.balanceSheet') }}</span>
         </template>
         <template #content>
           <KChart
@@ -129,7 +179,7 @@ onMounted(async () => {
 
       <Card>
         <template #title>
-          <span class="text-lg font-semibold">Headcount by Function</span>
+          <span class="text-lg font-semibold">{{ t('graphs.headcount') }}</span>
         </template>
         <template #content>
           <KChart
@@ -144,7 +194,7 @@ onMounted(async () => {
 
       <Card>
         <template #title>
-          <span class="text-lg font-semibold">P&L Cascade</span>
+          <span class="text-lg font-semibold">{{ t('graphs.pnlCascade') }}</span>
         </template>
         <template #content>
           <KChart
@@ -157,13 +207,17 @@ onMounted(async () => {
         </template>
       </Card>
     </div>
+    </KSection>
 
-    <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-      <p class="text-sm text-blue-700">
-        Charts will populate with data from the financial plan once all modules are configured.
-      </p>
-    </div>
-  </div>
+    <KSection>
+      <div class="p-3 md:p-4 md:p-6 bg-blue-50 border border-blue-200 rounded-lg">
+        <p class="text-sm text-blue-700">
+          Charts will populate with data from the financial plan once all modules are configured.
+        </p>
+      </div>
+    </KSection>
+    </ShowOn><!-- end ShowOn from="tablet" -->
+  </PageContainer>
 </template>
 
 <style scoped>

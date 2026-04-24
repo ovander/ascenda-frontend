@@ -4,12 +4,11 @@ import { usePlanMembersStore } from '@/stores/planMembers'
 import { useTenantStore } from '@/stores/tenant'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from 'primevue/usetoast'
-import type { User } from '@/types'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
-import Dialog from 'primevue/dialog'
+import ResponsiveDialog from '@/components/common/ResponsiveDialog.vue'
 import Select from 'primevue/select'
 import Toast from 'primevue/toast'
 
@@ -28,7 +27,7 @@ const addLoading = ref(false)
 const availableUsers = computed(() => {
   const memberIds = new Set(membersStore.members.map(m => m.userId))
   return (tenantStore.users || []).filter(u =>
-    u.isActive && u.role === 'user' && !memberIds.has(u.id)
+    u.isActive && (u.role === 'editor' || u.role === 'reader') && !memberIds.has(u.id)
   )
 })
 
@@ -154,7 +153,7 @@ async function handleRevoke(userId: string) {
     </DataTable>
 
     <!-- Add Member Dialog -->
-    <Dialog v-model:visible="showAddDialog" header="Grant Plan Access" :style="{ width: '450px' }" modal>
+    <ResponsiveDialog v-model:visible="showAddDialog" header="Grant Plan Access" size="sm" modal>
       <div class="space-y-4 pt-2">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
@@ -202,6 +201,6 @@ async function handleRevoke(userId: string) {
           :disabled="!addForm.userId"
         />
       </template>
-    </Dialog>
+    </ResponsiveDialog>
   </div>
 </template>
