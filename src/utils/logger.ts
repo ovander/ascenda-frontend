@@ -21,7 +21,6 @@ export function extractApiError(err: any, fallback = 'An unexpected error occurr
  * `import.meta.env.DEV` with `false`, so Rollup tree-shakes every branch
  * and no console calls reach the production bundle.
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = (..._args: unknown[]) => {}
 
 export const devlog = {

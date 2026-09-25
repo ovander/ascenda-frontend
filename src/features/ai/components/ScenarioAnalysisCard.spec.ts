@@ -5,7 +5,7 @@
  * risk sorting by urgency priority, defensive handling of uppercase urgency /
  * impact / direction values, viability score display, and AI narration rendering.
  */
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount }    from '@vue/test-utils'
 import { nextTick } from 'vue'
 import type { ScenarioAnalysisResult } from '@/features/scenarios/types'

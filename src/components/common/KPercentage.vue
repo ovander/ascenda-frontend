@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import InputNumber from 'primevue/inputnumber'
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   modelValue: number | null
   decimals?: number
   disabled?: boolean

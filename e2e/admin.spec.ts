@@ -8,10 +8,8 @@
 
 import { test, expect, MOCK_ADMIN_STATS } from './fixtures'
 
-const ADMIN_DASHBOARD_URL = '/admin/dashboard'
-
 test.describe('Admin Dashboard — page structure', () => {
-  test.beforeEach(async ({ adminPage: page }) => {
+  test.beforeEach(async ({ adminPage: _page }) => {
     // adminPage fixture already navigates to /admin/dashboard
   })
 

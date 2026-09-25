@@ -161,7 +161,7 @@ beforeEach(() => {
 // =============================================================================
 describe('ProductsView — scenario change reload', () => {
   it('when scenarioStore.activeScenario.id changes, productStore.$reset() is called', async () => {
-    const wrapper = mountView()
+    mountView()
     await nextTick()
 
     // Initially, reset should not have been called
@@ -176,7 +176,7 @@ describe('ProductsView — scenario change reload', () => {
   })
 
   it('when scenario changes, fetchProducts() is called for the new scenario', async () => {
-    const wrapper = mountView()
+    mountView()
     await nextTick()
 
     // Clear calls from onMounted
@@ -194,7 +194,7 @@ describe('ProductsView — scenario change reload', () => {
   it('when scenario changes, fetchConsolidated() is called', async () => {
     // Start with a product so consolidated is fetched during onMounted
     mockProducts.value = [makeProduct({ id: 'prod-1', scenarioId: 'scenario-1' })]
-    const wrapper = mountView()
+    mountView()
     await nextTick()
 
     // Clear the calls from onMounted

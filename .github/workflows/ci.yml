@@ -30,6 +30,12 @@ jobs:
       - name: Typecheck
         run: npx vue-tsc -b
 
+      # eslint.config.js: Vue essential + typescript-eslint recommended.
+      # Errors fail the build; the explicit-`any` backlog is reported as
+      # warnings until it is burnt down (see the config for the rationale).
+      - name: Lint
+        run: npm run lint
+
       - name: Unit tests
         run: npx vitest run
 

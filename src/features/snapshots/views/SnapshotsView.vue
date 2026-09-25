@@ -63,7 +63,7 @@ async function handleCreateSnapshot() {
     newLabel.value = ''
     newDescription.value = ''
     newReason.value = ''
-  } catch (err) {
+  } catch {
     toast.add({
       severity: 'error',
       summary: 'Error',
@@ -92,7 +92,7 @@ async function handleRestore(snapshot: any) {
           detail: 'Snapshot restored successfully',
           life: 3000,
         })
-      } catch (err) {
+      } catch {
         toast.add({
           severity: 'error',
           summary: 'Error',
@@ -114,7 +114,7 @@ async function handleClone(snapshot: any) {
       detail: 'Snapshot cloned successfully',
       life: 3000,
     })
-  } catch (err) {
+  } catch {
     toast.add({
       severity: 'error',
       summary: 'Error',
@@ -138,7 +138,7 @@ async function handleDelete(snapshot: any) {
           detail: 'Snapshot deleted successfully',
           life: 3000,
         })
-      } catch (err) {
+      } catch {
         toast.add({
           severity: 'error',
           summary: 'Error',
@@ -164,7 +164,7 @@ async function handleDiff() {
   try {
     await snapshotStore.diffSnapshots(selectedSnapshots.value[0].id, selectedSnapshots.value[1].id)
     showDiffDialog.value = true
-  } catch (err) {
+  } catch {
     toast.add({
       severity: 'error',
       summary: 'Error',
@@ -393,7 +393,7 @@ async function handleDownloadAI(snapshot: any) {
       detail: `Snapshot v${snapshot.version} exported for AI chat`,
       life: 3000,
     })
-  } catch (err) {
+  } catch {
     toast.add({
       severity: 'error',
       summary: 'Error',

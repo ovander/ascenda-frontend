@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 
-const props = defineProps<{
+defineProps<{
   /** Minimum inner width before scroll kicks in (e.g. '640px', '900px') */
   minWidth?: string
 }>()

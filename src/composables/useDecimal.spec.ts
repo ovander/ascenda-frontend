@@ -336,7 +336,7 @@ describe('useDecimal composable', () => {
     })
 
     it('should handle chained operations', () => {
-      const { parse, formatPercent, formatCurrency } = useDecimal()
+      const { parse, formatPercent } = useDecimal()
       const value = parse('0.5')
       const percent = formatPercent(value)
       expect(percent).toContain('%')

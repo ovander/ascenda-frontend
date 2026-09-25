@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount, shallowMount } from '@vue/test-utils'
+import { shallowMount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import KYearGrid from './KYearGrid.vue'
 import type { GridRow } from './KYearGrid.vue'
@@ -51,9 +51,7 @@ vi.mock('@/composables/useDecimal', () => ({
 }))
 
 vi.mock('@/utils/format', () => ({
-  debounce: (fn: Function, delay: number) => {
-    return fn
-  },
+  debounce: (fn: (...args: unknown[]) => unknown) => fn,
 }))
 
 describe('KYearGrid', () => {
@@ -378,13 +376,12 @@ describe('KYearGrid', () => {
   })
 
   it('respects decimal precision setting', async () => {
-    const wrapper = shallowMount(KYearGrid, {
+    shallowMount(KYearGrid, {
       props: {
         rows: mockRows,
       },
     })
 
-    const vm = wrapper.vm as any
     const rowWith2Decimals = { ...mockRows[0], decimals: 2 }
     const rowWith4Decimals = { ...mockRows[0], decimals: 4 }
 

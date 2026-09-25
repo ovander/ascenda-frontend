@@ -14,7 +14,7 @@
  *   7. Opening balance computed helpers (totalAssets, totalLiabilities, balanceGap)
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { ref, reactive, computed } from 'vue'
 
 // ─── Step configuration (mirrors ScenarioWizardView.vue) ─────────────────────
@@ -655,7 +655,7 @@ describe('ScenarioWizardView', () => {
     })
 
     it('skips products with empty names', async () => {
-      const logic = makeFinishWizardLogic()
+      makeFinishWizardLogic()
       // Manually inspect: the filter logic is `products.filter(p => p.name.trim())`
       const products = [
         { name: '',     productType: 'service', driverType: 'flat' },

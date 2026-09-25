@@ -282,7 +282,7 @@ const gridRows = computed<GridRow[]>(() => {
 
 function onCellEdit(payload: { rowId: string; yearIndex: number; value: number }) {
   // yearIndex from KYearGrid is 0-based (0..4), matching backend convention
-  let entry = pnlStore.manualEntries.find(
+  const entry = pnlStore.manualEntries.find(
     (e) => e.lineId === payload.rowId && e.yearIndex === payload.yearIndex,
   )
   if (entry) {
