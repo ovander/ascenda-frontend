@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
+import { escapeHtml as esc } from '@/utils/escapeHtml'
 import { useReportStore } from '@/features/report/stores/reportStore'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useSettingsStore } from '@/features/settings/stores/settingsStore'
@@ -351,17 +352,17 @@ function exportPDF() {
     keyPrefix: string,
     opts: { pctKeys?: string[] } = {},
   ): string {
-    const yrCols = years.map((y) => `<th style="${TH}">${y}</th>`).join('')
+    const yrCols = years.map((y) => `<th style="${TH}">${esc(y)}</th>`).join('')
     const bodyRows = rows.map((row) => {
       if ((row as any).isHeader) {
         return `<tr><td colspan="${years.length + 1}"
           style="padding:4px 8px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:#e8f0fe;color:#1e3a5f;border-top:1px solid #c3d3ee;">
-          ${row.label}</td></tr>`
+          ${esc(row.label)}</td></tr>`
       }
       const bg = row.bold ? '#f0f9ff' : '#fff'
       const fw = row.bold ? '700' : '400'
       const lpad = row.indent ? 'padding-left:20px;' : ''
-      const label = `<td style="padding:3px 8px;font-size:8.5px;font-weight:${fw};background:${bg};white-space:nowrap;${lpad}">${row.label}</td>`
+      const label = `<td style="padding:3px 8px;font-size:8.5px;font-weight:${fw};background:${bg};white-space:nowrap;${lpad}">${esc(row.label)}</td>`
       const cells = years.map((_, i) => {
         const val = row[`${keyPrefix}${i}`]
         const n = typeof val === 'string' ? parseFloat(val) : Number(val ?? 0)
@@ -375,7 +376,7 @@ function exportPDF() {
 
     return `
       <div style="margin-bottom:28px;page-break-inside:avoid;">
-        <h2 style="font-size:12px;font-weight:700;color:#1e3a5f;margin:0 0 6px;padding-bottom:4px;border-bottom:2px solid #1e3a5f;">${title}</h2>
+        <h2 style="font-size:12px;font-weight:700;color:#1e3a5f;margin:0 0 6px;padding-bottom:4px;border-bottom:2px solid #1e3a5f;">${esc(title)}</h2>
         <table style="border-collapse:collapse;width:100%;">
           <thead><tr><th style="${THL}">Line Item</th>${yrCols}</tr></thead>
           <tbody>${bodyRows}</tbody>
@@ -389,7 +390,7 @@ function exportPDF() {
     const bodyRows = rows.map((row) => {
       const margin = isFinite(Number(row.grossMarginPct)) ? fmtPct(Number(row.grossMarginPct)) : '—'
       return `<tr>
-        <td style="padding:3px 8px;font-size:8.5px;">${row.year}</td>
+        <td style="padding:3px 8px;font-size:8.5px;">${esc(row.year)}</td>
         <td style="padding:3px 8px;font-size:8px;text-align:right;">${fmt(row.totalTurnover)}</td>
         <td style="padding:3px 8px;font-size:8px;text-align:right;">${fmt(row.totalCogs)}</td>
         <td style="padding:3px 8px;font-size:8px;text-align:right;">${fmt(row.totalGrossMargin)}</td>
@@ -487,8 +488,8 @@ function exportPDF() {
 </head>
 <body>
   <div class="header">
-    <h1>Full Financial Report${planName ? ` — ${planName}` : ''}</h1>
-    <div class="meta">Generated ${now}</div>
+    <h1>Full Financial Report${planName ? ` — ${esc(planName)}` : ''}</h1>
+    <div class="meta">Generated ${esc(now)}</div>
   </div>
 
   ${buildRevenueTable()}
@@ -522,6 +523,7 @@ function exportPDF() {
 
   const win = window.open('', '_blank', 'width=1200,height=900')
   if (!win) return
+  win.opener = null // the print window never needs a handle back to the app
   win.document.write(html)
   win.document.close()
   win.addEventListener('load', () => { win.focus(); win.print() })
