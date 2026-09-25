@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /**
  * CompetitionDriverForm.vue — parameters of the 'competition' driver
- * (athlete prize money): results per year, the tour's prize economics and
- * the per-event costs, including caddie and coach (fixed fee per event plus
- * a share of winnings). Shows the resulting prize money and costs per year,
- * and warns about impossible results before they are saved.
+ * (athlete prize money): results per year, the tour's prize economics, the
+ * per-event costs (entry, travel, caddie fee and share) and the coach
+ * (annual fee plus a share of winnings). Shows the resulting prize money and
+ * costs per year, and warns about impossible results before they are saved.
  */
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import InputNumber from 'primevue/inputnumber'
 import Select from 'primevue/select'
@@ -19,6 +19,8 @@ import {
   competitionCosts,
   competitionGains,
   competitionIssues,
+  normalizeCompetition,
+  type CircuitRegion,
 } from '../utils/athleteDrivers'
 
 const props = defineProps<{ modelValue: CompetitionParams }>()
@@ -27,10 +29,21 @@ const { t } = useI18n()
 const { formatCurrency } = useDecimal()
 
 const YEAR_LABELS = ['Y1', 'Y2', 'Y3', 'Y4', 'Y5']
-const OTHER = 'other'
+const CUSTOM = 'custom'
+const REGIONS: CircuitRegion[] = ['europe', 'us']
 
+// Parameters saved by earlier versions (coach fee per event) are shown and
+// edited in the current shape; the converted version is saved on load.
+const params = computed(() => normalizeCompetition(props.modelValue))
+onMounted(() => {
+  if (params.value !== props.modelValue) emit('update:modelValue', params.value)
+})
+
+type EditableField = Exclude<keyof CompetitionParams, 'coachFeePerEvent'>
 type CountField = 'events' | 'cuts' | 'top10s' | 'wins'
-type MoneyField = Exclude<keyof CompetitionParams, CountField | 'circuit'>
+type MoneyField = Exclude<EditableField, CountField | 'circuit'>
+
+interface Row { field: MoneyField; key: string; share?: boolean }
 
 const countRows: { field: CountField; key: string }[] = [
   { field: 'events', key: 'events' },
@@ -38,42 +51,61 @@ const countRows: { field: CountField; key: string }[] = [
   { field: 'top10s', key: 'top10s' },
   { field: 'wins', key: 'wins' },
 ]
-const prizeRows: { field: MoneyField; key: string }[] = [
-  { field: 'prizePerWin', key: 'prizePerWin' },
-  { field: 'prizePerTop10', key: 'prizePerTop10' },
-  { field: 'prizePerCut', key: 'prizePerCut' },
-  { field: 'otherPrizeMoney', key: 'otherPrizeMoney' },
-]
-const costRows: { field: MoneyField; key: string; share?: boolean }[] = [
-  { field: 'entryFeePerEvent', key: 'entryFeePerEvent' },
-  { field: 'travelPerEvent', key: 'travelPerEvent' },
-  { field: 'caddieFeePerEvent', key: 'caddieFeePerEvent' },
-  { field: 'caddieShare', key: 'caddieShare', share: true },
-  { field: 'coachFeePerEvent', key: 'coachFeePerEvent' },
-  { field: 'coachShare', key: 'coachShare', share: true },
+const moneySections: { key: string; rows: Row[] }[] = [
+  {
+    key: 'prizes',
+    rows: [
+      { field: 'prizePerWin', key: 'prizePerWin' },
+      { field: 'prizePerTop10', key: 'prizePerTop10' },
+      { field: 'prizePerCut', key: 'prizePerCut' },
+      { field: 'otherPrizeMoney', key: 'otherPrizeMoney' },
+    ],
+  },
+  {
+    key: 'costs',
+    rows: [
+      { field: 'entryFeePerEvent', key: 'entryFeePerEvent' },
+      { field: 'travelPerEvent', key: 'travelPerEvent' },
+      { field: 'caddieFeePerEvent', key: 'caddieFeePerEvent' },
+      { field: 'caddieShare', key: 'caddieShare', share: true },
+    ],
+  },
+  {
+    key: 'coach',
+    rows: [
+      { field: 'coachAnnualFee', key: 'coachAnnualFee' },
+      { field: 'coachShare', key: 'coachShare', share: true },
+    ],
+  },
 ]
 
-const circuitOptions = computed(() => [
-  ...CIRCUIT_PRESETS.map((p) => ({ value: p.id, label: p.name })),
-  { value: OTHER, label: t('products.driver.competition.otherCircuit') },
+const circuitGroups = computed(() => [
+  ...REGIONS.map((region) => ({
+    label: t(`products.driver.competition.region.${region}`),
+    items: CIRCUIT_PRESETS.filter((p) => p.region === region).map((p) => ({ value: p.id, label: p.name })),
+  })),
+  {
+    label: t('products.driver.competition.region.other'),
+    items: [{ value: CUSTOM, label: t('products.driver.competition.customValues') }],
+  },
 ])
 
 function circuitValue(y: number): string {
-  return CIRCUIT_PRESETS.find((p) => p.name === props.modelValue.circuit[y])?.id ?? OTHER
+  return CIRCUIT_PRESETS.find((p) => p.name === params.value.circuit[y])?.id ?? CUSTOM
 }
 
-function withYear<K extends keyof CompetitionParams>(
-  params: CompetitionParams, field: K, y: number, value: CompetitionParams[K][number],
+function withYear<K extends EditableField>(
+  base: CompetitionParams, field: K, y: number, value: CompetitionParams[K][number],
 ): CompetitionParams {
-  const arr = [...params[field]] as CompetitionParams[K]
+  const arr = [...base[field]] as CompetitionParams[K]
   arr[y] = value
-  return { ...params, [field]: arr }
+  return { ...base, [field]: arr }
 }
 
-/** Selecting a tour fills the year's prize economics; "Other" keeps them. */
+/** Selecting a tour fills the year's prize economics; custom keeps them. */
 function selectCircuit(y: number, id: string) {
   const preset = CIRCUIT_PRESETS.find((p) => p.id === id)
-  let next = props.modelValue
+  let next = params.value
   if (preset) {
     next = withYear(next, 'circuit', y, preset.name)
     next = withYear(next, 'prizePerWin', y, preset.prizePerWin)
@@ -86,17 +118,17 @@ function selectCircuit(y: number, id: string) {
 }
 
 function setCount(field: CountField, y: number, v: number | null) {
-  emit('update:modelValue', withYear(props.modelValue, field, y, Math.max(0, Math.round(v ?? 0))))
+  emit('update:modelValue', withYear(params.value, field, y, Math.max(0, Math.round(v ?? 0))))
 }
 
 function setMoney(field: MoneyField, y: number, v: number | null) {
-  emit('update:modelValue', withYear(props.modelValue, field, y, String(v ?? 0)))
+  emit('update:modelValue', withYear(params.value, field, y, String(v ?? 0)))
 }
 
-const gains = computed(() => YEARS.map((y) => competitionGains(props.modelValue, y)))
-const costs = computed(() => YEARS.map((y) => competitionCosts(props.modelValue, y)))
+const gains = computed(() => YEARS.map((y) => competitionGains(params.value, y)))
+const costs = computed(() => YEARS.map((y) => competitionCosts(params.value, y)))
 const issues = computed(() =>
-  YEARS.flatMap((y) => competitionIssues(props.modelValue, y).map((i) => ({ year: y + 1, ...i }))),
+  YEARS.flatMap((y) => competitionIssues(params.value, y).map((i) => ({ year: y + 1, ...i }))),
 )
 
 const money = (v: number) => formatCurrency(v, 0)
@@ -125,9 +157,11 @@ const money = (v: number) => formatCurrency(v, 0)
             <td v-for="y in YEARS" :key="y">
               <Select
                 :model-value="circuitValue(y)"
-                :options="circuitOptions"
+                :options="circuitGroups"
                 option-label="label"
                 option-value="value"
+                option-group-label="label"
+                option-group-children="items"
                 class="cell-input"
                 :aria-label="`${t('products.driver.competition.field.circuit')} ${YEAR_LABELS[y]}`"
                 @update:model-value="(v: string) => selectCircuit(y, v)"
@@ -145,7 +179,7 @@ const money = (v: number) => formatCurrency(v, 0)
             </td>
             <td v-for="y in YEARS" :key="y">
               <InputNumber
-                :model-value="modelValue[row.field][y]"
+                :model-value="params[row.field][y]"
                 :min="0" :max-fraction-digits="0"
                 class="cell-input"
                 :input-id="`competition-${row.field}-${y}`"
@@ -154,44 +188,29 @@ const money = (v: number) => formatCurrency(v, 0)
             </td>
           </tr>
 
-          <tr class="section-row"><td :colspan="6">{{ t('products.driver.competition.section.prizes') }}</td></tr>
-          <tr v-for="row in prizeRows" :key="row.field">
-            <td class="label-col">
-              <KFieldLabel
-                :label="t(`products.driver.competition.field.${row.key}`)"
-                :tooltip="t(`products.driver.competition.tip.${row.key}`)"
-              />
-            </td>
-            <td v-for="y in YEARS" :key="y">
-              <InputNumber
-                :model-value="Number(modelValue[row.field][y] || 0)"
-                :min="0" :max-fraction-digits="2"
-                class="cell-input"
-                :input-id="`competition-${row.field}-${y}`"
-                @update:model-value="(v) => setMoney(row.field, y, v)"
-              />
-            </td>
-          </tr>
-
-          <tr class="section-row"><td :colspan="6">{{ t('products.driver.competition.section.costs') }}</td></tr>
-          <tr v-for="row in costRows" :key="row.field">
-            <td class="label-col">
-              <KFieldLabel
-                :label="t(`products.driver.competition.field.${row.key}`)"
-                :tooltip="t(`products.driver.competition.tip.${row.key}`)"
-              />
-            </td>
-            <td v-for="y in YEARS" :key="y">
-              <InputNumber
-                :model-value="Number(modelValue[row.field][y] || 0)"
-                :min="0" :max="row.share ? 1 : undefined"
-                :max-fraction-digits="row.share ? 4 : 2"
-                class="cell-input"
-                :input-id="`competition-${row.field}-${y}`"
-                @update:model-value="(v) => setMoney(row.field, y, v)"
-              />
-            </td>
-          </tr>
+          <template v-for="section in moneySections" :key="section.key">
+            <tr class="section-row">
+              <td :colspan="6">{{ t(`products.driver.competition.section.${section.key}`) }}</td>
+            </tr>
+            <tr v-for="row in section.rows" :key="row.field">
+              <td class="label-col">
+                <KFieldLabel
+                  :label="t(`products.driver.competition.field.${row.key}`)"
+                  :tooltip="t(`products.driver.competition.tip.${row.key}`)"
+                />
+              </td>
+              <td v-for="y in YEARS" :key="y">
+                <InputNumber
+                  :model-value="Number(params[row.field][y] || 0)"
+                  :min="0" :max="row.share ? 1 : undefined"
+                  :max-fraction-digits="row.share ? 4 : 2"
+                  class="cell-input"
+                  :input-id="`competition-${row.field}-${y}`"
+                  @update:model-value="(v) => setMoney(row.field, y, v)"
+                />
+              </td>
+            </tr>
+          </template>
 
           <tr class="section-row"><td :colspan="6">{{ t('products.driver.competition.section.result') }}</td></tr>
           <tr class="computed-row" data-test="competition-gains">
@@ -230,7 +249,7 @@ const money = (v: number) => formatCurrency(v, 0)
 .cell-input { width: 100%; }
 :deep(.cell-input.p-inputnumber),
 :deep(.cell-input.p-inputnumber input) { width: 100%; min-width: 80px; }
-:deep(.cell-input.p-select) { min-width: 120px; }
+:deep(.cell-input.p-select) { min-width: 140px; }
 .issues {
   margin: 0; padding: 0.5rem 0.75rem 0.5rem 1.5rem; font-size: 0.8rem; color: #b91c1c;
   background: #fef2f2; border: 1px solid #fecaca; border-radius: 0.375rem; list-style: disc;

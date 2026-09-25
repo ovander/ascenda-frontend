@@ -104,7 +104,7 @@ const driverTypeOptions: {
     value: 'competition',
     label: 'Competition / Prize Money',
     icon: '🏆',
-    description: 'Prize money = Wins, Top 10s and Cuts × the tour\'s prize per result. Cost per event: entry, travel, caddie and coach (fixed fee + share of winnings).',
+    description: 'Prize money = Wins, Top 10s and Cuts × the tour\'s prize per result (Europe and US tour presets). Costs: entry, travel and caddie per event, coach per year, both caddie and coach plus a share of winnings.',
   },
   {
     value: 'contract',

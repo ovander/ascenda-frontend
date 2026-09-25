@@ -13,7 +13,7 @@ const InputNumberStub = defineComponent({
 const SelectStub = defineComponent({
   props: ['modelValue', 'options'],
   emits: ['update:modelValue'],
-  template: '<select class="circuit-select" :value="modelValue"><option v-for="o in options" :key="o.value" :value="o.value">{{ o.label }}</option></select>',
+  template: '<select class="circuit-select" :value="modelValue"><optgroup v-for="g in options" :key="g.label" :label="g.label"><option v-for="o in g.items" :key="o.value" :value="o.value">{{ o.label }}</option></optgroup></select>',
 })
 const stubs = { InputNumber: InputNumberStub, Select: SelectStub, KFieldLabel: { props: ['label'], template: '<span>{{ label }}</span>' } }
 
@@ -35,6 +35,34 @@ describe('CompetitionDriverForm', () => {
     expect(digits(costs[0]!.text())).toBe('29000')
   })
 
+  it('groups the tours by region', () => {
+    const select = mountForm(defaultCompetition()).findAllComponents(SelectStub)[0]!
+    const groups = select.props('options') as { label: string; items: { label: string }[] }[]
+    expect(groups.map((g) => g.label)).toEqual(['Europe', 'United States', 'Other'])
+    expect(groups[1]!.items.map((i) => i.label)).toEqual(['PGA Tour Americas', 'Korn Ferry Tour', 'PGA Tour'])
+  })
+
+  it('fills the year from a US tour preset', async () => {
+    const w = mountForm(defaultCompetition())
+    await w.findAllComponents(SelectStub)[3]!.vm.$emit('update:modelValue', 'kornferry')
+    const next = lastEmit(w)
+    expect(next.circuit[3]).toBe('Korn Ferry Tour')
+    expect(next.prizePerWin[3]).toBe('158000')
+  })
+
+  it('converts a legacy per-event coach fee on load', () => {
+    const legacy = { ...defaultCompetition(), coachFeePerEvent: ['400', '0', '0', '0', '0'] } as CompetitionParams
+    delete (legacy as Partial<CompetitionParams>).coachAnnualFee
+    const w = mountForm(legacy)
+    const next = lastEmit(w)
+    expect(next.coachAnnualFee[0]).toBe('8000') // 20 events × 400
+    expect(next.coachFeePerEvent).toBeUndefined()
+  })
+
+  it('does not emit on load when the params are current', () => {
+    expect(mountForm(defaultCompetition()).emitted('update:modelValue')).toBeUndefined()
+  })
+
   it('fills the year from a tour preset', async () => {
     const w = mountForm(defaultCompetition())
     const selects = w.findAllComponents(SelectStub)
@@ -52,8 +80,8 @@ describe('CompetitionDriverForm', () => {
     const input = (id: string) => w.findAllComponents(InputNumberStub).find((c) => c.props('inputId') === id)!
     await input('competition-wins-2').vm.$emit('update:modelValue', 2.6)
     expect(lastEmit(w).wins[2]).toBe(3)
-    await input('competition-coachFeePerEvent-2').vm.$emit('update:modelValue', 450)
-    expect(lastEmit(w).coachFeePerEvent[2]).toBe('450')
+    await input('competition-coachAnnualFee-2').vm.$emit('update:modelValue', 24000)
+    expect(lastEmit(w).coachAnnualFee[2]).toBe('24000')
   })
 
   it('warns when the results are impossible', () => {

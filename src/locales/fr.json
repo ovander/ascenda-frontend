@@ -323,12 +323,19 @@
     "driver": {
       "parameter": "Paramètre",
       "competition": {
-        "intro": "Les gains viennent des résultats : victoires, top 10 et autres cuts, chacun payé au gain moyen du circuit, plus les gains hors circuit principal. Chaque tournoi coûte ses droits d'entrée, le déplacement, le caddie et le coach ; caddie et coach perçoivent aussi une part des gains.",
+        "intro": "Les gains viennent des résultats : victoires, top 10 et autres cuts, chacun payé au gain moyen du circuit, plus les gains hors circuit principal. Chaque tournoi coûte ses droits d'entrée, le déplacement et le fixe du caddie ; le coach perçoit un fixe annuel. Caddie et coach perçoivent aussi une part des gains.",
         "otherCircuit": "Autre",
+        "customValues": "Valeurs personnalisées",
+        "region": {
+          "europe": "Europe",
+          "us": "États-Unis",
+          "other": "Autre"
+        },
         "section": {
           "results": "Résultats",
           "prizes": "Gains",
           "costs": "Coûts par tournoi",
+          "coach": "Coach (par an)",
           "result": "Résultat"
         },
         "field": {
@@ -345,13 +352,13 @@
           "travelPerEvent": "Déplacement et hébergement (€)",
           "caddieFeePerEvent": "Caddie, fixe (€)",
           "caddieShare": "Caddie, part des gains (0–1)",
-          "coachFeePerEvent": "Coach, fixe (€)",
+          "coachAnnualFee": "Coach, fixe annuel (€)",
           "coachShare": "Coach, part des gains (0–1)",
           "gains": "Gains sportifs",
           "costs": "Coûts directs"
         },
         "tip": {
-          "circuit": "Choisir un circuit renseigne ses gains moyens pour l'année. Choisissez Autre pour garder vos propres valeurs.",
+          "circuit": "Choisir un circuit renseigne ses gains moyens pour l'année : Alps, Challenge et DP World Tour en Europe ; PGA Tour Americas, Korn Ferry et PGA Tour aux États-Unis, convertis depuis le dollar. Choisissez Valeurs personnalisées pour garder les vôtres.",
           "events": "Tournois disputés dans l'année. Les coûts par tournoi sont multipliés par ce nombre.",
           "cuts": "Tournois où le cut a été passé, victoires et top 10 compris. Ne peut dépasser les tournois joués.",
           "top10s": "Top 10 qui ne sont pas des victoires. Victoires et top 10 ne peuvent dépasser les cuts passés.",
@@ -364,7 +371,7 @@
           "travelPerEvent": "Transport, hôtel et repas par tournoi.",
           "caddieFeePerEvent": "Rémunération fixe du caddie par tournoi.",
           "caddieShare": "Part des gains reversée au caddie. 0,08 = 8 % des gains.",
-          "coachFeePerEvent": "Rémunération fixe du coach par tournoi, pour un coach présent sur les épreuves.",
+          "coachAnnualFee": "Rémunération fixe du coach pour l'année, quel que soit le nombre de tournois.",
           "coachShare": "Part des gains reversée au coach. 0,05 = 5 % des gains."
         },
         "issue": {

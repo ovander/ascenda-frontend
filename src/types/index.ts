@@ -235,8 +235,9 @@ type PerYear<T> = [T, T, T, T, T]
  *   gains     = wins × prizePerWin + top10s × prizePerTop10
  *             + (cuts − wins − top10s) × prizePerCut + otherPrizeMoney
  *   volume    = events
- *   unit cost = entry + travel + caddie fee + coach fee (per event)
- *             + (caddieShare + coachShare) × gains / events
+ *   costs     = events × (entry + travel + caddie fee)
+ *             + coach annual fee
+ *             + (caddieShare + coachShare) × gains
  *
  * Counts are JSON numbers (int64 on the backend); money and shares are
  * decimal strings. Shares are fractions of winnings (0.07 = 7 %).
@@ -258,8 +259,14 @@ export interface CompetitionParams {
   travelPerEvent: PerYear<string>
   caddieFeePerEvent: PerYear<string>
   caddieShare: PerYear<string>
-  coachFeePerEvent: PerYear<string>
+  /** Coach's fixed fee for the year */
+  coachAnnualFee: PerYear<string>
   coachShare: PerYear<string>
+  /**
+   * @deprecated First-version coach fee per event. Still costed by the
+   * backend (fee × events); the form folds it into coachAnnualFee on load.
+   */
+  coachFeePerEvent?: PerYear<string>
 }
 
 /** One sponsorship or image-rights contract of the 'contract' driver. */
