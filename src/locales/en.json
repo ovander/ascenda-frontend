@@ -323,12 +323,19 @@
     "driver": {
       "parameter": "Parameter",
       "competition": {
-        "intro": "Prize money comes from results: wins, top-10 finishes and other cuts, each paid at the tour's average prize, plus prize money earned outside the main circuit. Each event costs its entry fee, travel, caddie and coach; caddie and coach also take a share of winnings.",
+        "intro": "Prize money comes from results: wins, top-10 finishes and other cuts, each paid at the tour's average prize, plus prize money earned outside the main circuit. Each event costs its entry fee, travel and caddie fee; the coach is paid a fixed fee for the year. Caddie and coach also take a share of winnings.",
         "otherCircuit": "Other",
+        "customValues": "Custom values",
+        "region": {
+          "europe": "Europe",
+          "us": "United States",
+          "other": "Other"
+        },
         "section": {
           "results": "Results",
           "prizes": "Prize money",
           "costs": "Costs per event",
+          "coach": "Coach (per year)",
           "result": "Result"
         },
         "field": {
@@ -345,13 +352,13 @@
           "travelPerEvent": "Travel and lodging (€)",
           "caddieFeePerEvent": "Caddie fee (€)",
           "caddieShare": "Caddie share of winnings (0–1)",
-          "coachFeePerEvent": "Coach fee (€)",
+          "coachAnnualFee": "Coach annual fee (€)",
           "coachShare": "Coach share of winnings (0–1)",
           "gains": "Prize money",
           "costs": "Direct costs"
         },
         "tip": {
-          "circuit": "Choosing a tour fills in its average prizes for that year. Choose Other to keep your own values.",
+          "circuit": "Choosing a tour fills in its average prizes for that year: Alps, Challenge and DP World Tour in Europe; PGA Tour Americas, Korn Ferry and PGA Tour in the United States, converted from dollars. Choose Custom values to keep your own.",
           "events": "Tournaments entered during the year. Per-event costs are multiplied by this number.",
           "cuts": "Tournaments where the cut was made, including wins and top-10 finishes. Cannot exceed events played.",
           "top10s": "Top-10 finishes that were not wins. Wins plus top 10s cannot exceed cuts made.",
@@ -364,7 +371,7 @@
           "travelPerEvent": "Transport, hotel and meals per tournament.",
           "caddieFeePerEvent": "Fixed caddie fee per tournament.",
           "caddieShare": "Share of winnings paid to the caddie. 0.08 = 8 % of prize money.",
-          "coachFeePerEvent": "Fixed coach fee per tournament, for a coach who travels to events.",
+          "coachAnnualFee": "Fixed fee paid to the coach for the year, whatever the number of events.",
           "coachShare": "Share of winnings paid to the coach. 0.05 = 5 % of prize money."
         },
         "issue": {

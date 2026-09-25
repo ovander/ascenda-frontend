@@ -14,9 +14,12 @@ const num = (v: string | number | undefined | null): number => {
   return Number.isFinite(n) ? n : 0
 }
 
+export type CircuitRegion = 'europe' | 'us'
+
 /** A tour's average prize economics, used to pre-fill a year. */
 export interface CircuitPreset {
   id: string
+  region: CircuitRegion
   name: string
   prizePerWin: string
   prizePerTop10: string
@@ -24,16 +27,29 @@ export interface CircuitPreset {
 }
 
 /**
- * Golf tour presets: average winner's cheque, average top-10 cheque (wins
- * excluded) and average cheque for another cut made, in euros. Calibrated
- * on 2026 results (Alps Tour from a full season's official results,
- * Challenge and DP World Tour from published purses). Starting points only:
- * every value stays editable.
+ * Golf tour presets, in euros: average winner's cheque, average top-10
+ * cheque (wins excluded) and average cheque for another cut made. Starting
+ * points only; every value stays editable.
+ *
+ * Europe (ladder: Alps → Challenge → DP World Tour): Alps Tour from a full
+ * 2026 season of official results; Challenge and DP World Tour from
+ * published 2026 purses.
+ *
+ * United States (ladder: PGA Tour Americas → Korn Ferry → PGA Tour): all
+ * three pay on the PGA Tour distribution (winner 18 %, 2nd–10th 42.05 %,
+ * 11th–70th 39.95 %), so a top 10 averages 4.67 % of the purse and another
+ * cut 0.67 %. 2026 purses: PGA Tour Americas $225K, Korn Ferry Tour $1.0M
+ * (minimum; playoffs $1.5M), PGA Tour full-field events ~$9M (signature
+ * events, $20M, not included). Converted at 1 EUR = 1.1389 USD
+ * (25 Sept 2026) and rounded.
  */
 export const CIRCUIT_PRESETS: CircuitPreset[] = [
-  { id: 'alps',      name: 'Alps Tour',      prizePerWin: '7455',   prizePerTop10: '1647',  prizePerCut: '692' },
-  { id: 'challenge', name: 'Challenge Tour', prizePerWin: '45000',  prizePerTop10: '12000', prizePerCut: '2500' },
-  { id: 'dpworld',   name: 'DP World Tour',  prizePerWin: '380000', prizePerTop10: '90000', prizePerCut: '12000' },
+  { id: 'alps',      region: 'europe', name: 'Alps Tour',         prizePerWin: '7455',    prizePerTop10: '1647',   prizePerCut: '692' },
+  { id: 'challenge', region: 'europe', name: 'Challenge Tour',    prizePerWin: '45000',   prizePerTop10: '12000',  prizePerCut: '2500' },
+  { id: 'dpworld',   region: 'europe', name: 'DP World Tour',     prizePerWin: '380000',  prizePerTop10: '90000',  prizePerCut: '12000' },
+  { id: 'americas',  region: 'us',     name: 'PGA Tour Americas', prizePerWin: '35600',   prizePerTop10: '9230',   prizePerCut: '1320' },
+  { id: 'kornferry', region: 'us',     name: 'Korn Ferry Tour',   prizePerWin: '158000',  prizePerTop10: '41000',  prizePerCut: '5850' },
+  { id: 'pgatour',   region: 'us',     name: 'PGA Tour',          prizePerWin: '1420000', prizePerTop10: '369000', prizePerCut: '52600' },
 ]
 
 export function defaultCompetition(): CompetitionParams {
@@ -54,9 +70,24 @@ export function defaultCompetition(): CompetitionParams {
     travelPerEvent: s('1100'),
     caddieFeePerEvent: s('0'),
     caddieShare: s('0'),
-    coachFeePerEvent: s('0'),
+    coachAnnualFee: s('0'),
     coachShare: s('0'),
   }
+}
+
+/**
+ * Brings parameters saved by earlier versions of the driver to the current
+ * shape: a missing coach annual fee becomes 0, and a legacy coach fee per
+ * event is folded into the annual fee (fee × events) so its cost is kept.
+ * Returns the input unchanged when there is nothing to convert.
+ */
+export function normalizeCompetition(p: CompetitionParams): CompetitionParams {
+  if (p.coachAnnualFee && !p.coachFeePerEvent) return p
+  const { coachFeePerEvent, ...rest } = p
+  const annual = YEARS.map((y) =>
+    String(num(p.coachAnnualFee?.[y]) + num(coachFeePerEvent?.[y]) * num(p.events[y])),
+  ) as CompetitionParams['coachAnnualFee']
+  return { ...rest, coachAnnualFee: annual }
 }
 
 export function defaultContract(): ContractParams {
@@ -82,13 +113,16 @@ export function competitionGains(p: CompetitionParams, y: number): number {
   )
 }
 
-/** Direct costs for year y: per-event fees plus the shares of winnings. */
+/**
+ * Direct costs for year y: per-event fees (entry, travel, caddie), the
+ * coach's annual fee, and the caddie's and coach's shares of winnings.
+ */
 export function competitionCosts(p: CompetitionParams, y: number): number {
   const perEvent =
-    num(p.entryFeePerEvent[y]) + num(p.travelPerEvent[y]) +
-    num(p.caddieFeePerEvent[y]) + num(p.coachFeePerEvent[y])
+    num(p.entryFeePerEvent[y]) + num(p.travelPerEvent[y]) + num(p.caddieFeePerEvent[y]) +
+    num(p.coachFeePerEvent?.[y]) // legacy, 0 once normalized
   const share = num(p.caddieShare[y]) + num(p.coachShare[y])
-  return num(p.events[y]) * perEvent + share * competitionGains(p, y)
+  return num(p.events[y]) * perEvent + num(p.coachAnnualFee?.[y]) + share * competitionGains(p, y)
 }
 
 /**
