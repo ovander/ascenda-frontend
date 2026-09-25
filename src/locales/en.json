@@ -117,7 +117,9 @@
     "consulting": "Consulting",
     "industry": "Industry",
     "marketplace": "Marketplace",
-    "media": "Media"
+    "media": "Media",
+    "competition": "Competition",
+    "contract": "Contract"
   },
   "mobile": {
     "readOnlyNotice": "View-only mode — editing is available on tablet or desktop."
@@ -319,7 +321,73 @@
   },
   "products": {
     "driver": {
-      "parameter": "Parameter"
+      "parameter": "Parameter",
+      "competition": {
+        "intro": "Prize money comes from results: wins, top-10 finishes and other cuts, each paid at the tour's average prize, plus prize money earned outside the main circuit. Each event costs its entry fee, travel, caddie and coach; caddie and coach also take a share of winnings.",
+        "otherCircuit": "Other",
+        "section": {
+          "results": "Results",
+          "prizes": "Prize money",
+          "costs": "Costs per event",
+          "result": "Result"
+        },
+        "field": {
+          "circuit": "Tour",
+          "events": "Events played",
+          "cuts": "Cuts made",
+          "top10s": "Top-10 finishes (excl. wins)",
+          "wins": "Wins",
+          "prizePerWin": "Prize per win (€)",
+          "prizePerTop10": "Average prize per top 10 (€)",
+          "prizePerCut": "Average prize per other cut (€)",
+          "otherPrizeMoney": "Other prize money (€)",
+          "entryFeePerEvent": "Entry fee (€)",
+          "travelPerEvent": "Travel and lodging (€)",
+          "caddieFeePerEvent": "Caddie fee (€)",
+          "caddieShare": "Caddie share of winnings (0–1)",
+          "coachFeePerEvent": "Coach fee (€)",
+          "coachShare": "Coach share of winnings (0–1)",
+          "gains": "Prize money",
+          "costs": "Direct costs"
+        },
+        "tip": {
+          "circuit": "Choosing a tour fills in its average prizes for that year. Choose Other to keep your own values.",
+          "events": "Tournaments entered during the year. Per-event costs are multiplied by this number.",
+          "cuts": "Tournaments where the cut was made, including wins and top-10 finishes. Cannot exceed events played.",
+          "top10s": "Top-10 finishes that were not wins. Wins plus top 10s cannot exceed cuts made.",
+          "wins": "Tournaments won. Also used for the bonus per win of sponsorship contracts.",
+          "prizePerWin": "Average winner's cheque on this tour.",
+          "prizePerTop10": "Average cheque for a top-10 finish that is not a win.",
+          "prizePerCut": "Average cheque for a cut made outside the top 10.",
+          "otherPrizeMoney": "Prize money from events outside the main tour: national championship, invitations.",
+          "entryFeePerEvent": "Entry fee paid for each tournament.",
+          "travelPerEvent": "Transport, hotel and meals per tournament.",
+          "caddieFeePerEvent": "Fixed caddie fee per tournament.",
+          "caddieShare": "Share of winnings paid to the caddie. 0.08 = 8 % of prize money.",
+          "coachFeePerEvent": "Fixed coach fee per tournament, for a coach who travels to events.",
+          "coachShare": "Share of winnings paid to the coach. 0.05 = 5 % of prize money."
+        },
+        "issue": {
+          "cutsAboveEvents": "cuts made ({cuts}) exceed events played ({events})",
+          "winsAboveCuts": "wins plus top-10 finishes ({count}) exceed cuts made ({cuts})",
+          "sharesAboveOne": "caddie and coach shares together exceed 100 % of winnings"
+        }
+      },
+      "contract": {
+        "intro": "One line per contract with its value for each year; leave a year at 0 when the contract is not active. The bonus per win is paid on the wins entered on this scenario's Competition products, for contracts active that year.",
+        "field": {
+          "partner": "Partner",
+          "bonusPerWin": "Bonus per win (€)",
+          "fixed": "Contract values",
+          "wins": "Wins (Competition products)",
+          "bonus": "Win bonuses",
+          "total": "Revenue"
+        },
+        "partnerPlaceholder": "Partner name",
+        "add": "Add contract",
+        "remove": "Remove contract",
+        "empty": "No contract yet."
+      }
     }
   },
   "fiplan": {

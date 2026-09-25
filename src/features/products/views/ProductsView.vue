@@ -100,11 +100,25 @@ const driverTypeOptions: {
     icon: '🎓',
     description: 'Revenue = Sessions × Participants × Fill Rate × Price/participant. Cost split between fixed per-session (trainer, venue) and variable per-participant.',
   },
+  {
+    value: 'competition',
+    label: 'Competition / Prize Money',
+    icon: '🏆',
+    description: 'Prize money = Wins, Top 10s and Cuts × the tour\'s prize per result. Cost per event: entry, travel, caddie and coach (fixed fee + share of winnings).',
+  },
+  {
+    value: 'contract',
+    label: 'Sponsorship / Contracts',
+    icon: '✍️',
+    description: 'Revenue = contract values per year + a bonus per win on active contracts. Wins come from the Competition products of the scenario.',
+  },
 ]
 
 /** Derive the backend productType from the chosen driver. */
 function productTypeFromDriver(dt: DriverType): 'service' | 'product' {
-  return dt === 'consulting' || dt === 'session_based' ? 'service' : 'product'
+  return dt === 'consulting' || dt === 'session_based' || dt === 'competition' || dt === 'contract'
+    ? 'service'
+    : 'product'
 }
 
 const newProductDriverParams = ref<DriverParams>(null)

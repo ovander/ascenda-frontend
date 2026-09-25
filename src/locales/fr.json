@@ -117,7 +117,9 @@
     "consulting": "Conseil",
     "industry": "Industrie",
     "marketplace": "Marketplace",
-    "media": "Média"
+    "media": "Média",
+    "competition": "Compétition",
+    "contract": "Contrats"
   },
   "mobile": {
     "readOnlyNotice": "Mode consultation — la saisie est disponible sur tablette ou ordinateur."
@@ -319,7 +321,73 @@
   },
   "products": {
     "driver": {
-      "parameter": "Paramètre"
+      "parameter": "Paramètre",
+      "competition": {
+        "intro": "Les gains viennent des résultats : victoires, top 10 et autres cuts, chacun payé au gain moyen du circuit, plus les gains hors circuit principal. Chaque tournoi coûte ses droits d'entrée, le déplacement, le caddie et le coach ; caddie et coach perçoivent aussi une part des gains.",
+        "otherCircuit": "Autre",
+        "section": {
+          "results": "Résultats",
+          "prizes": "Gains",
+          "costs": "Coûts par tournoi",
+          "result": "Résultat"
+        },
+        "field": {
+          "circuit": "Circuit",
+          "events": "Tournois joués",
+          "cuts": "Cuts passés",
+          "top10s": "Top 10 (hors victoire)",
+          "wins": "Victoires",
+          "prizePerWin": "Gain par victoire (€)",
+          "prizePerTop10": "Gain moyen par top 10 (€)",
+          "prizePerCut": "Gain moyen par autre cut (€)",
+          "otherPrizeMoney": "Gains hors circuit (€)",
+          "entryFeePerEvent": "Droits d'entrée (€)",
+          "travelPerEvent": "Déplacement et hébergement (€)",
+          "caddieFeePerEvent": "Caddie, fixe (€)",
+          "caddieShare": "Caddie, part des gains (0–1)",
+          "coachFeePerEvent": "Coach, fixe (€)",
+          "coachShare": "Coach, part des gains (0–1)",
+          "gains": "Gains sportifs",
+          "costs": "Coûts directs"
+        },
+        "tip": {
+          "circuit": "Choisir un circuit renseigne ses gains moyens pour l'année. Choisissez Autre pour garder vos propres valeurs.",
+          "events": "Tournois disputés dans l'année. Les coûts par tournoi sont multipliés par ce nombre.",
+          "cuts": "Tournois où le cut a été passé, victoires et top 10 compris. Ne peut dépasser les tournois joués.",
+          "top10s": "Top 10 qui ne sont pas des victoires. Victoires et top 10 ne peuvent dépasser les cuts passés.",
+          "wins": "Tournois gagnés. Sert aussi au bonus par victoire des contrats de sponsoring.",
+          "prizePerWin": "Chèque moyen du vainqueur sur ce circuit.",
+          "prizePerTop10": "Chèque moyen d'un top 10 hors victoire.",
+          "prizePerCut": "Chèque moyen d'un cut passé hors top 10.",
+          "otherPrizeMoney": "Gains d'épreuves hors circuit principal : championnat national, invitations.",
+          "entryFeePerEvent": "Droits d'entrée payés à chaque tournoi.",
+          "travelPerEvent": "Transport, hôtel et repas par tournoi.",
+          "caddieFeePerEvent": "Rémunération fixe du caddie par tournoi.",
+          "caddieShare": "Part des gains reversée au caddie. 0,08 = 8 % des gains.",
+          "coachFeePerEvent": "Rémunération fixe du coach par tournoi, pour un coach présent sur les épreuves.",
+          "coachShare": "Part des gains reversée au coach. 0,05 = 5 % des gains."
+        },
+        "issue": {
+          "cutsAboveEvents": "les cuts passés ({cuts}) dépassent les tournois joués ({events})",
+          "winsAboveCuts": "victoires et top 10 ({count}) dépassent les cuts passés ({cuts})",
+          "sharesAboveOne": "les parts du caddie et du coach dépassent ensemble 100 % des gains"
+        }
+      },
+      "contract": {
+        "intro": "Une ligne par contrat avec son montant pour chaque année ; laissez 0 les années où le contrat n'est pas actif. Le bonus par victoire est versé sur les victoires saisies dans les produits Compétition du scénario, pour les contrats actifs cette année-là.",
+        "field": {
+          "partner": "Partenaire",
+          "bonusPerWin": "Bonus par victoire (€)",
+          "fixed": "Montants des contrats",
+          "wins": "Victoires (produits Compétition)",
+          "bonus": "Bonus de victoires",
+          "total": "Recettes"
+        },
+        "partnerPlaceholder": "Nom du partenaire",
+        "add": "Ajouter un contrat",
+        "remove": "Supprimer le contrat",
+        "empty": "Aucun contrat pour l'instant."
+      }
     }
   },
   "fiplan": {

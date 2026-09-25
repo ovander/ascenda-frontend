@@ -25,6 +25,8 @@ import type {
   MarketplaceParams,
   MediaParams,
   SessionBasedParams,
+  CompetitionParams,
+  ContractParams,
 } from '@/types'
 
 // ── Driver context helpers ──────────────────────────────────────────────────
@@ -75,6 +77,22 @@ function driverMetrics(driverType: string, params: DriverParams, currency: strin
       const p = params as IndustryParams
       metrics.push({ label: 'Production Capacity (Y5)', value: p.productionCapacity[4] ?? p.productionCapacity[0], note: toSeries(p.productionCapacity) })
       metrics.push({ label: 'Scrap Rate', value: lastNum(p.scrapRate), unit: '%' })
+      break
+    }
+    case 'competition': {
+      const p = params as CompetitionParams
+      metrics.push({ label: 'Events Played (Y5)', value: p.events[4] ?? p.events[0], note: toSeries(p.events) })
+      metrics.push({ label: 'Cuts Made (Y5)', value: p.cuts[4] ?? p.cuts[0], note: toSeries(p.cuts) })
+      metrics.push({ label: 'Wins (Y5)', value: p.wins[4] ?? p.wins[0], note: toSeries(p.wins) })
+      metrics.push({ label: 'Prize per Win', value: lastNum(p.prizePerWin), currency, note: p.circuit[4] ?? '' })
+      break
+    }
+    case 'contract': {
+      const p = params as ContractParams
+      const perYear = [0, 1, 2, 3, 4].map((y) =>
+        p.contracts.reduce((sum, c) => sum + (parseFloat(String(c.amounts[y] ?? 0)) || 0), 0))
+      metrics.push({ label: 'Contracts', value: p.contracts.length })
+      metrics.push({ label: 'Contract Value (Y5)', value: perYear[4] ?? 0, currency, note: toSeries(perYear) })
       break
     }
     case 'session_based': {
