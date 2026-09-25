@@ -23,12 +23,15 @@ test.describe('Unauthenticated redirect', () => {
   ]
 
   for (const route of protectedRoutes) {
-    test(`redirects "${route}" to /login when not authenticated`, async ({ page }) => {
+    test(`redirects "${route}" to /landing when not authenticated`, async ({ page }) => {
       await page.route('**/api/**',  r => r.fulfill({ json: {} }))
       await page.route('**/auth/**', r => r.fulfill({ json: {} }))
       await page.goto(route)
-      await page.waitForURL(/landing\.html/)
-      await expect(page).toHaveURL(/landing\.html/)
+      await page.waitForURL(/\/landing(\?|$)/)
+      await expect(page).toHaveURL(/\/landing(\?|$)/)
+      if (route !== '/') {
+        expect(new URL(page.url()).searchParams.get('redirect')).toBe(route)
+      }
     })
   }
 })
