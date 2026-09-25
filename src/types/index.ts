@@ -158,6 +158,8 @@ export type DriverType =
   | 'marketplace'
   | 'media'
   | 'session_based'
+  | 'competition'
+  | 'contract'
 
 /** Typed params for the 'consulting' driver */
 export interface ConsultingParams {
@@ -225,6 +227,59 @@ export interface SessionBasedParams {
   variableCostPerParticipant: [string, string, string, string, string]
 }
 
+type PerYear<T> = [T, T, T, T, T]
+
+/**
+ * Typed params for the 'competition' driver (athlete prize money).
+ *
+ *   gains     = wins × prizePerWin + top10s × prizePerTop10
+ *             + (cuts − wins − top10s) × prizePerCut + otherPrizeMoney
+ *   volume    = events
+ *   unit cost = entry + travel + caddie fee + coach fee (per event)
+ *             + (caddieShare + coachShare) × gains / events
+ *
+ * Counts are JSON numbers (int64 on the backend); money and shares are
+ * decimal strings. Shares are fractions of winnings (0.07 = 7 %).
+ */
+export interface CompetitionParams {
+  /** Tour played each year (informational, drives the presets) */
+  circuit: PerYear<string>
+  events: PerYear<number>
+  cuts: PerYear<number>
+  /** Top-10 finishes, wins excluded */
+  top10s: PerYear<number>
+  wins: PerYear<number>
+  prizePerWin: PerYear<string>
+  prizePerTop10: PerYear<string>
+  prizePerCut: PerYear<string>
+  /** Prize money outside the main circuit (national championship, invitations) */
+  otherPrizeMoney: PerYear<string>
+  entryFeePerEvent: PerYear<string>
+  travelPerEvent: PerYear<string>
+  caddieFeePerEvent: PerYear<string>
+  caddieShare: PerYear<string>
+  coachFeePerEvent: PerYear<string>
+  coachShare: PerYear<string>
+}
+
+/** One sponsorship or image-rights contract of the 'contract' driver. */
+export interface ContractLine {
+  partner: string
+  /** Fixed value per year; '0' = contract not active that year */
+  amounts: PerYear<string>
+  /** Paid per competition win in a year the contract is active */
+  bonusPerWin: string
+}
+
+/**
+ * Typed params for the 'contract' driver (sponsorship, image rights).
+ *   revenue = Σ amounts + wins × Σ bonusPerWin of contracts active that year
+ * Wins come from the scenario's competition products.
+ */
+export interface ContractParams {
+  contracts: ContractLine[]
+}
+
 export type DriverParams =
   | ConsultingParams
   | SaaSParams
@@ -232,6 +287,8 @@ export type DriverParams =
   | MarketplaceParams
   | MediaParams
   | SessionBasedParams
+  | CompetitionParams
+  | ContractParams
   | null
 
 // ---- Products ----

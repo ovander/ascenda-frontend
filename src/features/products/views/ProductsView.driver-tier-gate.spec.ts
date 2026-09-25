@@ -6,11 +6,11 @@
  * Covered behaviour:
  *   isDriverLocked()
  *     - generic is never locked regardless of tier
- *     - all 6 non-generic drivers are locked on free tier
+ *     - all 8 non-generic drivers are locked on free tier
  *     - nothing is locked on pro/enterprise tier
  *
  *   Free-tier card rendering
- *     - all 7 driver cards are visible (shown but locked)
+ *     - all 9 driver cards are visible (shown but locked)
  *     - only non-generic cards carry driver-card--locked class
  *     - only locked cards show a PRO badge
  *     - locked card radio inputs are disabled (keyboard / programmatic safe)
@@ -122,8 +122,8 @@ const stubs = {
   DriverParamsForm:   { template: '<div />' },
 }
 
-// ── ALL 7 expected driver values ──────────────────────────────────────────────
-const ALL_DRIVERS = ['generic', 'consulting', 'saas', 'industry', 'marketplace', 'media', 'session_based']
+// ── ALL 9 expected driver values ──────────────────────────────────────────────
+const ALL_DRIVERS = ['generic', 'consulting', 'saas', 'industry', 'marketplace', 'media', 'session_based', 'competition', 'contract']
 const LOCKED_DRIVERS = ALL_DRIVERS.filter((d) => d !== 'generic')
 
 // ── Mount helper ──────────────────────────────────────────────────────────────
@@ -174,7 +174,7 @@ describe('ProductsView — driver card tier-gating', () => {
 
   // ── Free-tier card rendering ───────────────────────────────────────────────
   describe('free-tier card rendering', () => {
-    it('renders all 7 driver options (visible to free users)', () => {
+    it('renders all 9 driver options (visible to free users)', () => {
       const wrapper = mountView()
       expect(wrapper.findAll('.driver-card')).toHaveLength(ALL_DRIVERS.length)
     })
@@ -188,10 +188,10 @@ describe('ProductsView — driver card tier-gating', () => {
       expect(genericCard!.classes()).not.toContain('driver-card--locked')
     })
 
-    it('all 6 non-generic cards have driver-card--locked class', () => {
+    it('all 8 non-generic cards have driver-card--locked class', () => {
       const wrapper = mountView()
       const lockedCards = wrapper.findAll('.driver-card--locked')
-      expect(lockedCards).toHaveLength(6)
+      expect(lockedCards).toHaveLength(8)
     })
 
     it('each locked card shows exactly one PRO badge', () => {
@@ -276,7 +276,7 @@ describe('ProductsView — driver card tier-gating', () => {
       mockIsPro.value = true
     })
 
-    it('renders all 7 driver options', () => {
+    it('renders all 9 driver options', () => {
       const wrapper = mountView()
       expect(wrapper.findAll('.driver-card')).toHaveLength(ALL_DRIVERS.length)
     })

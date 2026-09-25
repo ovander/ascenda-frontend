@@ -17,9 +17,14 @@ import type {
   MarketplaceParams,
   MediaParams,
   SessionBasedParams,
+  CompetitionParams,
+  ContractParams,
 } from '@/types'
 import InputNumber from 'primevue/inputnumber'
 import KFieldLabel from '@/components/common/KFieldLabel.vue'
+import CompetitionDriverForm from './CompetitionDriverForm.vue'
+import ContractDriverForm from './ContractDriverForm.vue'
+import { defaultCompetition, defaultContract } from '../utils/athleteDrivers'
 
 // ── Props / Emits ──────────────────────────────────────────────────────────
 interface Props {
@@ -40,6 +45,8 @@ const industry     = computed(() => props.modelValue as IndustryParams     | nul
 const marketplace  = computed(() => props.modelValue as MarketplaceParams  | null)
 const media        = computed(() => props.modelValue as MediaParams        | null)
 const sessionBased = computed(() => props.modelValue as SessionBasedParams | null)
+const competition  = computed(() => props.modelValue as CompetitionParams  | null)
+const contract     = computed(() => props.modelValue as ContractParams     | null)
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const YEAR_LABELS = ['Y1', 'Y2', 'Y3', 'Y4', 'Y5']
@@ -143,6 +150,8 @@ watch(
       marketplace:  defaultMarketplace(),
       media:        defaultMedia(),
       session_based: defaultSessionBased(),
+      competition:  defaultCompetition(),
+      contract:     defaultContract(),
     }
     if (defaults[dt]) emit('update:modelValue', defaults[dt])
   },
@@ -717,6 +726,20 @@ watch(
       </table>
     </div>
   </div>
+
+  <!-- ── Competition (athlete prize money) ─────────────────────────────── -->
+  <CompetitionDriverForm
+    v-else-if="driverType === 'competition' && competition"
+    :model-value="competition"
+    @update:model-value="(v) => emit('update:modelValue', v)"
+  />
+
+  <!-- ── Contract (sponsorship, image rights) ───────────────────────────── -->
+  <ContractDriverForm
+    v-else-if="driverType === 'contract' && contract"
+    :model-value="contract"
+    @update:model-value="(v) => emit('update:modelValue', v)"
+  />
 
   <!-- Fallback (should not happen for non-generic types) -->
   <div v-else-if="driverType !== 'generic'" class="text-sm text-gray-400 italic py-4">

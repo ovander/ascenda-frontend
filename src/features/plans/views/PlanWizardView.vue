@@ -95,7 +95,7 @@ const formData = reactive<Record<string, any>>({
 })
 
 // ── Products (step 6) ───────────────────────────────────────────
-type WizardDriverType = 'generic' | 'consulting' | 'saas' | 'industry' | 'marketplace' | 'media' | 'session_based'
+type WizardDriverType = 'generic' | 'consulting' | 'saas' | 'industry' | 'marketplace' | 'media' | 'session_based' | 'competition' | 'contract'
 
 interface WizardProduct {
   name: string
@@ -117,10 +117,14 @@ const driverOptions: { label: string; value: WizardDriverType; icon: string }[] 
   { value: 'marketplace',   label: 'Marketplace',          icon: '🛒' },
   { value: 'media',         label: 'Media / Ads',          icon: '📺' },
   { value: 'session_based', label: 'Training / Events',    icon: '🎓' },
+  { value: 'competition',   label: 'Competition / Prizes', icon: '🏆' },
+  { value: 'contract',      label: 'Sponsorship',          icon: '✍️' },
 ]
 
 function productTypeFromDriver(dt: WizardDriverType): 'service' | 'product' {
-  return dt === 'consulting' || dt === 'session_based' ? 'service' : 'product'
+  return dt === 'consulting' || dt === 'session_based' || dt === 'competition' || dt === 'contract'
+    ? 'service'
+    : 'product'
 }
 
 function emptyProduct(): WizardProduct {

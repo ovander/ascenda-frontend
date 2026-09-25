@@ -21,6 +21,8 @@ import type {
   MarketplaceParams,
   MediaParams,
   SessionBasedParams,
+  CompetitionParams,
+  ContractParams,
 } from '@/types'
 
 // ── Minimal stub for KFieldLabel so we can inspect label text ──────────────
@@ -41,6 +43,8 @@ const stubs = {
   KFieldLabel: KFieldLabelStub,
   InputNumber: InputNumberStub,
   InputText: { template: '<input />' },
+  CompetitionDriverForm: { props: ['modelValue'], template: '<div class="competition-form" />' },
+  ContractDriverForm: { props: ['modelValue'], template: '<div class="contract-form" />' },
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -481,6 +485,29 @@ describe('DriverParamsForm', () => {
       expect(fn('marketplace')).toBe('product')
       expect(fn('media')).toBe('product')
       expect(fn('generic')).toBe('product')
+    })
+  })
+
+  // ── athlete drivers ─────────────────────────────────────────────────────────
+  describe('athlete drivers', () => {
+    it('seeds competition defaults on the Alps Tour and renders the competition form', async () => {
+      const wrapper = mountForm('competition', null)
+      await nextTick()
+      const seeded = (wrapper.emitted('update:modelValue') as any[])[0][0] as CompetitionParams
+      expect(seeded.circuit[0]).toBe('Alps Tour')
+      expect(seeded.events).toEqual([20, 20, 20, 20, 20])
+      expect(seeded.coachShare).toHaveLength(5)
+      await wrapper.setProps({ modelValue: seeded })
+      expect(wrapper.find('.competition-form').exists()).toBe(true)
+    })
+
+    it('seeds one empty contract and renders the contract form', async () => {
+      const wrapper = mountForm('contract', null)
+      await nextTick()
+      const seeded = (wrapper.emitted('update:modelValue') as any[])[0][0] as ContractParams
+      expect(seeded.contracts).toHaveLength(1)
+      await wrapper.setProps({ modelValue: seeded })
+      expect(wrapper.find('.contract-form').exists()).toBe(true)
     })
   })
 })
