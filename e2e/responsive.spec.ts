@@ -9,7 +9,7 @@
  *   - KPI cards stack correctly on mobile and go multi-column on tablet+
  */
 
-import { test, expect, PLAN_ID, SCENARIO_ID, MOCK_PLAN, MOCK_SCENARIO } from './fixtures'
+import { test, expect, PLAN_ID, SCENARIO_ID, MOCK_PLAN } from './fixtures'
 
 // ─── Viewport presets ──────────────────────────────────────────────────────
 const MOBILE  = { width: 375,  height: 812  }

@@ -9,7 +9,7 @@
  *   - Emits update:modelValue on per-year array field changes
  *   - Preserves unchanged array values on partial update
  */
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, nextTick } from 'vue'
 import type {

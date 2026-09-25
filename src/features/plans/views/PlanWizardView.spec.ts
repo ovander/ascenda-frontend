@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref, reactive, computed, nextTick } from 'vue'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { ref } from 'vue'
 
 // We test the wizard's local logic (validation, step navigation, data structures)
 // without mounting the full Vue component, since PrimeVue components require

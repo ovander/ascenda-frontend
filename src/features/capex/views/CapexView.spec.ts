@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { ref, computed, defineComponent } from 'vue'
+import { ref, computed } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
 import CapexView from './CapexView.vue'
 

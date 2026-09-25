@@ -309,7 +309,7 @@ export type WizardCapture = {
  * reverse registration order (last-registered = first-applied), so wizard-specific
  * handlers must be registered LAST to take priority over the catch-all.
  */
-export async function mockWizardRoutes(page: Page, isPro = false): Promise<WizardCapture> {
+export async function mockWizardRoutes(page: Page, _isPro = false): Promise<WizardCapture> {
   const capture: WizardCapture = {
     createScenario:  null,
     updateConfig:    null,

@@ -132,7 +132,7 @@ async function openDepts(org: AdminOrg) {
   deptLoading.value = true
   try {
     deptTenants.value = await store.fetchOrgTenants(org.id)
-  } catch (err: any) {
+  } catch {
     toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load departments', life: 4000 })
   } finally {
     deptLoading.value = false

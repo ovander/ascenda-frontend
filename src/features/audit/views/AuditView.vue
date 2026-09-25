@@ -89,7 +89,7 @@ async function fetchAudit() {
     const data = response.data ?? response
     entries.value = data.data ?? []
     totalRecords.value = data.total ?? 0
-  } catch (e) {
+  } catch {
     entries.value = []
   } finally {
     loading.value = false

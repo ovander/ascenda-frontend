@@ -12,7 +12,7 @@ vi.mock('@/features/scenarios/stores/scenarioStore', () => ({
   useScenarioStore: vi.fn(() => ({ activeScenario: { id: 'sc-1' } })),
 }))
 vi.mock('@/utils/format', () => ({
-  debounce: (fn: Function) => fn,
+  debounce: (fn: (...args: unknown[]) => unknown) => fn,
 }))
 vi.mock('@/utils/constants', () => ({ DEBOUNCE_MS: 0 }))
 

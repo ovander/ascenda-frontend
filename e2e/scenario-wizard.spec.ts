@@ -28,11 +28,11 @@
 import {
   test, expect,
   PLAN_ID, WIZARD_SCENARIO_ID,
-  MOCK_PLAN, MOCK_USER, MOCK_SCENARIO,
+  MOCK_PLAN, MOCK_USER,
   mockApiCalls, mockWizardRoutes,
   injectTenantTier, routerPush,
 } from './fixtures'
-import type { Page, Locator } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 

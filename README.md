@@ -152,6 +152,7 @@ Point-in-time scenario snapshots with diff comparison; full audit trail for all 
 | Form validation | [Vee-validate](https://vee-validate.logaretm.com/) + [Yup](https://github.com/jquense/yup) |
 | Internationalisation | [Vue i18n](https://vue-i18n.intlify.dev/) (FR / EN) |
 | Unit tests | [Vitest](https://vitest.dev/) |
+| Lint | [ESLint](https://eslint.org/) flat config: `eslint-plugin-vue` essential + `@vue/eslint-config-typescript` recommended (`eslint.config.js`) |
 | E2E tests | [Playwright](https://playwright.dev/) |
 
 ---
@@ -258,6 +259,7 @@ npm run preview   # preview the production build locally
 ### Run tests
 
 ```bash
+npm run lint           # ESLint (Vue essential + typescript-eslint recommended); lint:fix applies the auto-fixes
 npm run test           # unit tests (Vitest)
 npm run test:coverage  # with coverage report
 npm run test:e2e       # end-to-end tests (Playwright)

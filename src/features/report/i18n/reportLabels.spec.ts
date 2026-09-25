@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { getLabels } from './reportLabels'
-import type { ReportLabels } from './reportLabels'
 
 describe('getLabels', () => {
   // ── Language selection ──────────────────────────────────────────────────
