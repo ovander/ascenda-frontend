@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Typecheck, unit tests, audit, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install (from lockfile)
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        run: npx vue-tsc -b
+
+      - name: Unit tests
+        run: npx vitest run
+
+      - name: i18n key parity
+        run: node scripts/check-i18n.mjs
+
+      # Production dependencies must stay free of high/critical advisories;
+      # dev-only advisories are reported but do not fail the build.
+      - name: npm audit (production deps)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: npm audit (all deps, informational)
+        run: npm audit --audit-level=high || true
+
+      - name: Production build
+        run: npx vite build
+
+  e2e:
+    name: Playwright e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install (from lockfile)
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # playwright.config.ts builds the app and serves it with `vite preview`;
+      # the specs mock every /api/v1 call, so no backend is needed.
+      - name: Run e2e suite
+        run: npx playwright test
+        env:
+          CI: "true"
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
