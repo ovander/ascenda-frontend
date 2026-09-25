@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
+import { escapeHtml as esc } from '@/utils/escapeHtml'
 import { useBudgetStore } from '@/features/budget/stores/budgetStore'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useSettingsStore } from '@/features/settings/stores/settingsStore'
@@ -159,7 +160,7 @@ function exportBudgetPDF() {
     const thLabelStyle = 'padding:4px 8px;font-size:9px;font-weight:600;text-align:left;background:#1e3a5f;color:#fff;'
 
     const headerCells = months
-      .map((m) => `<th style="${thBase}background:#1e3a5f;color:#fff;">${m}</th>`)
+      .map((m) => `<th style="${thBase}background:#1e3a5f;color:#fff;">${esc(m)}</th>`)
       .join('')
     const totalHeader = `<th style="${thBase}background:#1e3a5f;color:#fff;">Total</th>`
 
@@ -169,7 +170,7 @@ function exportBudgetPDF() {
           // Section header
           return `<tr>
             <td colspan="${months.length + 2}" style="padding:5px 8px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;background:#e8f0fe;color:#1e3a5f;border-top:1px solid #c3d3ee;">
-              ${row.label}
+              ${esc(row.label)}
             </td>
           </tr>`
         }
@@ -178,7 +179,7 @@ function exportBudgetPDF() {
         const rowBg   = isTotal ? '#f0f9ff' : '#fff'
         const fw      = isTotal ? '700' : '400'
 
-        const labelCell = `<td style="padding:3px 8px;font-size:8.5px;font-weight:${fw};background:${rowBg};white-space:nowrap;${isTotal ? '' : 'padding-left:20px;'}">${row.label}</td>`
+        const labelCell = `<td style="padding:3px 8px;font-size:8.5px;font-weight:${fw};background:${rowBg};white-space:nowrap;${isTotal ? '' : 'padding-left:20px;'}">${esc(row.label)}</td>`
 
         const mCells = row.months.map((v) => {
           const n = typeof v === 'number' ? v : parseFloat(v as string)
@@ -224,7 +225,7 @@ function exportBudgetPDF() {
     const thLabelStyle = 'padding:4px 10px;font-size:10px;font-weight:600;text-align:left;background:#1e3a5f;color:#fff;'
 
     const headerCells = cols
-      .map((c) => `<th style="${thBase}">${c}</th>`)
+      .map((c) => `<th style="${thBase}">${esc(c)}</th>`)
       .join('')
 
     const bodyRows = quarterlyRows.value
@@ -234,7 +235,7 @@ function exportBudgetPDF() {
         const fw    = isAggregate ? '700' : '400'
         const indent = isAggregate ? '' : 'padding-left:20px;'
 
-        const labelCell = `<td style="padding:4px 10px;font-size:9px;font-weight:${fw};background:${rowBg};white-space:nowrap;${indent}">${row.label}</td>`
+        const labelCell = `<td style="padding:4px 10px;font-size:9px;font-weight:${fw};background:${rowBg};white-space:nowrap;${indent}">${esc(row.label)}</td>`
 
         const valCells = row.values.map((v) => {
           const n = typeof v === 'number' ? v : parseFloat(v as string)
@@ -279,7 +280,7 @@ function exportBudgetPDF() {
   const planName = planStore.activePlan?.name ?? ''
 
   const html = `<!DOCTYPE html>
-<html lang="${locale.slice(0, 2)}">
+<html lang="${esc(locale.slice(0, 2))}">
 <head>
   <meta charset="UTF-8">
   <title>Budget</title>
@@ -297,8 +298,8 @@ function exportBudgetPDF() {
 </head>
 <body>
   <div class="header">
-    <h1>Budget${planName ? ` — ${planName}` : ''}</h1>
-    <div class="meta">Generated ${now}</div>
+    <h1>Budget${planName ? ` — ${esc(planName)}` : ''}</h1>
+    <div class="meta">Generated ${esc(now)}</div>
   </div>
   ${buildYear1Table()}
   ${buildYear2Table()}
@@ -307,6 +308,7 @@ function exportBudgetPDF() {
 
   const win = window.open('', '_blank', 'width=1200,height=800')
   if (!win) return
+  win.opener = null // the print window never needs a handle back to the app
   win.document.write(html)
   win.document.close()
   win.addEventListener('load', () => {

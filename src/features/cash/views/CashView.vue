@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
+import { escapeHtml as esc } from '@/utils/escapeHtml'
 import { useI18n } from 'vue-i18n'
 import { useCashStore } from '@/features/cash/stores/cashStore'
 import { usePlanStore } from '@/features/plans/stores/planStore'
@@ -221,7 +222,7 @@ function exportCashFlow() {
     const headerCells = months.map((m, i) => {
       const isBad = badMonths.has(i)
       const bg = isBad ? '#7f1d1d' : '#1e3a5f'
-      const label = isBad ? `${m}&nbsp;⚠` : m
+      const label = isBad ? `${esc(m)}&nbsp;⚠` : esc(m)
       return `<th style="${thBase}background:${bg};color:#fff;">${label}</th>`
     }).join('')
     const totalHeader = `<th style="${thBase}background:#1e3a5f;color:#fff;">Total</th>`
@@ -230,7 +231,7 @@ function exportCashFlow() {
     const alertBanner = badMonths.size > 0
       ? `<div style="margin-bottom:6px;padding:5px 10px;background:#fee2e2;border:1px solid #fca5a5;border-radius:4px;font-size:8.5px;color:#7f1d1d;">
            <strong>⚠ Liquidity alert:</strong> negative closing balance in
-           ${[...badMonths].sort((a, b) => a - b).map((m) => months[m]).join(', ')}
+           ${[...badMonths].sort((a, b) => a - b).map((m) => esc(months[m])).join(', ')}
          </div>`
       : ''
 
@@ -239,7 +240,7 @@ function exportCashFlow() {
         // Section header row
         return `<tr>
           <td colspan="${months.length + 2}" style="padding:5px 8px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;background:#e8f0fe;color:#1e3a5f;border-top:1px solid #c3d3ee;">
-            ${row.label}
+            ${esc(row.label)}
           </td>
         </tr>`
       }
@@ -259,7 +260,7 @@ function exportCashFlow() {
       const fw = (isClosing || isNet) ? '700' : '400'
       const borderTop = isNet ? 'border-top:2px solid #1e3a5f;' : ''
 
-      const labelCell = `<td style="padding:3px 8px;font-size:8.5px;font-weight:${fw};${borderTop}background:${rowBg};white-space:nowrap;">${row.label}</td>`
+      const labelCell = `<td style="padding:3px 8px;font-size:8.5px;font-weight:${fw};${borderTop}background:${rowBg};white-space:nowrap;">${esc(row.label)}</td>`
 
       const mCells = row.months.map((v, mi) => {
         const n = typeof v === 'string' ? parseFloat(v as string) : (v as number)
@@ -284,7 +285,7 @@ function exportCashFlow() {
     return `
       <div style="margin-bottom:32px;page-break-after:always;">
         <h2 style="font-size:13px;font-weight:700;color:#1e3a5f;margin:0 0 6px 0;padding-bottom:4px;border-bottom:2px solid #1e3a5f;">
-          Cash Flow Statement — ${yearLabel}
+          Cash Flow Statement — ${esc(yearLabel)}
         </h2>
         ${alertBanner}
         <table style="border-collapse:collapse;width:100%;table-layout:fixed;">
@@ -313,7 +314,7 @@ function exportCashFlow() {
   const now = new Date().toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' })
 
   const html = `<!DOCTYPE html>
-<html lang="${locale.slice(0, 2)}">
+<html lang="${esc(locale.slice(0, 2))}">
 <head>
   <meta charset="UTF-8">
   <title>Cash Flow Statement</title>
@@ -332,7 +333,7 @@ function exportCashFlow() {
 <body>
   <div class="header">
     <h1>Cash Flow Statement</h1>
-    <div class="meta">Generated ${now}</div>
+    <div class="meta">Generated ${esc(now)}</div>
   </div>
   ${tablesHtml}
 </body>
@@ -340,6 +341,7 @@ function exportCashFlow() {
 
   const win = window.open('', '_blank', 'width=1200,height=800')
   if (!win) return
+  win.opener = null // the print window never needs a handle back to the app
   win.document.write(html)
   win.document.close()
   // Small delay lets the browser finish rendering before the print dialog opens

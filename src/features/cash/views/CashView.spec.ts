@@ -399,3 +399,78 @@ describe('CashView', () => {
     })
   })
 })
+
+// ── Print popup escaping (stored XSS regression) ──────────────────────────────
+//
+// Line labels come from product / opex names typed by any editor of the plan.
+// The print popup is built as an HTML string and opened in the app's origin,
+// so a label must never reach document.write unescaped.
+
+describe('print popup escaping', () => {
+  it('escapes user-controlled labels and severs the opener before writing', async () => {
+    mockLoading.value = false
+    mockReport.value = {
+      years: [
+        {
+          yearIndex: 0,
+          revenue: {
+            total: 1000,
+            lines: [
+              {
+                lineId: 'rev-1',
+                label: '<script>alert(document.cookie)</script>',
+                annualTotal: 1000,
+                months: Array(12).fill('83.33'),
+                distributionRule: 'evenly',
+              },
+            ],
+          },
+          operating: {
+            total: 500,
+            lines: [
+              {
+                lineId: 'opex-1',
+                label: '"><img src=x onerror=alert(1)>',
+                annualTotal: 500,
+                months: Array(12).fill('41.67'),
+              },
+            ],
+          },
+          capex: { total: 100, lines: [] },
+          financing: { total: 0, lines: [] },
+          netCashFlow: Array(12).fill('41.67'),
+          openingBalance: Array(12).fill('100'),
+          closingBalance: Array(12).fill('141.67'),
+        },
+      ],
+    }
+
+    const written: string[] = []
+    const fakeWin: any = {
+      opener: {},
+      document: { write: (html: string) => written.push(html), close: vi.fn() },
+      addEventListener: vi.fn(),
+      focus: vi.fn(),
+      print: vi.fn(),
+    }
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(fakeWin)
+
+    const wrapper = mountView()
+    await wrapper.vm.$nextTick()
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    await wrapper.vm.$nextTick()
+
+    ;(wrapper.vm as any).exportCashFlow()
+
+    expect(openSpy).toHaveBeenCalled()
+    expect(written).toHaveLength(1)
+    const html = written[0]
+    expect(html).not.toContain('<script>alert')
+    expect(html).not.toContain('<img src=x')
+    expect(html).toContain('&lt;script&gt;alert(document.cookie)&lt;/script&gt;')
+    expect(html).toContain('&quot;&gt;&lt;img src=x onerror=alert(1)&gt;')
+    expect(fakeWin.opener).toBeNull()
+
+    openSpy.mockRestore()
+  })
+})
