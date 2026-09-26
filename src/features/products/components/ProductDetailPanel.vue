@@ -10,6 +10,7 @@ import type {
   ProductDerivedBundle,
 } from '@/types'
 import type { GridRow } from '@/components/common/KYearGrid.vue'
+import { productUnits } from '../utils/productUnits'
 import { useProductStore } from '@/features/products/stores/productStore'
 import DriverParamsForm from './DriverParamsForm.vue'
 import { useYearHeaders } from '@/composables/useYearHeaders'
@@ -41,7 +42,8 @@ const unitLabel = computed(() => getUnitLabel())
 // 'service' products bill in days; physical products sell in units
 const currentProduct = computed(() => productStore.products.find((p) => p.id === props.productId))
 const isService = computed(() => currentProduct.value?.productType === 'service')
-const volumeLabel = computed(() => isService.value ? 'days' : 'units')
+const units = computed(() => productUnits(currentProduct.value?.driverType, currentProduct.value?.productType))
+const volumeLabel = computed(() => units.value.plural)
 
 // ── Business Driver Framework ─────────────────────────────────────────────
 /** True when the product uses a typed driver (not 'generic'). */
@@ -109,11 +111,10 @@ const derivedAssumptionsGridRows = computed<GridRow[]>(() => {
   const bundle = derivedBundle.value
   if (!bundle) return []
   const rows: GridRow[] = []
-  const service = isService.value
 
   const bupRow: GridRow = {
     id: `${props.productId}-derived-bup`,
-    label: service ? 'Day Rate (Billing)' : 'Base Unit Price',
+    label: units.value.priceLabel,
     values: [],
     editable: false,
     isComputed: true,
@@ -122,7 +123,7 @@ const derivedAssumptionsGridRows = computed<GridRow[]>(() => {
   }
   const rmcRow: GridRow = {
     id: `${props.productId}-derived-rmc`,
-    label: service ? 'Cost per Day (COGS)' : 'Raw Material Cost',
+    label: units.value.costLabel,
     values: [],
     editable: false,
     isComputed: true,
@@ -869,8 +870,8 @@ async function generateDevData() {
             Driver Config
           </span>
         </Tab>
-        <Tab value="assumptions">{{ isService ? 'Day Rate & Cost' : 'Key Assumptions' }}</Tab>
-        <Tab value="volumes">{{ isService ? 'Billable Days' : 'Sales Volumes' }}</Tab>
+        <Tab value="assumptions">{{ units.assumptionsTab }}</Tab>
+        <Tab value="volumes">{{ units.volumesTab }}</Tab>
         <Tab value="margins">{{ isService ? 'Partner Margins' : 'Distributor Margins' }}</Tab>
         <Tab value="revenue">Revenue Summary</Tab>
       </TabList>
@@ -899,7 +900,7 @@ async function generateDevData() {
             <!-- Unit reminder -->
             <div class="flex justify-end mb-2">
               <span class="text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded-sm px-2 py-0.5 font-medium">
-                Prices in €/{{ isService ? 'day' : 'unit' }}
+                Prices in €/{{ units.per }}
               </span>
             </div>
 
@@ -909,7 +910,7 @@ async function generateDevData() {
                 <i class="pi pi-info-circle"></i>
                 Unit economics are computed by the <strong>{{ currentProduct?.driverType }}</strong> driver.
                 Edit parameters in the <strong>Driver Config</strong> tab.
-                <span v-if="isService" class="ml-1">The billing day rate is still editable below.</span>
+                <span v-if="currentProduct?.driverType === 'consulting'" class="ml-1">The billing day rate is still editable below.</span>
               </div>
               <KYearGrid
                 v-if="derivedAssumptionsGridRows.length > 0"
@@ -1034,7 +1035,7 @@ async function generateDevData() {
               <Column field="europeExportSales" header="Europe/Export Sales" class="text-right" />
 
               <!-- Total volume (units / days) + trend -->
-              <Column field="totalUnitSales" :header="`Total ${volumeLabel === 'days' ? 'Days' : 'Units'}`" class="text-right">
+              <Column field="totalUnitSales" :header="`Total ${units.heading}`" class="text-right">
                 <template #body="{ data }">
                   <div class="cell-with-trend">
                     <span>{{ data.totalUnitSales }}</span>
@@ -1045,7 +1046,7 @@ async function generateDevData() {
                 </template>
               </Column>
 
-              <Column field="cumulativeUnitSales" :header="`Cumul. ${volumeLabel === 'days' ? 'Days' : 'Units'}`" class="text-right" />
+              <Column field="cumulativeUnitSales" :header="`Cumul. ${units.heading}`" class="text-right" />
             </DataTable>
             <div v-else class="text-gray-500">No revenue data available</div>
           </div>

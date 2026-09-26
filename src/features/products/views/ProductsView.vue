@@ -2,6 +2,7 @@
 import { onMounted, ref, computed, nextTick, watch } from 'vue'
 import { devlog } from '@/utils/logger'
 import type { Product, DriverType, DriverParams } from '@/types'
+import { commonVolumeHeading } from '../utils/productUnits'
 import { useProductStore } from '@/features/products/stores/productStore'
 import { usePlanStore } from '@/features/plans/stores/planStore'
 import { useScenarioStore } from '@/features/scenarios/stores/scenarioStore'
@@ -34,15 +35,9 @@ const { formatPercent, getLocale, getUnitLabel, formatUnit } = useDecimal()
 const { yearHeaders } = useYearHeaders()
 
 // 'Days' when every product in the scenario is a service; 'Units' otherwise
-const consolidatedVolumeLabel = computed(() => {
-  const products = productStore.products
-  if (!products.length) return 'Units'
-  const allServices = products.every((p) => p.productType === 'service')
-  const allProducts = products.every((p) => p.productType !== 'service')
-  if (allServices) return 'Days'
-  if (allProducts) return 'Units'
-  return 'Volume' // mixed
-})
+// The summary adds up every product's volume: name the unit when they share
+// one, "Volume" when they count different things (days, events, contract years).
+const consolidatedVolumeLabel = computed(() => commonVolumeHeading(productStore.products))
 
 const showAddDialog = ref(false)
 const expandedRows = ref<Set<string>>(new Set())
