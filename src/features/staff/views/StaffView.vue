@@ -555,7 +555,7 @@ onMounted(async () => {
 
             <template v-else>
               <!-- Headcount by category (stacked bar) -->
-              <div class="bg-white rounded border border-gray-200 p-4">
+              <div class="bg-white rounded-sm border border-gray-200 p-4">
                 <h2 class="text-lg font-semibold mb-4 text-gray-700">
                   Headcount Evolution by Category (FTE)
                 </h2>
@@ -568,7 +568,7 @@ onMounted(async () => {
               </div>
 
               <!-- Total headcount trend (line) -->
-              <div class="bg-white rounded border border-gray-200 p-4">
+              <div class="bg-white rounded-sm border border-gray-200 p-4">
                 <h2 class="text-lg font-semibold mb-4 text-gray-700">
                   Total Headcount Trend
                 </h2>
@@ -581,7 +581,7 @@ onMounted(async () => {
               </div>
 
               <!-- Payroll by function (stacked bar) -->
-              <div class="bg-white rounded border border-gray-200 p-4">
+              <div class="bg-white rounded-sm border border-gray-200 p-4">
                 <h2 class="text-lg font-semibold mb-4 text-gray-700">
                   Payroll Cost by Function ({{ unitLabel }})
                 </h2>

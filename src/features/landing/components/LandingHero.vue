@@ -83,7 +83,7 @@
             <!-- Sidebar -->
             <div class="w-52 bg-slate-950 border-r border-slate-800 p-4 flex flex-col gap-2 shrink-0">
               <div class="flex items-center gap-2 mb-4">
-                <div class="w-6 h-6 rounded accent-gradient"></div>
+                <div class="w-6 h-6 rounded-sm accent-gradient"></div>
                 <span class="text-xs font-semibold text-slate-300">Ascenda</span>
               </div>
               <div class="text-xs text-indigo-400 font-medium bg-indigo-950/50 px-3 py-2 rounded-lg">📊 Overview</div>
@@ -134,11 +134,11 @@
               <!-- Mini chart placeholder -->
               <div class="bg-slate-800/40 rounded-xl border border-slate-700/40 p-3 h-24 flex items-end gap-1.5 px-4">
                 <div class="w-full flex items-end gap-1.5">
-                  <div class="flex-1 bg-indigo-800/60 rounded-sm" style="height:35%"></div>
-                  <div class="flex-1 bg-indigo-700/70 rounded-sm" style="height:52%"></div>
-                  <div class="flex-1 bg-indigo-600/80 rounded-sm" style="height:68%"></div>
-                  <div class="flex-1 bg-indigo-500/80 rounded-sm" style="height:80%"></div>
-                  <div class="flex-1 bg-indigo-400/90 rounded-sm" style="height:100%"></div>
+                  <div class="flex-1 bg-indigo-800/60 rounded-xs" style="height:35%"></div>
+                  <div class="flex-1 bg-indigo-700/70 rounded-xs" style="height:52%"></div>
+                  <div class="flex-1 bg-indigo-600/80 rounded-xs" style="height:68%"></div>
+                  <div class="flex-1 bg-indigo-500/80 rounded-xs" style="height:80%"></div>
+                  <div class="flex-1 bg-indigo-400/90 rounded-xs" style="height:100%"></div>
                 </div>
               </div>
             </div>

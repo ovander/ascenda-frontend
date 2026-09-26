@@ -986,17 +986,17 @@ async function finishWizard() {
         <p class="text-sm text-gray-500">Verify your plan setup before creating. You can always edit details later.</p>
 
         <div class="grid grid-cols-3 gap-4">
-          <div class="p-4 border rounded-lg bg-white shadow-sm">
+          <div class="p-4 border rounded-lg bg-white shadow-xs">
             <span class="text-xs font-semibold text-gray-500 uppercase">Plan</span>
             <p class="text-xl font-bold text-blue-600 mt-1">{{ formData.planName || '—' }}</p>
             <p class="text-xs text-gray-500 mt-1">{{ formData.companyName }} · {{ formData.currencySymbol }}</p>
           </div>
-          <div class="p-4 border rounded-lg bg-white shadow-sm">
+          <div class="p-4 border rounded-lg bg-white shadow-xs">
             <span class="text-xs font-semibold text-gray-500 uppercase">Forecast Start</span>
             <p class="text-xl font-bold text-purple-600 mt-1">{{ formData.forecastStart }}</p>
             <p class="text-xs text-gray-500 mt-1">{{ formData.language === 'fr' ? 'Français' : 'English' }}</p>
           </div>
-          <div class="p-4 border rounded-lg bg-white shadow-sm">
+          <div class="p-4 border rounded-lg bg-white shadow-xs">
             <span class="text-xs font-semibold text-gray-500 uppercase">Key Rates</span>
             <p class="text-sm mt-1">VAT {{ formData.vatRate }}% · Corp. Tax {{ formData.corporateTaxRate }}%</p>
             <p class="text-xs text-gray-500">Employer {{ formData.employerTaxRate }}%</p>

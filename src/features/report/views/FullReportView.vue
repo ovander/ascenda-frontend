@@ -813,7 +813,7 @@ function downloadFullReportAuditTrail() {
         </DataTable>
 
         <!-- Valuation box -->
-        <div v-if="reportStore.fullReport.ratios.valuation" class="mt-4 p-3 bg-gray-50 rounded text-sm grid grid-cols-3 gap-4">
+        <div v-if="reportStore.fullReport.ratios.valuation" class="mt-4 p-3 bg-gray-50 rounded-sm text-sm grid grid-cols-3 gap-4">
           <div>
             <span class="text-gray-500">NPV</span>
             <p class="font-semibold">{{ formatUnit(reportStore.fullReport.ratios.valuation.npv, 0) }}</p>

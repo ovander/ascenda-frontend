@@ -3,7 +3,7 @@
 
     <div class="w-10 h-10 rounded-xl flex items-center justify-center icon-ring group-hover:bg-indigo-100 transition-colors">
       <slot name="icon">
-        <div class="w-5 h-5 bg-indigo-400 rounded"></div>
+        <div class="w-5 h-5 bg-indigo-400 rounded-sm"></div>
       </slot>
     </div>
 

@@ -1,9 +1,53 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+/* PrimeIcons in the components layer, below Tailwind's utilities: as in v3,
+   classes on an icon (text-3xl, block, …) override the .pi defaults
+   (line-height: 1, display: inline-block). Unlayered, .pi would win. */
+@import 'primeicons/primeicons.css' layer(components);
 
-/* Inter and Sora are loaded by the <link> tags in index.html: an @import
-   after the @tailwind rules is invalid CSS and was dropped from the build. */
+/*
+  Tailwind v4 sets the line height of text-* utilities as a ratio of the
+  font size (text-sm: 1.25 / 0.875), v3 as a fixed length (1.25rem). Where
+  PrimeVue sets its own font size on an element carrying a text-* class, or
+  a child inherits the line height, the ratio produces a different height.
+  Keep v3's fixed line heights so layouts do not shift.
+*/
+@theme {
+  --text-xs--line-height: 1rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+
+  /* Tailwind v4 gives buttons the default cursor; keep v3's pointer. */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* Inter and Sora are loaded by the <link> tags in index.html (an @import of
+   the Google Fonts stylesheet here would have to precede every other rule). */
 
 :root {
   font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;

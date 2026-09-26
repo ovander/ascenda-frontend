@@ -19,7 +19,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+  <div class="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100">
     <div class="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
       <div class="mb-6">
         <i class="pi pi-chart-bar text-5xl text-primary-600 mb-4"></i>

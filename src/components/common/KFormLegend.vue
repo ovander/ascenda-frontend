@@ -60,7 +60,7 @@ const GRID_ITEMS: { icon?: string; color?: string; text: string }[] = [
           <i v-if="item.icon" :class="`pi ${item.icon} text-gray-400 text-[10px]`" />
           <span
             v-else-if="item.color"
-            class="inline-block w-3 h-3 rounded-sm border border-gray-300 shrink-0"
+            class="inline-block w-3 h-3 rounded-xs border border-gray-300 shrink-0"
             :style="{ background: item.color }"
           />
           {{ item.text }}
@@ -77,7 +77,7 @@ const GRID_ITEMS: { icon?: string; color?: string; text: string }[] = [
           <i v-if="item.icon" :class="`pi ${item.icon} text-gray-400 text-[10px]`" />
           <span
             v-else-if="item.color"
-            class="inline-block w-3 h-3 rounded-sm border border-gray-300 shrink-0"
+            class="inline-block w-3 h-3 rounded-xs border border-gray-300 shrink-0"
             :style="{ background: item.color }"
           />
           {{ item.text }}

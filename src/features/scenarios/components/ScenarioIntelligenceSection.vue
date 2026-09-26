@@ -106,16 +106,16 @@ function handleLockedClick() {
         <!-- Score badge skeleton -->
         <div class="w-14 h-14 rounded-xl bg-gray-100 shrink-0" />
         <div class="flex-1 space-y-2">
-          <div class="h-4 bg-gray-100 rounded w-1/3" />
-          <div class="h-3 bg-gray-100 rounded w-2/3" />
+          <div class="h-4 bg-gray-100 rounded-sm w-1/3" />
+          <div class="h-3 bg-gray-100 rounded-sm w-2/3" />
         </div>
       </div>
       <!-- Detail rows — tablet/desktop only -->
       <ShowOn from="tablet">
         <div class="space-y-2">
-          <div class="h-3 bg-gray-100 rounded w-full" />
-          <div class="h-3 bg-gray-100 rounded w-4/5" />
-          <div class="h-3 bg-gray-100 rounded w-3/4" />
+          <div class="h-3 bg-gray-100 rounded-sm w-full" />
+          <div class="h-3 bg-gray-100 rounded-sm w-4/5" />
+          <div class="h-3 bg-gray-100 rounded-sm w-3/4" />
         </div>
       </ShowOn>
     </div>
@@ -123,7 +123,7 @@ function handleLockedClick() {
 
   <!-- ── Content ───────────────────────────────────────────────────────────────── -->
   <div v-else-if="analysis" class="mb-4 md:mb-6">
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
 
       <!-- Section header -->
       <div class="flex items-center justify-between px-4 md:px-5 pt-4 pb-3 border-b border-gray-100">
@@ -133,14 +133,14 @@ function handleLockedClick() {
           <ProBadge v-if="isFreemium" size="xs" />
           <span
             v-else
-            class="inline-flex items-center px-1.5 py-0 rounded text-[9px] font-bold uppercase tracking-wide bg-primary-50 text-primary-600 border border-primary-200"
+            class="inline-flex items-center px-1.5 py-0 rounded-sm text-[9px] font-bold uppercase tracking-wide bg-primary-50 text-primary-600 border border-primary-200"
           >
             v2
           </span>
         </div>
         <button
           v-if="hasFullAccess"
-          class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded"
+          class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-sm"
           :title="t('ai.refreshAnalysis')"
           @click="emit('refresh')"
         >
@@ -192,8 +192,8 @@ function handleLockedClick() {
             @click="handleLockedClick"
           >
             <!-- Blurred preview -->
-            <div class="blur-sm pointer-events-none select-none space-y-2 p-3">
-              <div v-for="i in 3" :key="i" class="h-3 bg-gray-100 rounded" />
+            <div class="blur-xs pointer-events-none select-none space-y-2 p-3">
+              <div v-for="i in 3" :key="i" class="h-3 bg-gray-100 rounded-sm" />
             </div>
             <!-- Lock overlay -->
             <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white/60 backdrop-blur-[1px]">

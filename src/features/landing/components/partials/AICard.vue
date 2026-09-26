@@ -8,7 +8,7 @@
     <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
          :style="highlight ? enterpriseIcon : proIcon">
       <slot name="icon">
-        <div class="w-5 h-5 bg-violet-500 rounded"></div>
+        <div class="w-5 h-5 bg-violet-500 rounded-sm"></div>
       </slot>
     </div>
 

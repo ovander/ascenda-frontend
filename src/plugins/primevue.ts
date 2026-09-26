@@ -5,7 +5,6 @@ import { definePreset } from '@primeuix/themes'
 import ToastService from 'primevue/toastservice'
 import ConfirmationService from 'primevue/confirmationservice'
 import Tooltip from 'primevue/tooltip'
-import 'primeicons/primeicons.css'
 
 // Align PrimeVue's primary colour with the Ascenda brand indigo (#6366f1)
 const AscendaPreset = definePreset(Aura, {

@@ -306,7 +306,7 @@ function fmtPct(val: string) {
                 :key="sh.id"
                 class="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-3"
               >
-                <div class="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center flex-shrink-0">
+                <div class="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center shrink-0">
                   <i class="pi pi-user text-primary-600" />
                 </div>
                 <div class="flex-1 min-w-0">

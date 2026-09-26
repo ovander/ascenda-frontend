@@ -396,7 +396,7 @@ const opexWfOptions = computed<any>(() => {
           <div class="flex flex-col gap-6">
 
             <!-- OPEX Composition Waterfall -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <div class="flex items-center justify-between mb-1">
                 <h2 class="text-lg font-semibold text-gray-700">OPEX Composition</h2>
                 <Select
@@ -413,8 +413,8 @@ const opexWfOptions = computed<any>(() => {
                 How each cost category stacks up to total OPEX for the selected year.
               </p>
               <div class="flex items-center gap-5 mb-3 text-xs text-gray-500">
-                <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-sm bg-red-500"></span> Cost category</span>
-                <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-sm bg-indigo-500"></span> Total OPEX</span>
+                <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-xs bg-red-500"></span> Cost category</span>
+                <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-xs bg-indigo-500"></span> Total OPEX</span>
               </div>
               <div v-if="opexStore.loading" class="flex justify-center py-10">
                 <ProgressSpinner style="width:40px;height:40px" />

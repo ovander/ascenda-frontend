@@ -1,5 +1,5 @@
 <template>
-  <details class="bg-white border border-slate-200 rounded-xl group shadow-sm">
+  <details class="bg-white border border-slate-200 rounded-xl group shadow-xs">
     <summary class="flex justify-between items-center px-6 py-5 cursor-pointer list-none text-slate-800 font-medium">
       {{ question }}
 

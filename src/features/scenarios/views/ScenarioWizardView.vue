@@ -752,7 +752,7 @@ async function finishWizard() {
           <div
             v-for="(product, i) in products"
             :key="i"
-            class="flex gap-3 items-start p-4 bg-white border border-gray-200 rounded-xl shadow-sm"
+            class="flex gap-3 items-start p-4 bg-white border border-gray-200 rounded-xl shadow-xs"
           >
             <div class="flex-1 grid gap-3" :class="isPro ? 'grid-cols-3' : 'grid-cols-2'">
               <div>
@@ -811,7 +811,7 @@ async function finishWizard() {
 
         <div class="space-y-4">
           <!-- Summary card -->
-          <Card class="border border-gray-100 shadow-sm">
+          <Card class="border border-gray-100 shadow-xs">
             <template #title>
               <span class="text-sm font-semibold text-gray-700">{{ details.name || '—' }}</span>
             </template>
@@ -848,7 +848,7 @@ async function finishWizard() {
 
           <!-- Pro summary: opening balance & WC -->
           <div v-if="isPro" class="grid grid-cols-2 gap-4">
-            <Card class="border border-gray-100 shadow-sm">
+            <Card class="border border-gray-100 shadow-xs">
               <template #title><span class="text-sm font-semibold text-gray-700">Opening Balance</span></template>
               <template #content>
                 <div class="text-sm space-y-1">
@@ -871,7 +871,7 @@ async function finishWizard() {
               </template>
             </Card>
 
-            <Card class="border border-gray-100 shadow-sm">
+            <Card class="border border-gray-100 shadow-xs">
               <template #title><span class="text-sm font-semibold text-gray-700">Payment Terms</span></template>
               <template #content>
                 <div class="text-sm space-y-1">
@@ -889,7 +889,7 @@ async function finishWizard() {
           </div>
 
           <!-- Revenue lines summary -->
-          <Card class="border border-gray-100 shadow-sm">
+          <Card class="border border-gray-100 shadow-xs">
             <template #title><span class="text-sm font-semibold text-gray-700">Revenue Lines</span></template>
             <template #content>
               <div class="space-y-2">

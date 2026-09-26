@@ -233,7 +233,7 @@ function categoryLabel(cat: string): string {
     >
       <div v-if="editing" class="space-y-6 pt-2">
         <p class="text-xs text-gray-500">
-          Feature: <code class="bg-gray-100 px-1 rounded">{{ editing.feature }}</code>
+          Feature: <code class="bg-gray-100 px-1 rounded-sm">{{ editing.feature }}</code>
           &nbsp;·&nbsp; Type: <strong>{{ editing.featureType }}</strong>
         </p>
 

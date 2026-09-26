@@ -141,7 +141,7 @@ async function refresh() {
             <!-- v2 badge on narrate -->
             <span
               v-if="isV2Feature"
-              class="inline-flex items-center px-1.5 py-0 rounded text-[9px] font-bold uppercase tracking-wide bg-primary-50 text-primary-600 border border-primary-200"
+              class="inline-flex items-center px-1.5 py-0 rounded-sm text-[9px] font-bold uppercase tracking-wide bg-primary-50 text-primary-600 border border-primary-200"
             >
               v2
             </span>

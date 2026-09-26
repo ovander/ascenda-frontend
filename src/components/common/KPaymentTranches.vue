@@ -66,7 +66,7 @@ function updateTier(key: keyof PaymentTranches, value: number | null) {
           class="w-32"
           inputClass="w-full text-right"
         />
-        <div v-else class="w-32 text-right text-sm font-medium bg-green-50 px-3 py-2 rounded border border-green-200">
+        <div v-else class="w-32 text-right text-sm font-medium bg-green-50 px-3 py-2 rounded-sm border border-green-200">
           {{ autoDay120.toFixed(1) }} %
         </div>
       </div>

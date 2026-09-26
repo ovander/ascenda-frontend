@@ -249,7 +249,7 @@ const activeItems = computed(() => {
 
 <template>
   <aside
-    class="bg-white border-r border-gray-200 overflow-y-auto flex-shrink-0 flex flex-col h-full transition-all duration-300"
+    class="bg-white border-r border-gray-200 overflow-y-auto shrink-0 flex flex-col h-full transition-all duration-300"
     :class="ui.isMobile ? ['w-72', 'max-w-[calc(100vw-56px)]'] : (ui.sidebarCollapsed ? 'w-16' : 'w-64')"
   >
     <!-- Mobile header: logo + close button -->
@@ -272,13 +272,13 @@ const activeItems = computed(() => {
           class="w-full flex items-start gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200 transition-colors text-left"
           v-tooltip.right="'Back to scenario overview'"
         >
-          <i class="pi pi-arrow-left text-xs flex-shrink-0 mt-0.5"></i>
+          <i class="pi pi-arrow-left text-xs shrink-0 mt-0.5"></i>
           <div class="flex-1 min-w-0">
             <span class="truncate block">{{ scenarioStore.activeScenario?.name }}</span>
             <span
               v-if="planStore.activePlan?.status"
               :class="[
-                'inline-block text-xs font-medium px-1.5 py-0.5 rounded mt-0.5',
+                'inline-block text-xs font-medium px-1.5 py-0.5 rounded-sm mt-0.5',
                 planStatusSeverity[planStore.activePlan.status] ?? 'bg-gray-100 text-gray-500'
               ]"
             >
@@ -296,7 +296,7 @@ const activeItems = computed(() => {
           :class="[
             'flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-1.5 rounded-md transition-all',
             ui.activeLayer === 'operate'
-              ? 'bg-white shadow text-indigo-700'
+              ? 'bg-white shadow-sm text-indigo-700'
               : 'text-gray-400 hover:text-gray-600',
           ]"
           @click="ui.setLayer('operate')"
@@ -309,7 +309,7 @@ const activeItems = computed(() => {
           :class="[
             'flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-1.5 rounded-md transition-all',
             (!canOperate || ui.activeLayer === 'understand')
-              ? 'bg-white shadow text-violet-700'
+              ? 'bg-white shadow-sm text-violet-700'
               : 'text-gray-400 hover:text-gray-600',
           ]"
           @click="ui.setLayer('understand')"

@@ -2,7 +2,7 @@
   <div class="bg-white rounded-2xl p-7 border border-slate-200 hover:border-indigo-300 transition-colors card-glow group">
     <div class="icon-ring w-12 h-12 rounded-xl flex items-center justify-center mb-5 group-hover:bg-indigo-100 transition-colors">
       <slot name="icon">
-        <div class="w-6 h-6 bg-indigo-400 rounded"></div>
+        <div class="w-6 h-6 bg-indigo-400 rounded-sm"></div>
       </slot>
     </div>
 

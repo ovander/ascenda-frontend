@@ -442,7 +442,7 @@ function onFieldChange() {
             label="Overdraft Rate"
             tooltip="Automatically computed as MLT Interest Rate + 3 %. Applied to negative cash positions (bank overdraft) in the cash flow model."
           />
-          <div class="bg-green-50 border border-green-200 rounded px-3 py-2 text-sm">
+          <div class="bg-green-50 border border-green-200 rounded-sm px-3 py-2 text-sm">
             {{ overdraftRate.toFixed(2) }} %
           </div>
         </div>
@@ -451,7 +451,7 @@ function onFieldChange() {
             label="Year Headers"
             tooltip="Fiscal year labels derived from your Forecast Start Date. Used as column headers in all multi-year tables."
           />
-          <div class="bg-green-50 border border-green-200 rounded px-3 py-2 text-sm">
+          <div class="bg-green-50 border border-green-200 rounded-sm px-3 py-2 text-sm">
             {{ settingsStore.configComputed.yearHeaders.join(', ') }}
           </div>
         </div>
@@ -460,7 +460,7 @@ function onFieldChange() {
             label="Unit Label"
             tooltip="Display unit appended to monetary columns (e.g. 'k€' for thousands of euros). Derived from your currency symbol."
           />
-          <div class="bg-green-50 border border-green-200 rounded px-3 py-2 text-sm">
+          <div class="bg-green-50 border border-green-200 rounded-sm px-3 py-2 text-sm">
             {{ settingsStore.configComputed.unitLabel }}
           </div>
         </div>

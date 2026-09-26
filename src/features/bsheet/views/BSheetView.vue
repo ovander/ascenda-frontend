@@ -861,13 +861,13 @@ const bsheetMobileKpis = computed<KpiItem[]>(() => {
                   <!-- Legend -->
                   <div class="flex items-center gap-5 mb-4 text-xs text-gray-500">
                     <span class="flex items-center gap-1.5">
-                      <span class="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span> Positive item
+                      <span class="inline-block w-3 h-3 rounded-xs bg-emerald-500"></span> Positive item
                     </span>
                     <span class="flex items-center gap-1.5">
-                      <span class="inline-block w-3 h-3 rounded-sm bg-red-500"></span> Negative item
+                      <span class="inline-block w-3 h-3 rounded-xs bg-red-500"></span> Negative item
                     </span>
                     <span class="flex items-center gap-1.5">
-                      <span class="inline-block w-3 h-3 rounded-sm bg-indigo-500"></span> Total
+                      <span class="inline-block w-3 h-3 rounded-xs bg-indigo-500"></span> Total
                     </span>
                   </div>
                   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -910,6 +910,9 @@ const bsheetMobileKpis = computed<KpiItem[]>(() => {
 </template>
 
 <style scoped>
+/* Tailwind v4: SFC styles are compiled on their own; this makes the theme's
+   utilities available to @apply without emitting any CSS. */
+@reference "../../../style.css";
 :deep(.p-tabs) { @apply border-0; }
 :deep(.p-tabs .p-tablist) { @apply border-b border-gray-300; }
 :deep(.p-tabs .p-tab) { @apply px-4 py-2; }

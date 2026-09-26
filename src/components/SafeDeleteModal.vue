@@ -104,7 +104,7 @@ function handleConfirm() {
       <!-- Blocked state -->
       <div v-if="blocked" class="bg-orange-50 border border-orange-200 rounded-lg p-4">
         <div class="flex items-start gap-3">
-          <i class="pi pi-exclamation-triangle text-orange-500 text-xl mt-0.5 flex-shrink-0"></i>
+          <i class="pi pi-exclamation-triangle text-orange-500 text-xl mt-0.5 shrink-0"></i>
           <div>
             <p class="font-semibold text-orange-800 text-sm">Cannot delete this {{ entityType.toLowerCase() }}</p>
             <p class="text-orange-700 text-sm mt-1">{{ blockedReason }}</p>
@@ -146,7 +146,7 @@ function handleConfirm() {
         <!-- Name confirmation input -->
         <div v-if="requireNameConfirm" class="space-y-1">
           <label class="block text-sm font-medium text-gray-700">
-            Type <span class="font-mono bg-gray-100 px-1 rounded text-red-700">{{ entityName }}</span> to confirm
+            Type <span class="font-mono bg-gray-100 px-1 rounded-sm text-red-700">{{ entityName }}</span> to confirm
           </label>
           <InputText
             v-model="nameInput"

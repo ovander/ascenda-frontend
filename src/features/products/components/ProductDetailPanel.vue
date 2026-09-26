@@ -882,7 +882,7 @@ async function generateDevData() {
             <div v-if="driverSaving" class="flex items-center gap-2 text-xs text-blue-600">
               <i class="pi pi-spin pi-spinner"></i> Saving driver configuration…
             </div>
-            <div v-if="driverError" class="text-xs text-red-500 bg-red-50 border border-red-200 rounded p-2">
+            <div v-if="driverError" class="text-xs text-red-500 bg-red-50 border border-red-200 rounded-sm p-2">
               {{ driverError }}
             </div>
             <DriverParamsForm
@@ -898,14 +898,14 @@ async function generateDevData() {
           <div class="mt-4">
             <!-- Unit reminder -->
             <div class="flex justify-end mb-2">
-              <span class="text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded px-2 py-0.5 font-medium">
+              <span class="text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded-sm px-2 py-0.5 font-medium">
                 Prices in €/{{ isService ? 'day' : 'unit' }}
               </span>
             </div>
 
             <!-- Driver-managed: show read-only derived assumptions -->
             <template v-if="isDriverManaged">
-              <div class="mb-3 flex items-center gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded px-3 py-2">
+              <div class="mb-3 flex items-center gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-sm px-3 py-2">
                 <i class="pi pi-info-circle"></i>
                 Unit economics are computed by the <strong>{{ currentProduct?.driverType }}</strong> driver.
                 Edit parameters in the <strong>Driver Config</strong> tab.
@@ -920,7 +920,7 @@ async function generateDevData() {
               </div>
               <!-- For consulting: billing rate remains user-editable (stored BaseUnitPrice) -->
               <template v-if="currentProduct?.driverType === 'consulting'">
-                <div class="mt-4 p-3 border border-amber-200 bg-amber-50 rounded text-xs text-amber-800">
+                <div class="mt-4 p-3 border border-amber-200 bg-amber-50 rounded-sm text-xs text-amber-800">
                   <strong>Billing Day Rate</strong> is market-determined and still editable below.
                 </div>
                 <KYearGrid
@@ -944,7 +944,7 @@ async function generateDevData() {
           <div class="mt-4">
             <!-- Driver-managed (non-industry): show computed read-only volumes -->
             <template v-if="isDriverManaged && currentProduct?.driverType !== 'industry'">
-              <div class="mb-3 flex items-center gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded px-3 py-2">
+              <div class="mb-3 flex items-center gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-sm px-3 py-2">
                 <i class="pi pi-info-circle"></i>
                 Volumes are derived from the <strong>{{ currentProduct?.driverType }}</strong> driver parameters.
               </div>
@@ -961,7 +961,7 @@ async function generateDevData() {
             <template v-else>
               <div
                 v-if="currentProduct?.driverType === 'industry'"
-                class="mb-3 flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2"
+                class="mb-3 flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-sm px-3 py-2"
               >
                 <i class="pi pi-info-circle"></i>
                 Industry driver uses your sales volumes below and adjusts the unit cost (scrap + setup).
@@ -987,7 +987,7 @@ async function generateDevData() {
         <TabPanel value="revenue">
           <div class="mt-4">
             <div class="flex justify-end mb-1">
-              <span class="text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded px-2 py-0.5 font-medium">
+              <span class="text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded-sm px-2 py-0.5 font-medium">
                 Amounts in {{ unitLabel }}
               </span>
             </div>

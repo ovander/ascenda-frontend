@@ -137,28 +137,28 @@ function cellLabel(cell: Cell): string {
     <!-- Role legend -->
     <div class="flex flex-wrap gap-4 mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
       <div class="flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-red-400 flex-shrink-0"></span>
+        <span class="w-3 h-3 rounded-full bg-red-400 shrink-0"></span>
         <div>
           <span class="text-sm font-semibold text-gray-700">Owner</span>
           <span class="text-xs text-gray-400 ml-1">— Tenant administrator. Full control.</span>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-amber-400 flex-shrink-0"></span>
+        <span class="w-3 h-3 rounded-full bg-amber-400 shrink-0"></span>
         <div>
           <span class="text-sm font-semibold text-gray-700">Admin</span>
           <span class="text-xs text-gray-400 ml-1">— Platform operator. User management only; no business data.</span>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-blue-400 flex-shrink-0"></span>
+        <span class="w-3 h-3 rounded-full bg-blue-400 shrink-0"></span>
         <div>
           <span class="text-sm font-semibold text-gray-700">Editor</span>
           <span class="text-xs text-gray-400 ml-1">— User with editor membership on a plan.</span>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-gray-400 flex-shrink-0"></span>
+        <span class="w-3 h-3 rounded-full bg-gray-400 shrink-0"></span>
         <div>
           <span class="text-sm font-semibold text-gray-700">Viewer</span>
           <span class="text-xs text-gray-400 ml-1">— User with viewer membership. Read-only.</span>
@@ -176,7 +176,7 @@ function cellLabel(cell: Cell): string {
       <div
         v-for="group in groups"
         :key="group.label"
-        class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
+        class="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden"
       >
         <!-- Group header -->
         <div class="px-5 py-3 bg-gray-50 border-b border-gray-200 flex items-center gap-2">

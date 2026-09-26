@@ -138,7 +138,7 @@ async function handleLogout() {
 </script>
 
 <template>
-  <header class="bg-white border-b border-gray-200 px-3 md:px-4 py-2 flex items-center justify-between shadow-sm flex-shrink-0">
+  <header class="bg-white border-b border-gray-200 px-3 md:px-4 py-2 flex items-center justify-between shadow-xs shrink-0">
 
     <!-- Left: hamburger + logo (mobile) / hamburger + breadcrumb (tablet+) -->
     <div class="flex items-center gap-2 md:gap-4 min-w-0">
@@ -148,11 +148,11 @@ async function handleLogout() {
         text
         severity="secondary"
         @click="ui.toggleSidebar()"
-        class="flex-shrink-0"
+        class="shrink-0"
       />
 
       <!-- Logo: visible on mobile (sidebar is hidden) and desktop -->
-      <router-link to="/" class="flex items-center no-underline flex-shrink-0 md:hidden lg:flex">
+      <router-link to="/" class="flex items-center no-underline shrink-0 md:hidden lg:flex">
         <img src="/logo.png" alt="Ascenda" style="height:24px;width:auto;" />
       </router-link>
 
@@ -161,7 +161,7 @@ async function handleLogout() {
         v-if="breadcrumbItems.length"
         class="hidden md:flex items-center gap-1 text-sm min-w-0"
       >
-        <i class="pi pi-chevron-right text-gray-300 text-xs flex-shrink-0"></i>
+        <i class="pi pi-chevron-right text-gray-300 text-xs shrink-0"></i>
         <template v-for="(item, index) in breadcrumbItems" :key="index">
           <router-link
             v-if="item.to"
@@ -171,14 +171,14 @@ async function handleLogout() {
           <span v-else class="text-gray-800 font-medium truncate max-w-[160px]">{{ item.label }}</span>
           <i
             v-if="index < breadcrumbItems.length - 1"
-            class="pi pi-chevron-right text-gray-300 text-xs flex-shrink-0"
+            class="pi pi-chevron-right text-gray-300 text-xs shrink-0"
           ></i>
         </template>
       </nav>
     </div>
 
     <!-- Right: unit selector + user menu -->
-    <div class="flex items-center gap-2 md:gap-3 flex-shrink-0">
+    <div class="flex items-center gap-2 md:gap-3 shrink-0">
 
       <!-- Unit selector: hidden on mobile (too cramped), visible on tablet+ -->
       <SelectButton
@@ -188,7 +188,7 @@ async function handleLogout() {
         @update:modelValue="displayUnitStore.setUnit($event)"
         :pt="{
           root: { class: 'flex gap-0.5' },
-          button: { class: 'text-xs px-2 py-1 rounded border font-medium cursor-pointer' },
+          button: { class: 'text-xs px-2 py-1 rounded-sm border font-medium cursor-pointer' },
         }"
         class="unit-selector hidden sm:flex"
       />
@@ -204,7 +204,7 @@ async function handleLogout() {
         <span
           v-if="auth.user?.role"
           :class="roleBadgeClass"
-          class="px-1.5 py-0.5 rounded text-xs font-semibold uppercase tracking-wide"
+          class="px-1.5 py-0.5 rounded-sm text-xs font-semibold uppercase tracking-wide"
         >{{ roleLabel }}</span>
       </button>
       <Menu ref="userMenu" :model="userMenuItems" :popup="true" />
