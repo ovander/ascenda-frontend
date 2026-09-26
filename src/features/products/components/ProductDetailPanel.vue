@@ -52,6 +52,15 @@ const isDriverManaged = computed(() => {
   return !!dt && dt !== 'generic'
 })
 
+/**
+ * Distributor / partner margins only apply to sales through the indirect
+ * channel. Every driver except industry derives its volumes as direct sales,
+ * so for those products the margins tab would change nothing.
+ */
+const hasIndirectSales = computed(() =>
+  !isDriverManaged.value || currentProduct.value?.driverType === 'industry',
+)
+
 /** Local copy of driverType for the driver tab selector. */
 const localDriverType = ref<DriverType>('generic')
 /** Local copy of driverParams edited in the Driver tab. */
@@ -872,7 +881,7 @@ async function generateDevData() {
         </Tab>
         <Tab value="assumptions">{{ units.assumptionsTab }}</Tab>
         <Tab value="volumes">{{ units.volumesTab }}</Tab>
-        <Tab value="margins">{{ isService ? 'Partner Margins' : 'Distributor Margins' }}</Tab>
+        <Tab v-if="hasIndirectSales" value="margins">{{ isService ? 'Partner Margins' : 'Distributor Margins' }}</Tab>
         <Tab value="revenue">Revenue Summary</Tab>
       </TabList>
       <TabPanels>
@@ -976,7 +985,7 @@ async function generateDevData() {
           </div>
         </TabPanel>
 
-        <TabPanel value="margins">
+        <TabPanel v-if="hasIndirectSales" value="margins">
           <div class="mt-4">
             <KYearGrid
               :rows="marginsGridRows"
