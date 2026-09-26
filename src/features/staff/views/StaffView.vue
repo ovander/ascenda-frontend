@@ -192,6 +192,7 @@ const headcountRows = computed<GridRow[]>(() => {
       values,
       editable: true,
       decimals: 2,
+      kind: 'quantity', // FTE
       tooltip: STAFF_TOOLTIPS[cat.key]?.headcount,
     }
   })
@@ -225,8 +226,8 @@ const incentiveRows = computed<GridRow[]>(() => {
     }),
     editable: true,
     decimals: 1,
-    suffix: '%',    // fraction of gross salary
-    tooltip: 'Annual incentive as a percentage of total gross payroll for each year (e.g. 10 = 10%). Applied evenly across all staff categories.',
+    kind: 'percent', // stored as a fraction of gross payroll (0.1); shown and entered as 10 %
+    tooltip: 'Annual incentive as a percentage of total gross payroll for each year (enter 10 for 10 %). Applied evenly across all staff categories.',
   }
   const specificRow: GridRow = {
     id: 'incentive-specific',

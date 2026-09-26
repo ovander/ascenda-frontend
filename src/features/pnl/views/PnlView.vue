@@ -40,7 +40,7 @@ const planStore = usePlanStore()
 const scenarioStore = useScenarioStore()
 const analysisStore = useScenarioAnalysisStore()
 const { yearHeaders } = useYearHeaders()
-const { formatUnit, getUnitLabel } = useDecimal()
+const { formatUnit, getUnitLabel, getLocale } = useDecimal()
 const displayUnitStore = useDisplayUnitStore()
 const unitLabel = computed(() => getUnitLabel())
 const activeTab = ref('pnl')
@@ -171,6 +171,8 @@ interface PnlRowDef {
   isInput?: boolean
   indent?: boolean
   tooltip?: string
+  /** A count (FTE), not an amount: not scaled by the €/k€/M€ display unit. */
+  isCount?: boolean
 }
 
 // Computed so labels re-evaluate when locale changes (FR ↔ EN).
@@ -229,7 +231,7 @@ const PNL_ROW_DEFS = computed<PnlRowDef[]>(() => [
     tooltip: 'Bottom-line profit after all revenues, expenses, taxes, and credits. The key indicator of overall financial performance.' },
   { key: 'cashFlow',               label: t('pnl.row.cashFlow'),         isAggregate: true,
     tooltip: 'Net profit + depreciation & amortisation. A proxy for operating cash generation before working capital movements and financing. Also called self-financing capacity (capacité d\'autofinancement).' },
-  { key: 'staffHeadcount',         label: t('pnl.row.staffHeadcount'),
+  { key: 'staffHeadcount',         label: t('pnl.row.staffHeadcount'),   isCount: true,
     tooltip: 'Total full-time equivalent headcount for the year, summed across all staff categories from the Staff module. Informational memo line.' },
 ])
 
@@ -315,6 +317,7 @@ const reportTableRows = computed(() => {
   return PNL_ROW_DEFS.value.map((def) => {
     const values = years.map((y) => Number(y[def.key] ?? 0))
     const pctOfSales = years.map((y) => {
+      if (def.isCount) return '—'
       const sales = Number(y.sales)
       const val   = Number(y[def.key] ?? 0)
       return sales !== 0 ? ((val / sales) * 100).toFixed(1) : '—'
@@ -327,6 +330,7 @@ const reportTableRows = computed(() => {
       isInput:     def.isInput ?? false,
       indent:      def.indent ?? false,
       tooltip:     def.tooltip,
+      isCount:     def.isCount ?? false,
     }
   })
 })
@@ -537,7 +541,9 @@ onMounted(async () => {
                       ]"
                       class="block px-2 py-0.5 rounded-sm text-right"
                     >
-                      {{ formatUnit(data.values[idx] ?? 0, 0) }}
+                      {{ data.isCount
+                        ? Number(data.values[idx] ?? 0).toLocaleString(getLocale(), { maximumFractionDigits: 1 })
+                        : formatUnit(data.values[idx] ?? 0, 0) }}
                     </span>
                   </template>
                 </Column>

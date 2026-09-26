@@ -18,6 +18,15 @@ export interface GridRow {
   isSubtotal?: boolean
   suffix?: string
   decimals?: number
+  /**
+   * What the values are, which decides how the €/k€/M€ display unit applies:
+   * - 'amount' (default): base-€ amounts, divided by the display factor and
+   *   labelled €, k€ or M€ (a '€' suffix follows the display unit);
+   * - 'quantity': counts and ratios (volumes, FTE, coefficients), shown as
+   *   stored;
+   * - 'percent': fractions (0.2), shown and entered as percentages (20 %).
+   */
+  kind?: 'amount' | 'quantity' | 'percent'
   group?: string
   tooltip?: string
   /** When true, cell text is rendered red for negative values and green for positive. */
@@ -99,6 +108,42 @@ function numValue(val: string | number): number {
   return parseFloat(val) || 0
 }
 
+// ── Display unit per row kind ────────────────────────────────────────────────
+// Stored value = displayed value × scale.
+function scaleOf(row: GridRow): number {
+  if (row.kind === 'quantity') return 1
+  if (row.kind === 'percent') return 0.01
+  return displayUnitStore.factor
+}
+
+function displayed(row: GridRow, val: string | number): number {
+  return numValue(val) / scaleOf(row)
+}
+
+function onInput(row: GridRow, idx: number, v: number | null) {
+  onCellEdit(row, idx, (v ?? 0) * scaleOf(row))
+}
+
+function maxDigits(row: GridRow): number {
+  const own = row.decimals ?? (row.kind === 'amount' || !row.kind ? 0 : 2)
+  return row.kind === 'quantity' || row.kind === 'percent' ? own : Math.max(own, displayUnitStore.decimals)
+}
+
+/** Unit shown after a value: a '€' suffix follows the display unit (€, k€, M€). */
+function suffixOf(row: GridRow): string | undefined {
+  if (row.kind === 'percent') return '%'
+  if (row.suffix === '€' && row.kind !== 'quantity') return displayUnitStore.unit
+  return row.suffix
+}
+
+function formatCell(row: GridRow, val: string | number): string {
+  if (row.kind === 'quantity' || row.kind === 'percent') {
+    const d = row.decimals ?? (row.kind === 'percent' ? 1 : 0)
+    return displayed(row, val).toLocaleString(activeLocale.value, { minimumFractionDigits: d, maximumFractionDigits: d })
+  }
+  return formatUnit(val)
+}
+
 function getSignClass(row: GridRow, val: string | number): string {
   if (!row.colorBySign) return ''
   const n = numValue(val)
@@ -153,21 +198,21 @@ function getSignClass(row: GridRow, val: string | number): string {
         <div :class="['px-2 py-1 text-right rounded-sm', getCellClass(data), getRowClass(data)]">
           <InputNumber
             v-if="data.editable"
-            :modelValue="numValue(data.values[idx]) / displayUnitStore.factor"
-            @update:modelValue="(v: number) => onCellEdit(data, idx, (v ?? 0) * displayUnitStore.factor)"
-            :minFractionDigits="data.decimals ?? 0"
-            :maxFractionDigits="Math.max(data.decimals ?? 0, displayUnitStore.decimals)"
+            :modelValue="displayed(data, data.values[idx])"
+            @update:modelValue="(v: number | null) => onInput(data, idx, v)"
+            :minFractionDigits="Math.min(data.decimals ?? 0, maxDigits(data))"
+            :maxFractionDigits="maxDigits(data)"
             :locale="activeLocale"
             mode="decimal"
             class="w-full text-right"
             inputClass="text-right w-full p-1 text-sm"
-            :suffix="data.suffix ? ` ${data.suffix}` : (unit ? ` ${unit}` : undefined)"
+:suffix="suffixOf(data) ? ` ${suffixOf(data)}` : (unit ? ` ${unit}` : undefined)"
             :readonly="readonly"
             :disabled="readonly"
           />
           <span v-else class="text-sm" :class="getSignClass(data, data.values[idx] ?? 0)">
-            {{ formatUnit(data.values[idx] ?? 0) }}
-            <span v-if="data.suffix" class="text-gray-400 text-xs ml-0.5">{{ data.suffix }}</span>
+            {{ formatCell(data, data.values[idx] ?? 0) }}
+            <span v-if="suffixOf(data)" class="text-gray-400 text-xs ml-0.5">{{ suffixOf(data) }}</span>
           </span>
           <!-- Cap table link badge (or any per-cell annotation) -->
           <div

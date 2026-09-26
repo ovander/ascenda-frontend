@@ -340,3 +340,72 @@ describe('KYearGrid — unit switching proportionality', () => {
     expect(cellTexts(w3)[0]).toBe('5.00')
   })
 })
+
+// ── Row kinds: only amounts follow the display unit ──────────────────────────
+// Volumes, headcounts and coefficients are not amounts; percentages are stored
+// as fractions. Before row kinds existed, every row was divided by the display
+// factor: 22 events rendered "0.0" in k€ (the default unit), a 0.2 margin "0.0 %".
+
+function suffixes(wrapper: ReturnType<typeof mountGrid>): string[] {
+  return wrapper.findAll('span.text-sm span').map(s => s.text())
+}
+
+describe('KYearGrid — quantity rows are never scaled', () => {
+  beforeEach(() => setActivePinia(createPinia()))
+
+  it.each(['€', 'k€', 'M€'] as Unit[])('22 events render as "22 events" in %s mode', (u) => {
+    setUnit(u)
+    const row: GridRow = { id: 'vol', label: 'Events', values: [22, 23, 26, 25, 24], editable: false, kind: 'quantity', suffix: 'events' }
+    const wrapper = mountGrid([row])
+    expect(cellTexts(wrapper)[0]).toBe('22 events')
+    expect(suffixes(wrapper)[0]).toBe('events')
+  })
+
+  it('an editable quantity shows and stores the value as is', async () => {
+    setUnit('k€')
+    const row: GridRow = { id: 'fte', label: 'Engineers', values: [2, 3, 4, 5, 6], editable: true, decimals: 2, kind: 'quantity' }
+    const wrapper = mountGrid([row])
+    const input = wrapper.find('input.input-number')
+    expect(Number((input.element as HTMLInputElement).value)).toBe(2)
+    await input.setValue('2.5')
+    expect(wrapper.emitted('cell-edit')?.[0]?.[0]).toMatchObject({ rowId: 'fte', yearIndex: 0, value: 2.5 })
+  })
+})
+
+describe('KYearGrid — percent rows show fractions as percentages', () => {
+  beforeEach(() => setActivePinia(createPinia()))
+
+  it.each(['€', 'k€', 'M€'] as Unit[])('0.2 renders as "20.0 %" in %s mode', (u) => {
+    setUnit(u)
+    const row: GridRow = { id: 'margin', label: 'France', values: [0.2, 0.25, 0, 0, 0], editable: false, decimals: 1, kind: 'percent' }
+    const wrapper = mountGrid([row])
+    expect(cellTexts(wrapper).slice(0, 2)).toEqual(['20.0 %', '25.0 %'])
+  })
+
+  it('typing 20 in an editable percent cell stores 0.2', async () => {
+    setUnit('k€')
+    const row: GridRow = { id: 'margin', label: 'France', values: [0.1, 0, 0, 0, 0], editable: true, decimals: 1, kind: 'percent' }
+    const wrapper = mountGrid([row])
+    const input = wrapper.find('input.input-number')
+    expect(Number((input.element as HTMLInputElement).value)).toBeCloseTo(10)
+    await input.setValue('20')
+    expect(wrapper.emitted('cell-edit')?.[0]?.[0]).toMatchObject({ rowId: 'margin', value: 0.2 })
+  })
+})
+
+describe('KYearGrid — a "€" suffix follows the display unit', () => {
+  beforeEach(() => setActivePinia(createPinia()))
+
+  it.each([['€', '1,500'], ['k€', '1.5'], ['M€', '0.00']] as [Unit, string][])('in %s mode, 1 500 € reads "%s" + the unit', (u, text) => {
+    setUnit(u)
+    const row: GridRow = { id: 'price', label: 'Day Rate', values: [1500, 0, 0, 0, 0], editable: false, suffix: '€' }
+    const wrapper = mountGrid([row])
+    expect(cellTexts(wrapper)[0]).toBe(`${text} ${u}`)
+  })
+
+  it('an amount without a kind is still scaled (existing grids unchanged)', () => {
+    setUnit('k€')
+    const wrapper = mountGrid(makeRows())
+    expect(cellTexts(wrapper)[0]).toBe('1,200.0')
+  })
+})
