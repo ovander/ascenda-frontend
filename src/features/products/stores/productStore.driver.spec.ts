@@ -44,11 +44,6 @@ const mockConsultingProduct: Product = {
   sortOrder: 0,
   productType: 'service',
   driverType: 'consulting',
-  directCostVariability: '100',
-  externalChargeVariability: '0',
-  taxVariability: '0',
-  staffVariability: '0',
-  depreciationVariability: '0',
 }
 
 const mockConsultingParams: ConsultingParams = {
@@ -216,11 +211,6 @@ describe('productStore — driver framework', () => {
         productType: 'service',
         driverType: 'consulting',
         driverParams: mockConsultingParams,
-        directCostVariability: '100',
-        externalChargeVariability: '0',
-        taxVariability: '0',
-        staffVariability: '0',
-        depreciationVariability: '0',
       })
 
       expect(mockApi.post).toHaveBeenCalledWith(
@@ -239,11 +229,6 @@ describe('productStore — driver framework', () => {
         name: 'Widget',
         sortOrder: 0,
         driverType: 'generic',
-        directCostVariability: '100',
-        externalChargeVariability: '0',
-        taxVariability: '0',
-        staffVariability: '0',
-        depreciationVariability: '0',
       }
       mockApi.post.mockResolvedValue({ data: genericProduct })
       const store = useProductStore()
@@ -253,11 +238,6 @@ describe('productStore — driver framework', () => {
         productType: 'product',
         driverType: 'generic',
         driverParams: null,
-        directCostVariability: '100',
-        externalChargeVariability: '0',
-        taxVariability: '0',
-        staffVariability: '0',
-        depreciationVariability: '0',
       })
 
       expect(mockApi.post).toHaveBeenCalledWith(

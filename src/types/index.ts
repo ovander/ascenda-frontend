@@ -305,11 +305,6 @@ export interface Product {
   name: string
   productType?: string        // 'service' | 'product' — drives volume label
   sortOrder: number
-  directCostVariability: string
-  externalChargeVariability: string
-  taxVariability: string
-  staffVariability: string
-  depreciationVariability: string
   /** Business Driver Framework — Phase 1 */
   driverType: DriverType
   driverParams?: DriverParams

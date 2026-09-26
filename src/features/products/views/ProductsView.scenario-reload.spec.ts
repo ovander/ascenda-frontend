@@ -135,11 +135,6 @@ function makeProduct(overrides: Partial<Product> = {}): Product {
     productType: 'product',
     sortOrder: 0,
     driverType: 'generic',
-    directCostVariability: '0',
-    externalChargeVariability: '0',
-    taxVariability: '0',
-    staffVariability: '0',
-    depreciationVariability: '0',
     ...overrides,
   }
 }

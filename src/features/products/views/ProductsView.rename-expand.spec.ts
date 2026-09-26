@@ -149,11 +149,6 @@ function makeProduct(overrides: Partial<Product> = {}): Product {
     productType: 'product',
     sortOrder: 0,
     driverType: 'generic',
-    directCostVariability: '0',
-    externalChargeVariability: '0',
-    taxVariability: '0',
-    staffVariability: '0',
-    depreciationVariability: '0',
     ...overrides,
   }
 }
@@ -391,5 +386,32 @@ describe('ProductsView — expand guard (Bug 2 regression)', () => {
       (id) => id === undefined || id === 'undefined'
     )
     expect(undefinedMounts).toHaveLength(0)
+  })
+})
+
+// =============================================================================
+// Cost variability — removed (backend migration 000018)
+// =============================================================================
+describe('ProductsView — no cost variability', () => {
+  it('shows no variability badge on product cards, whatever the product carries', async () => {
+    // A demo product created before the removal still had these fields in the
+    // API response; they must not reappear on the card.
+    mockProducts.value = [
+      makeProduct({ name: 'Seeded', directCostVariability: '1', externalChargeVariability: '1' } as Partial<Product>),
+      makeProduct({ id: 'prod-new', name: 'Created' }),
+    ]
+    const wrapper = mountView()
+    await nextTick()
+
+    const cards = wrapper.findAll('.border.rounded-lg.bg-white')
+    expect(cards).toHaveLength(2)
+    for (const card of cards) {
+      expect(card.text()).not.toMatch(/Direct\s+\d+%|Ext\s+\d+%/)
+    }
+  })
+
+  it('the add-product dialog has no variability inputs', () => {
+    const wrapper = mountView()
+    expect(wrapper.html()).not.toContain('Variability')
   })
 })

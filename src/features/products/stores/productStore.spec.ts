@@ -41,11 +41,6 @@ const mockProduct: Product = {
   scenarioId: 'scenario-1',
   name: 'Widget',
   sortOrder: 0,
-  directCostVariability: '100',
-  externalChargeVariability: '0',
-  taxVariability: '0',
-  staffVariability: '0',
-  depreciationVariability: '0',
 }
 
 const mockProduct2: Product = {
@@ -53,11 +48,6 @@ const mockProduct2: Product = {
   scenarioId: 'scenario-1',
   name: 'Gadget',
   sortOrder: 1,
-  directCostVariability: '50',
-  externalChargeVariability: '20',
-  taxVariability: '0',
-  staffVariability: '0',
-  depreciationVariability: '0',
 }
 
 const basePath = '/api/v1/plans/plan-1/scenarios/scenario-1/products'
@@ -104,11 +94,6 @@ describe('Product Store', () => {
 
     const result = await store.createProduct({
       name: 'Widget',
-      directCostVariability: '100',
-      externalChargeVariability: '0',
-      taxVariability: '0',
-      staffVariability: '0',
-      depreciationVariability: '0',
     })
 
     expect(result.id).toBe('prod-1')
@@ -244,11 +229,6 @@ describe('Product Store', () => {
 
     await expect(store.createProduct({
       name: 'Widget',
-      directCostVariability: '100',
-      externalChargeVariability: '0',
-      taxVariability: '0',
-      staffVariability: '0',
-      depreciationVariability: '0',
     })).rejects.toBeDefined()
 
     expect(store.error).toBe('Duplicate name')

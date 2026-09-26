@@ -221,10 +221,10 @@ test.describe('ScenarioWizard — Free tier (5 steps)', () => {
     expect(capture.createProducts[1]).toMatchObject({
       name: 'Implementation', productType: 'service', driverType: 'flat',
     })
+    // The cost-variability fields were removed (backend migration 000018):
+    // the wizard must not send them, and never a non-numeric value.
     for (const p of capture.createProducts) {
-      expect(p).toMatchObject({
-        directCostVariability: 'variable', staffVariability: 'fixed', depreciationVariability: 'fixed',
-      })
+      expect(Object.keys(p).filter((k) => k.endsWith('Variability'))).toEqual([])
     }
   })
 

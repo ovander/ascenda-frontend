@@ -586,9 +586,7 @@ describe('ScenarioWizardView', () => {
 
         const validProducts = products.value.filter(p => p.name.trim())
         for (const p of validProducts) {
-          await createProduct({ name: p.name, productType: p.productType, driverType: isPro ? p.driverType : 'flat',
-                                 directCostVariability: 'variable', externalChargeVariability: 'variable',
-                                 taxVariability: 'variable', staffVariability: 'fixed', depreciationVariability: 'fixed' })
+          await createProduct({ name: p.name, productType: p.productType, driverType: isPro ? p.driverType : 'flat' })
         }
 
         await routerPush(`/plans/${planId}/scenarios/new-scenario-id`)
