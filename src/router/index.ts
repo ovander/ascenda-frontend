@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory, type RouteLocationNormalized, type RouteLocationRaw, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useTenantStore } from '@/stores/tenant'
 import { usePlanMembersStore } from '@/stores/planMembers'
@@ -308,22 +308,19 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to, _from, next) => {
+/**
+ * Access rules checked before every navigation. Returns true to let the
+ * navigation through, or the location to redirect to instead.
+ */
+export function accessGuard(to: RouteLocationNormalized): true | RouteLocationRaw {
+  // 🔥 CRITIQUE — ne jamais interférer avec landing ni callback
+  if (to.meta.public) return true
 
-    // 🔥 CRITIQUE — ne jamais interférer avec landing ni callback
-    if (to.meta.public) {
-        return next()
-    }
-
-    const auth = useAuthStore()
-
-  if (to.meta.public) {
-    return next()
-  }
+  const auth = useAuthStore()
 
   if (!auth.isAuthenticated) {
     const redirect = to.fullPath !== '/' ? `?redirect=${encodeURIComponent(to.fullPath)}` : ''
-      return next(`/landing${redirect}`)
+    return `/landing${redirect}`
   }
 
   // Lazily fetch feature policies once per session (non-blocking).
@@ -331,54 +328,43 @@ router.beforeEach((to, _from, next) => {
   useFeaturePolicyStore().fetchAll()
 
   // Platform admin only
-  if (to.meta.requiresAdmin) {
-    if (auth.user?.role !== 'admin') {
-      return next({ name: 'dashboard' })
-    }
+  if (to.meta.requiresAdmin && auth.user?.role !== 'admin') {
+    return { name: 'dashboard' }
   }
 
   // Owner only
-  if (to.meta.requiresOwner) {
-    if (auth.user?.role !== 'owner') {
-      return next({ name: 'dashboard' })
-    }
+  if (to.meta.requiresOwner && auth.user?.role !== 'owner') {
+    return { name: 'dashboard' }
   }
 
   // Platform admin cannot access plan/tenant routes
-  if (auth.user?.role === 'admin' && !to.meta.requiresAdmin && !to.meta.public) {
+  if (auth.user?.role === 'admin' && !to.meta.requiresAdmin) {
     const adminAllowed = ['admin-dashboard', 'admin-users', 'admin-tenants', 'admin-country-configs', 'admin-ai-usage', 'admin-feature-policies', 'admin-organizations']
-      if (!adminAllowed.includes(String(to.name))) {
-      return next({ name: 'admin-dashboard' })
+    if (!adminAllowed.includes(String(to.name))) {
+      return { name: 'admin-dashboard' }
     }
   }
 
   // Pro-tier gate
   if (to.meta.requiresPro) {
-    const tenantStore = useTenantStore()
-    const tier = tenantStore.tenant?.tier
+    const tier = useTenantStore().tenant?.tier
     if (tier && tier !== 'pro' && tier !== 'enterprise') {
-      return next({ name: 'dashboard', query: { upgrade: '1' } })
+      return { name: 'dashboard', query: { upgrade: '1' } }
     }
   }
 
   // Mobile gate: phones are read-only — block data-entry routes (mobileBlocked: true).
   // dashboard and plan-overview are operate-layer but still accessible on mobile.
-  if (to.meta.mobileBlocked) {
-    const ui = useUiStore()
-    if (ui.isMobile) {
-      if (to.params.planId && to.params.sid) {
-        return next({ name: 'scenario-dashboard', params: { planId: to.params.planId, sid: to.params.sid } })
-      }
-      return next({ name: 'dashboard' })
+  if (to.meta.mobileBlocked && useUiStore().isMobile) {
+    if (to.params.planId && to.params.sid) {
+      return { name: 'scenario-dashboard', params: { planId: to.params.planId, sid: to.params.sid } }
     }
+    return { name: 'dashboard' }
   }
 
   // Reader gate: readers cannot access Operate (data entry) sections
-  if (to.meta.layer === 'operate') {
-    const role = auth.user?.role
-    if (role === 'reader') {
-      return next({ name: 'dashboard' })
-    }
+  if (to.meta.layer === 'operate' && auth.user?.role === 'reader') {
+    return { name: 'dashboard' }
   }
 
   // Editor gate
@@ -387,13 +373,15 @@ router.beforeEach((to, _from, next) => {
     if (role !== 'owner' && role !== 'admin') {
       const planMembersStore = usePlanMembersStore()
       if (planMembersStore.myPlanRole && !planMembersStore.canEdit) {
-        return next({ name: 'dashboard' })
+        return { name: 'dashboard' }
       }
     }
   }
 
-  next()
-})
+  return true
+}
+
+router.beforeEach(accessGuard)
 
 // ── Auto-switch UX layer + close mobile drawer on every navigation ───────────
 router.afterEach((to) => {
