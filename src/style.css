@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Landing page fonts ──────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap');
+/* Inter and Sora are loaded by the <link> tags in index.html: an @import
+   after the @tailwind rules is invalid CSS and was dropped from the build. */
 
 :root {
   font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
