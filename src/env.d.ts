@@ -24,6 +24,16 @@ interface ImportMetaEnv {
   readonly VITE_APP_VERSION?: string
 }
 
+declare global {
+  /** Build facts embedded by vite.config.ts — read them through useBuildInfo(). */
+  const __APP_BUILD__: {
+    version: string
+    commit: string
+    buildTime: string
+    toolchain: { node: string; vite: string; vue: string; typescript: string }
+  }
+}
+
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
