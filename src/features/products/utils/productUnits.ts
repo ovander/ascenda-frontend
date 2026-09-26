@@ -40,8 +40,8 @@ const BY_DRIVER: Partial<Record<DriverType, ProductUnits>> = {
   },
   contract: {
     per: 'year', plural: 'years', heading: 'Contract Years',
-    priceLabel: 'Contract Revenue per Year', costLabel: 'Cost per Year',
-    assumptionsTab: 'Revenue & Cost', volumesTab: 'Contract Years',
+    priceLabel: 'Contract Revenue', costLabel: 'Cost per Year',
+    assumptionsTab: 'Contract Revenue', volumesTab: 'Contract Years',
   },
 }
 

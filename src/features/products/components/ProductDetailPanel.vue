@@ -61,6 +61,13 @@ const hasIndirectSales = computed(() =>
   !isDriverManaged.value || currentProduct.value?.driverType === 'industry',
 )
 
+/**
+ * The contract driver's volume is 1 for each year with revenue and it has no
+ * cost inputs: its revenue is the sum of the contracts, not a volume × price.
+ * The volumes tab and the cost row would only show that bookkeeping.
+ */
+const isContract = computed(() => currentProduct.value?.driverType === 'contract')
+
 /** Local copy of driverType for the driver tab selector. */
 const localDriverType = ref<DriverType>('generic')
 /** Local copy of driverParams edited in the Driver tab. */
@@ -145,7 +152,8 @@ const derivedAssumptionsGridRows = computed<GridRow[]>(() => {
     rmcRow.values[i] = Number(a.rawMaterialCost)
   })
 
-  rows.push(bupRow, rmcRow)
+  rows.push(bupRow)
+  if (!isContract.value) rows.push(rmcRow)
   return rows
 })
 
@@ -880,7 +888,7 @@ async function generateDevData() {
           </span>
         </Tab>
         <Tab value="assumptions">{{ units.assumptionsTab }}</Tab>
-        <Tab value="volumes">{{ units.volumesTab }}</Tab>
+        <Tab v-if="!isContract" value="volumes">{{ units.volumesTab }}</Tab>
         <Tab v-if="hasIndirectSales" value="margins">{{ isService ? 'Partner Margins' : 'Distributor Margins' }}</Tab>
         <Tab value="revenue">Revenue Summary</Tab>
       </TabList>
@@ -950,7 +958,7 @@ async function generateDevData() {
         </TabPanel>
 
         <!-- ── Sales Volumes / Billable Days tab ──────────────────────────── -->
-        <TabPanel value="volumes">
+        <TabPanel v-if="!isContract" value="volumes">
           <div class="mt-4">
             <!-- Driver-managed (non-industry): show computed read-only volumes -->
             <template v-if="isDriverManaged && currentProduct?.driverType !== 'industry'">

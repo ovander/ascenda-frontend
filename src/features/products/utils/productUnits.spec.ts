@@ -16,7 +16,7 @@ describe('productUnits', () => {
       priceLabel: 'Average Prize per Event', costLabel: 'Cost per Event', volumesTab: 'Events Played',
     })
     expect(productUnits('contract', 'service')).toMatchObject({
-      per: 'year', plural: 'years', heading: 'Contract Years', priceLabel: 'Contract Revenue per Year',
+      per: 'year', plural: 'years', heading: 'Contract Years', priceLabel: 'Contract Revenue', assumptionsTab: 'Contract Revenue',
     })
   })
 })
