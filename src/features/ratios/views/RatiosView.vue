@@ -876,9 +876,9 @@ const salesMarginsChart = computed<ChartData | null>(() => {
                     What drove the change in EBITDA between two consecutive years. Positive bars improve EBITDA; negative bars reduce it.
                   </p>
                   <div class="flex items-center gap-5 mb-3 text-xs text-gray-500">
-                    <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span> Positive impact</span>
-                    <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-sm bg-red-500"></span> Negative impact</span>
-                    <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-sm bg-indigo-500"></span> EBITDA level</span>
+                    <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-xs bg-emerald-500"></span> Positive impact</span>
+                    <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-xs bg-red-500"></span> Negative impact</span>
+                    <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-xs bg-indigo-500"></span> EBITDA level</span>
                   </div>
                   <div v-if="ratiosStore.loading" class="flex justify-center py-10">
                     <span class="text-gray-400 animate-pulse text-sm">Loading…</span>
@@ -902,6 +902,9 @@ const salesMarginsChart = computed<ChartData | null>(() => {
 </template>
 
 <style scoped>
+/* Tailwind v4: SFC styles are compiled on their own; this makes the theme's
+   utilities available to @apply without emitting any CSS. */
+@reference "../../../style.css";
 :deep(.p-tabs) {
   @apply border-0;
 }

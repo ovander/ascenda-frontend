@@ -182,14 +182,14 @@ const loading = computed(() => statsStore.loading || usersStore.tenantsLoading)
         <div
           v-for="card in tenantCards"
           :key="card.label"
-          class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm"
+          class="bg-white rounded-xl border border-gray-200 p-5 shadow-xs"
         >
           <div class="flex items-start justify-between">
             <div>
               <p class="text-sm text-gray-500">{{ card.label }}</p>
               <p class="text-3xl font-bold text-gray-800 mt-1">{{ card.value }}</p>
             </div>
-            <div :class="['w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0', card.iconBg]">
+            <div :class="['w-10 h-10 rounded-lg flex items-center justify-center shrink-0', card.iconBg]">
               <i :class="['pi text-lg', card.icon, card.iconColor]"></i>
             </div>
           </div>
@@ -204,14 +204,14 @@ const loading = computed(() => statsStore.loading || usersStore.tenantsLoading)
           <div
             v-for="card in userCards"
             :key="card.label"
-            class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm"
+            class="bg-white rounded-xl border border-gray-200 p-5 shadow-xs"
           >
             <div class="flex items-start justify-between">
               <div>
                 <p class="text-sm text-gray-500">{{ card.label }}</p>
                 <p class="text-3xl font-bold text-gray-800 mt-1">{{ card.value }}</p>
               </div>
-              <div :class="['w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0', card.iconBg]">
+              <div :class="['w-10 h-10 rounded-lg flex items-center justify-center shrink-0', card.iconBg]">
                 <i :class="['pi text-lg', card.icon, card.iconColor]"></i>
               </div>
             </div>
@@ -225,14 +225,14 @@ const loading = computed(() => statsStore.loading || usersStore.tenantsLoading)
           <div
             v-for="card in contentCards"
             :key="card.label"
-            class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm"
+            class="bg-white rounded-xl border border-gray-200 p-5 shadow-xs"
           >
             <div class="flex items-start justify-between">
               <div>
                 <p class="text-sm text-gray-500">{{ card.label }}</p>
                 <p class="text-3xl font-bold text-gray-800 mt-1">{{ card.value }}</p>
               </div>
-              <div :class="['w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0', card.iconBg]">
+              <div :class="['w-10 h-10 rounded-lg flex items-center justify-center shrink-0', card.iconBg]">
                 <i :class="['pi text-lg', card.icon, card.iconColor]"></i>
               </div>
             </div>
@@ -244,7 +244,7 @@ const loading = computed(() => statsStore.loading || usersStore.tenantsLoading)
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
           <!-- Recent Activity -->
-          <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+          <div class="bg-white rounded-xl border border-gray-200 shadow-xs">
             <div class="px-5 py-4 border-b border-gray-100">
               <h3 class="font-semibold text-gray-800">Recent Activity</h3>
               <p class="text-xs text-gray-400 mt-0.5">Last created or updated items across all tenants</p>
@@ -261,7 +261,7 @@ const loading = computed(() => statsStore.loading || usersStore.tenantsLoading)
                 :key="i"
                 class="flex items-center gap-3 px-5 py-3"
               >
-                <div :class="['w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0', activityColor(item.action)]">
+                <div :class="['w-8 h-8 rounded-lg flex items-center justify-center shrink-0', activityColor(item.action)]">
                   <i :class="['pi text-sm', activityIcon(item.type)]"></i>
                 </div>
                 <div class="flex-1 min-w-0">
@@ -270,13 +270,13 @@ const loading = computed(() => statsStore.loading || usersStore.tenantsLoading)
                     {{ item.action === 'created' ? 'Created' : 'Updated' }} by {{ item.actor }}
                   </p>
                 </div>
-                <span class="text-xs text-gray-400 flex-shrink-0">{{ timeAgo(item.at) }}</span>
+                <span class="text-xs text-gray-400 shrink-0">{{ timeAgo(item.at) }}</span>
               </div>
             </div>
           </div>
 
           <!-- Top Users -->
-          <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-100">
               <h3 class="font-semibold text-gray-800">Top Users by Activity</h3>
               <p class="text-xs text-gray-400 mt-0.5">Plans and scenarios owned per user</p>

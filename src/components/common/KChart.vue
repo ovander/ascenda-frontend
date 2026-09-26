@@ -120,11 +120,11 @@ const chartComponent = computed(() => {
   <div class="kchart-wrapper" :style="{ height: resolvedHeight }">
     <h3 v-if="title" class="text-lg font-semibold text-gray-800 mb-3">{{ title }}</h3>
 
-    <div v-if="loading" class="w-full h-full flex items-center justify-center bg-gray-50 rounded border border-gray-200">
+    <div v-if="loading" class="w-full h-full flex items-center justify-center bg-gray-50 rounded-sm border border-gray-200">
       <span class="text-gray-400 animate-pulse">Loading chart data...</span>
     </div>
 
-    <div v-else-if="!data || data.datasets.length === 0" class="w-full h-full flex items-center justify-center bg-gray-50 rounded border border-dashed border-gray-300">
+    <div v-else-if="!data || data.datasets.length === 0" class="w-full h-full flex items-center justify-center bg-gray-50 rounded-sm border border-dashed border-gray-300">
       <span class="text-gray-400">No chart data available</span>
     </div>
 

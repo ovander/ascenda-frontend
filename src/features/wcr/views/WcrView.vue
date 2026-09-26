@@ -653,7 +653,7 @@ async function saveAdjustments() {
                     v-for="(year, idx) in yearHeaders"
                     :key="idx"
                     :class="[
-                      'p-4 rounded border text-center',
+                      'p-4 rounded-sm border text-center',
                       hasLargeWcrChange && Math.abs(wcrChangeValues[idx] ?? 0) > 1_000_000
                         ? 'bg-red-200 border-red-400'
                         : 'bg-gray-100 border-gray-300',
@@ -706,6 +706,9 @@ async function saveAdjustments() {
 </template>
 
 <style scoped>
+/* Tailwind v4: SFC styles are compiled on their own; this makes the theme's
+   utilities available to @apply without emitting any CSS. */
+@reference "../../../style.css";
 :deep(.p-tabs) {
   @apply border-0;
 }

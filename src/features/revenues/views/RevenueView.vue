@@ -236,7 +236,7 @@ function fmtPct(val: number): string {
                       data.isTotal
                         ? 'font-bold bg-blue-50 text-blue-900'
                         : 'text-gray-700',
-                      'block px-2 py-0.5 rounded text-right',
+                      'block px-2 py-0.5 rounded-sm text-right',
                     ]"
                   >
                     {{ formatUnit(data.turnover[idx] ?? 0, 0) }}
@@ -257,7 +257,7 @@ function fmtPct(val: number): string {
                       data.isTotal
                         ? 'font-bold bg-green-50 text-green-900'
                         : 'text-gray-700',
-                      'block px-2 py-0.5 rounded text-right',
+                      'block px-2 py-0.5 rounded-sm text-right',
                     ]"
                   >
                     {{ formatUnit(data.grossMargin[idx] ?? 0, 0) }}
@@ -292,7 +292,7 @@ function fmtPct(val: number): string {
 
             <div v-else class="grid grid-cols-1 gap-6">
               <!-- Turnover by segment -->
-              <div class="bg-white rounded border border-gray-200 p-4">
+              <div class="bg-white rounded-sm border border-gray-200 p-4">
                 <h2 class="text-lg font-semibold mb-4 text-gray-700">
                   {{ t('revenues.chart.turnoverBySegment') }} ({{ unitLabel }})
                 </h2>
@@ -306,7 +306,7 @@ function fmtPct(val: number): string {
               </div>
 
               <!-- Gross Margin by segment -->
-              <div class="bg-white rounded border border-gray-200 p-4">
+              <div class="bg-white rounded-sm border border-gray-200 p-4">
                 <h2 class="text-lg font-semibold mb-4 text-gray-700">
                   {{ t('revenues.chart.grossMarginBySegment') }} ({{ unitLabel }})
                 </h2>
@@ -320,7 +320,7 @@ function fmtPct(val: number): string {
               </div>
 
               <!-- Gross Margin % trend -->
-              <div class="bg-white rounded border border-gray-200 p-4">
+              <div class="bg-white rounded-sm border border-gray-200 p-4">
                 <h2 class="text-lg font-semibold mb-4 text-gray-700">
                   {{ t('revenues.chart.grossMarginTrend') }}
                 </h2>

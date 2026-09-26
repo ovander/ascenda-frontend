@@ -202,16 +202,16 @@ function formatDate(d: string | undefined): string {
 
     <!-- Summary chips -->
     <div class="flex flex-wrap gap-3 mb-6">
-      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm">
+      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-xs">
         <span class="text-sm text-gray-500">Total</span>
         <span class="font-bold text-gray-800">{{ store.totalOrgs }}</span>
       </div>
-      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm">
+      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-xs">
         <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
         <span class="text-sm text-gray-500">Active</span>
         <span class="font-bold text-gray-800">{{ activeOrgs }}</span>
       </div>
-      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm">
+      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-xs">
         <span class="w-2 h-2 rounded-full bg-gray-300 inline-block"></span>
         <span class="text-sm text-gray-500">Inactive</span>
         <span class="font-bold text-gray-800">{{ inactiveOrgs }}</span>
@@ -219,7 +219,7 @@ function formatDate(d: string | undefined): string {
       <div
         v-for="opt in planOptions"
         :key="opt.value"
-        class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm"
+        class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-xs"
       >
         <Tag :value="opt.label" :severity="planSeverity(opt.value)" class="text-xs" />
         <span class="font-bold text-gray-800">{{ planCounts[opt.value] ?? 0 }}</span>

@@ -1,6 +1,7 @@
 /// <reference types="vitest/config" />
 import { defineConfig, version as viteVersion } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 import { execSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { fileURLToPath, URL } from 'node:url'
@@ -32,7 +33,7 @@ const appBuild = {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), tailwindcss()],
   define: {
     __APP_BUILD__: JSON.stringify(appBuild),
   },

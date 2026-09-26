@@ -68,7 +68,7 @@ const visible = computed(() => {
       <!-- Saving: spinner -->
       <svg
         v-if="dirty.state.value === 'saving'"
-        class="animate-spin h-3.5 w-3.5 text-blue-500 flex-shrink-0"
+        class="animate-spin h-3.5 w-3.5 text-blue-500 shrink-0"
         fill="none"
         viewBox="0 0 24 24"
       >
@@ -81,15 +81,15 @@ const visible = computed(() => {
       </svg>
 
       <!-- Clean: check -->
-      <i v-else-if="showClean" class="pi pi-check-circle text-green-600 text-sm flex-shrink-0" />
+      <i v-else-if="showClean" class="pi pi-check-circle text-green-600 text-sm shrink-0" />
 
       <!-- Error: X -->
-      <i v-else-if="dirty.state.value === 'error'" class="pi pi-exclamation-circle text-red-500 text-sm flex-shrink-0" />
+      <i v-else-if="dirty.state.value === 'error'" class="pi pi-exclamation-circle text-red-500 text-sm shrink-0" />
 
       <!-- Dirty: dot -->
       <span
         v-else
-        class="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0"
+        class="w-2 h-2 rounded-full bg-amber-400 shrink-0"
       />
 
       <!-- Label -->

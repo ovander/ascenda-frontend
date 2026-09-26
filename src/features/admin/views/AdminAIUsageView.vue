@@ -86,7 +86,7 @@ const successCallsWindow = computed(() => store.stats?.byFeature.reduce((s, r) =
           :class="[
             'px-3 py-1.5 text-sm font-medium rounded-md transition-all',
             windowDays === d
-              ? 'bg-white shadow text-indigo-700'
+              ? 'bg-white shadow-sm text-indigo-700'
               : 'text-gray-500 hover:text-gray-700',
           ]"
           @click="loadWindow(d)"
@@ -108,7 +108,7 @@ const successCallsWindow = computed(() => store.stats?.byFeature.reduce((s, r) =
 
         <!-- Calls Today -->
         <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3">
-          <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
             <i class="pi pi-calendar text-indigo-600 text-lg"></i>
           </div>
           <div>
@@ -119,7 +119,7 @@ const successCallsWindow = computed(() => store.stats?.byFeature.reduce((s, r) =
 
         <!-- Calls This Week -->
         <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3">
-          <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center shrink-0">
             <i class="pi pi-chart-bar text-sky-600 text-lg"></i>
           </div>
           <div>
@@ -130,7 +130,7 @@ const successCallsWindow = computed(() => store.stats?.byFeature.reduce((s, r) =
 
         <!-- Calls This Month -->
         <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3">
-          <div class="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
             <i class="pi pi-sparkles text-violet-600 text-lg"></i>
           </div>
           <div>
@@ -141,7 +141,7 @@ const successCallsWindow = computed(() => store.stats?.byFeature.reduce((s, r) =
 
         <!-- Success rate (window) -->
         <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3">
-          <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
             <i class="pi pi-check-circle text-emerald-600 text-lg"></i>
           </div>
           <div>
@@ -158,7 +158,7 @@ const successCallsWindow = computed(() => store.stats?.byFeature.reduce((s, r) =
 
         <!-- Total calls in window -->
         <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3">
-          <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
             <i class="pi pi-list text-amber-600 text-lg"></i>
           </div>
           <div>
@@ -169,7 +169,7 @@ const successCallsWindow = computed(() => store.stats?.byFeature.reduce((s, r) =
 
         <!-- Total tokens -->
         <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3">
-          <div class="w-10 h-10 rounded-lg bg-fuchsia-50 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-lg bg-fuchsia-50 flex items-center justify-center shrink-0">
             <i class="pi pi-bolt text-fuchsia-600 text-lg"></i>
           </div>
           <div>
@@ -180,7 +180,7 @@ const successCallsWindow = computed(() => store.stats?.byFeature.reduce((s, r) =
 
         <!-- Estimated cost -->
         <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3">
-          <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center shrink-0">
             <i class="pi pi-dollar text-rose-600 text-lg"></i>
           </div>
           <div>

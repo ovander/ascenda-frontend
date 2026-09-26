@@ -167,7 +167,7 @@ describe('ScenarioIntelligenceSection', () => {
     const wrapper = mountSection(MOCK_ANALYSIS)
     await nextTick()
 
-    expect(wrapper.find('.blur-sm').exists()).toBe(true)
+    expect(wrapper.find('.blur-xs').exists()).toBe(true)
     expect(wrapper.text()).toContain('Upgrade to Pro to unlock')
   })
 

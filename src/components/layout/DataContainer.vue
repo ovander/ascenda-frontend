@@ -4,7 +4,7 @@
     <Transition name="fade-hint">
       <div
         v-if="showScrollHint"
-        class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white via-white/70 to-transparent pointer-events-none z-10 flex items-center justify-end pr-1"
+        class="absolute right-0 top-0 bottom-0 w-10 bg-linear-to-l from-white via-white/70 to-transparent pointer-events-none z-10 flex items-center justify-end pr-1"
       >
         <i class="pi pi-chevron-right text-gray-400 text-xs" />
       </div>

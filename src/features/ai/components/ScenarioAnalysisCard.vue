@@ -237,7 +237,7 @@ const SECTION_LABEL = 'text-xs font-semibold uppercase tracking-wider text-gray-
                 <!-- Urgency badge -->
                 <span
                   :class="[
-                    'inline-flex items-center px-1.5 py-0 rounded border text-[9px] font-bold uppercase tracking-wide',
+                    'inline-flex items-center px-1.5 py-0 rounded-sm border text-[9px] font-bold uppercase tracking-wide',
                     riskClasses(risk.urgency).badge,
                   ]"
                 >
@@ -246,7 +246,7 @@ const SECTION_LABEL = 'text-xs font-semibold uppercase tracking-wider text-gray-
                 <!-- Category -->
                 <span
                   v-if="risk.category"
-                  class="inline-flex items-center px-1.5 py-0 rounded border text-[9px] font-medium text-gray-500 bg-white border-gray-200"
+                  class="inline-flex items-center px-1.5 py-0 rounded-sm border text-[9px] font-medium text-gray-500 bg-white border-gray-200"
                 >
                   {{ risk.category }}
                 </span>
@@ -276,7 +276,7 @@ const SECTION_LABEL = 'text-xs font-semibold uppercase tracking-wider text-gray-
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
               <span class="text-sm font-semibold text-gray-800">{{ driver.title }}</span>
-              <span class="text-[9px] font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded px-1.5">
+              <span class="text-[9px] font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-sm px-1.5">
                 #{{ driver.priority }}
               </span>
             </div>

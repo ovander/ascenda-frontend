@@ -1015,7 +1015,7 @@ onMounted(async () => {
       <TabPanels>
         <!-- Financing Plan Tab -->
         <TabPanel value="plan" class="p-0">
-          <div class="bg-white rounded border border-gray-200 p-4">
+          <div class="bg-white rounded-sm border border-gray-200 p-4">
             <KFormLegend
               variant="grid"
               description="Enter your financing sources and uses per year (in thousands). Requirements (Capex, WCR, Loan Repayments…) are auto-computed from other modules. Resources (Capital Increase, Loans, Subsidies…) are editable inputs. The plan must balance: Total Resources ≥ Total Requirements each year."
@@ -1035,7 +1035,7 @@ onMounted(async () => {
 
         <!-- Cash Flow Statement Tab -->
         <TabPanel value="cashflow" class="p-0">
-          <div class="bg-white rounded border border-gray-200 p-4">
+          <div class="bg-white rounded-sm border border-gray-200 p-4">
             <h2 class="text-lg font-semibold mb-4 text-gray-700">Cash Flow Statement</h2>
             <DataContainer min-width="700px">
               <KYearGrid :rows="cashFlowRows" :unit="unitLabel" />
@@ -1052,7 +1052,7 @@ onMounted(async () => {
           <div v-else class="flex flex-col gap-6">
 
             <!-- Chart 1: Revenue, Net Profit & Cumulative Cash -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <h2 class="text-lg font-semibold mb-4 text-gray-700">Revenue, Profit &amp; Cash (k€)</h2>
               <div v-if="!revenueProfitCashChart" class="flex items-center justify-center h-40 text-gray-400">
                 No P&L or cash flow data available yet.
@@ -1061,7 +1061,7 @@ onMounted(async () => {
             </div>
 
             <!-- Chart 2: Working Capital, WCR and Net Cash (incl. opening) -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <h2 class="text-lg font-semibold mb-4 text-gray-700">Working Capital, WCR &amp; Net Cash — incl. opening position (k€)</h2>
               <div v-if="!wcrWorkingCapitalChart" class="flex items-center justify-center h-40 text-gray-400">
                 No balance sheet data available yet.
@@ -1070,7 +1070,7 @@ onMounted(async () => {
             </div>
 
             <!-- Chart 3: Operating Cash Flow vs New Equity + Debt -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <h2 class="text-lg font-semibold mb-4 text-gray-700">Operating Cash Flow vs New Equity + Debt (k€)</h2>
               <div v-if="!cashFlowFinancingChart" class="flex items-center justify-center h-40 text-gray-400">
                 No cash flow statement available yet.
@@ -1079,7 +1079,7 @@ onMounted(async () => {
             </div>
 
             <!-- Chart 4: Balance Structure (Uses vs Sources) -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <h2 class="text-lg font-semibold mb-4 text-gray-700">
                 Balance Structure — Uses vs Sources (k€)
               </h2>
@@ -1094,7 +1094,7 @@ onMounted(async () => {
             </div>
 
             <!-- Chart 5: Cash Flow Bridge waterfall -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <div class="flex items-center justify-between mb-1">
                 <h2 class="text-lg font-semibold text-gray-700">Cash Flow Bridge</h2>
                 <Select
@@ -1111,9 +1111,9 @@ onMounted(async () => {
                 How Opening Cash moves to Closing Cash: Operating CF → Investing (capex) → Financing (equity/debt).
               </p>
               <div class="flex items-center gap-5 mb-3 text-xs text-gray-500">
-                <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span> Positive</span>
-                <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-sm bg-red-500"></span> Negative</span>
-                <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-sm bg-indigo-500"></span> Cash position</span>
+                <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-xs bg-emerald-500"></span> Positive</span>
+                <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-xs bg-red-500"></span> Negative</span>
+                <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-xs bg-indigo-500"></span> Cash position</span>
               </div>
               <div v-if="!cashFlowBridgeData" class="flex items-center justify-center h-40 text-gray-400">
                 No cash flow data available yet.
@@ -1150,7 +1150,7 @@ onMounted(async () => {
             v-model="structureRaiseForm.label"
             type="text"
             placeholder="e.g. Series A"
-            class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+            class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-violet-400"
           />
         </div>
 
@@ -1322,7 +1322,7 @@ onMounted(async () => {
       </table>
 
       <!-- Already balanced -->
-      <p v-if="!hasSomeGap" class="text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2 mb-4">
+      <p v-if="!hasSomeGap" class="text-sm text-green-700 bg-green-50 border border-green-200 rounded-sm px-3 py-2 mb-4">
         <i class="pi pi-check-circle mr-1" /> Your financing plan is already balanced for all five years.
       </p>
 
@@ -1354,7 +1354,7 @@ onMounted(async () => {
             <!-- Instrument lines -->
             <div class="px-3 py-2 bg-white flex flex-col gap-2">
               <!-- Y1-only note about opening balance instruments -->
-              <p v-if="row.year === 1" class="text-xs text-blue-600 bg-blue-50 border border-blue-100 rounded px-2 py-1">
+              <p v-if="row.year === 1" class="text-xs text-blue-600 bg-blue-50 border border-blue-100 rounded-sm px-2 py-1">
                 <i class="pi pi-info-circle mr-1" />
                 For Y1 you can also use <strong>Initial Share Capital</strong> or <strong>Initial Treasury</strong>
                 (Opening Balance) — these update your balance sheet directly rather than the financing plan.
@@ -1414,7 +1414,7 @@ onMounted(async () => {
       </div>
 
       <!-- Note -->
-      <p v-if="hasSomeGap" class="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded px-3 py-2 mt-4">
+      <p v-if="hasSomeGap" class="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-sm px-3 py-2 mt-4">
         <i class="pi pi-info-circle mr-1" />
         Amounts are <strong>added to existing values</strong> in each selected line and rounded up to the nearest k€.
         Lines at 0 % are skipped.

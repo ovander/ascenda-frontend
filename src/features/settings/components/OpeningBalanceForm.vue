@@ -163,7 +163,7 @@ const liabilityFields = [
               label="Other Payables (balancing plug)"
               tooltip="Computed automatically as the difference between Total Assets and all other liabilities. Ensures the balance sheet is always in balance. You cannot edit this field directly."
             />
-            <div class="bg-green-50 border border-green-200 rounded px-3 py-2 text-right text-sm font-medium">
+            <div class="bg-green-50 border border-green-200 rounded-sm px-3 py-2 text-right text-sm font-medium">
               {{ otherPayables.toLocaleString(getLocale(), { minimumFractionDigits: 2 }) }}
             </div>
           </div>

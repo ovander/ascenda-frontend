@@ -348,9 +348,9 @@ async function downloadAudit() {
         <div
           v-for="entry in filtered.slice(0, 30)"
           :key="entry.id"
-          class="flex items-start gap-3 bg-white border border-gray-100 rounded-lg px-3 py-2.5 shadow-sm"
+          class="flex items-start gap-3 bg-white border border-gray-100 rounded-lg px-3 py-2.5 shadow-xs"
         >
-          <div class="mt-0.5 flex-shrink-0">
+          <div class="mt-0.5 shrink-0">
             <div class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200">
               <i :class="entityIcon(entry.entityType)" class="text-gray-500 text-xs" />
             </div>
@@ -455,7 +455,7 @@ async function downloadAudit() {
           <Column field="entityId" header="Entity ID" style="width: 110px">
             <template #body="{ data }">
               <span
-                class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded text-gray-600"
+                class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded-sm text-gray-600"
                 v-tooltip.top="data.entityId"
               >
                 {{ shortId(data.entityId) }}
@@ -485,7 +485,7 @@ async function downloadAudit() {
           <Column field="userId" header="User ID" style="width: 110px">
             <template #body="{ data }">
               <span
-                class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded text-gray-600"
+                class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded-sm text-gray-600"
                 v-tooltip.top="data.userId"
               >
                 {{ shortId(data.userId) }}

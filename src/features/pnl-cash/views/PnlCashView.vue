@@ -547,7 +547,7 @@ const pnlCashMobileKpis = computed<KpiItem[]>(() => {
       <TabPanels>
         <!-- Functional P&L Tab -->
         <TabPanel value="functional" class="p-0">
-          <div class="bg-white rounded border border-gray-200 p-4 overflow-auto">
+          <div class="bg-white rounded-sm border border-gray-200 p-4 overflow-auto">
             <h2 class="text-lg font-semibold mb-2 text-gray-700">Functional P&L Statement</h2>
             <KFormLegend
               variant="grid"
@@ -593,7 +593,7 @@ const pnlCashMobileKpis = computed<KpiItem[]>(() => {
                       data.isAggregate ? 'font-bold' : 'font-normal',
                       data.isInput ? 'bg-orange-100' : 'bg-green-100',
                     ]"
-                    class="block px-2 py-1 rounded text-right"
+                    class="block px-2 py-1 rounded-sm text-right"
                   >
                     {{ data.values[idx] != null ? formatUnit(Number(data.values[idx]), 0) : '-' }}
                   </span>
@@ -618,25 +618,25 @@ const pnlCashMobileKpis = computed<KpiItem[]>(() => {
         <TabPanel value="graphs" class="p-0 pt-4">
           <div class="flex flex-col gap-6">
             <!-- Chart 1: Sales, Gross Margin & Net Profit -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <h2 class="text-lg font-semibold mb-4 text-gray-700">Sales, Gross Margin &amp; Net Profit ({{ unitLabel }})</h2>
               <KChart :key="`pnlcash-salesmargin-${unitLabel}`" :data="salesMarginChart" type="combo" height="320px" :loading="pnlCashStore.loading" />
             </div>
 
             <!-- Chart 2: Cost by function -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <h2 class="text-lg font-semibold mb-4 text-gray-700">Cost by Function ({{ unitLabel }})</h2>
               <KChart :key="`pnlcash-costfn-${unitLabel}`" :data="scaledPnlCashChart" type="stacked-bar" height="320px" :loading="pnlCashStore.loading" />
             </div>
 
             <!-- Chart 3: Margin % evolution -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <h2 class="text-lg font-semibold mb-4 text-gray-700">Margin % Evolution</h2>
               <KChart :data="cashMarginPctChart" type="line" height="280px" :loading="pnlCashStore.loading" />
             </div>
 
             <!-- Chart 4: P&L Waterfall by year -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-700">P&amp;L Waterfall</h2>
                 <Select
@@ -652,13 +652,13 @@ const pnlCashMobileKpis = computed<KpiItem[]>(() => {
               <!-- Legend -->
               <div class="flex items-center gap-5 mb-3 text-xs text-gray-500">
                 <span class="flex items-center gap-1.5">
-                  <span class="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span> Positive
+                  <span class="inline-block w-3 h-3 rounded-xs bg-emerald-500"></span> Positive
                 </span>
                 <span class="flex items-center gap-1.5">
-                  <span class="inline-block w-3 h-3 rounded-sm bg-red-500"></span> Negative
+                  <span class="inline-block w-3 h-3 rounded-xs bg-red-500"></span> Negative
                 </span>
                 <span class="flex items-center gap-1.5">
-                  <span class="inline-block w-3 h-3 rounded-sm bg-indigo-500"></span> Subtotal
+                  <span class="inline-block w-3 h-3 rounded-xs bg-indigo-500"></span> Subtotal
                 </span>
               </div>
               <div v-if="pnlCashStore.loading" class="flex justify-center py-10">

@@ -138,16 +138,16 @@ async function handleEdit() {
 
     <!-- Summary chips -->
     <div class="flex flex-wrap gap-3 mb-6">
-      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm">
+      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-xs">
         <span class="text-sm text-gray-500">Total</span>
         <span class="font-bold text-gray-800">{{ store.totalTenants }}</span>
       </div>
-      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm">
+      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-xs">
         <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
         <span class="text-sm text-gray-500">Active</span>
         <span class="font-bold text-gray-800">{{ activeTenants }}</span>
       </div>
-      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm">
+      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-xs">
         <span class="w-2 h-2 rounded-full bg-gray-300 inline-block"></span>
         <span class="text-sm text-gray-500">Inactive</span>
         <span class="font-bold text-gray-800">{{ inactiveTenants }}</span>
@@ -155,7 +155,7 @@ async function handleEdit() {
       <div
         v-for="opt in tierOptions"
         :key="opt.value"
-        class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm"
+        class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-xs"
       >
         <Tag :value="opt.label" :severity="tierSeverity(opt.value)" class="text-xs" />
         <span class="font-bold text-gray-800">{{ tierCounts[opt.value] }}</span>

@@ -20,7 +20,7 @@
                 type="text"
                 required
                 placeholder="Marie"
-                class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
             <div>
@@ -30,7 +30,7 @@
                 type="text"
                 required
                 placeholder="Dupont"
-                class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
           </div>
@@ -42,7 +42,7 @@
               type="text"
               required
               placeholder="Acme SAS"
-              class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+              class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
 
@@ -53,7 +53,7 @@
               type="email"
               required
               placeholder="marie@acme.com"
-              class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+              class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
 
@@ -61,7 +61,7 @@
             <label class="block text-xs font-medium text-slate-600 mb-1.5">Country</label>
             <select
               v-model="form.country"
-              class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 transition-colors appearance-none focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+              class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 transition-colors appearance-none focus:outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
             >
               <option value="BE">Belgium</option>
               <option value="FR">France</option>

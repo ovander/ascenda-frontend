@@ -527,7 +527,7 @@ async function downloadProductAudit() {
             v-if="renamingId === product.id"
             :ref="(el) => setRenameRef(el as HTMLInputElement | null, product.id)"
             v-model="renameValue"
-            class="font-medium flex-1 border-b border-blue-400 bg-transparent outline-none px-0"
+            class="font-medium flex-1 border-b border-blue-400 bg-transparent outline-hidden px-0"
             @click.stop
             @keydown.enter.prevent="commitRename(product.id)"
             @keydown.escape.prevent="cancelRename"
@@ -541,7 +541,7 @@ async function downloadProductAudit() {
           >{{ product.name || '(unnamed)' }}</span>
           <!-- Driver badge — always shown, identifies the business model -->
           <span
-            class="text-xs rounded px-2 py-0.5 font-medium border"
+            class="text-xs rounded-sm px-2 py-0.5 font-medium border"
             :class="product.driverType && product.driverType !== 'generic'
               ? 'bg-blue-50 border-blue-200 text-blue-700'
               : 'bg-gray-50 border-gray-200 text-gray-500'"
@@ -570,7 +570,7 @@ async function downloadProductAudit() {
     <div v-if="consolidatedDataWithTotal.length > 0" class="mt-8">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-bold text-gray-800">Consolidated Revenue Summary</h2>
-        <span class="text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded px-2 py-0.5 font-medium">
+        <span class="text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded-sm px-2 py-0.5 font-medium">
           Amounts in {{ getUnitLabel() }}
         </span>
       </div>

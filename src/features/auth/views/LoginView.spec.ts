@@ -62,7 +62,7 @@ describe('LoginView', () => {
     const wrapper = createWrapper()
     const container = wrapper.find('.min-h-screen')
     expect(container.exists()).toBe(true)
-    expect(container.classes()).toContain('bg-gradient-to-br')
+    expect(container.classes()).toContain('bg-linear-to-br')
   })
 
   it('should render the chart icon', () => {

@@ -477,7 +477,7 @@ onMounted(async () => {
         <TabPanel value="pnl" class="p-0">
           <div class="flex flex-col gap-4">
             <!-- Top Card: Editable Entries -->
-            <div class="bg-white rounded border border-gray-200 p-3 md:p-6">
+            <div class="bg-white rounded-sm border border-gray-200 p-3 md:p-6">
               <h2 class="text-sm md:text-lg font-semibold mb-2 text-gray-700">Manual Adjustments</h2>
               <KFormLegend
                 variant="grid"
@@ -489,7 +489,7 @@ onMounted(async () => {
             </div>
 
             <!-- Bottom Card: P&L Report Table -->
-            <div class="bg-white rounded border border-gray-200 p-3 md:p-6 overflow-auto">
+            <div class="bg-white rounded-sm border border-gray-200 p-3 md:p-6 overflow-auto">
               <h2 class="text-sm md:text-lg font-semibold mb-4 text-gray-700">P&L Report</h2>
               <DataTable
                 v-if="pnlStore.report"
@@ -535,7 +535,7 @@ onMounted(async () => {
                             ? 'bg-blue-50 text-blue-900'
                             : '',
                       ]"
-                      class="block px-2 py-0.5 rounded text-right"
+                      class="block px-2 py-0.5 rounded-sm text-right"
                     >
                       {{ formatUnit(data.values[idx] ?? 0, 0) }}
                     </span>
@@ -558,19 +558,19 @@ onMounted(async () => {
         <TabPanel value="graphs" class="p-0 pt-4">
           <div class="flex flex-col gap-6">
             <!-- Chart 1: Revenue, EBITDA & Net Profit -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <h2 class="text-lg font-semibold mb-4 text-gray-700">Revenue, EBITDA &amp; Net Profit ({{ unitLabel }})</h2>
               <KChart :key="`pnl-revprofit-${unitLabel}`" :data="pnlChartForDisplay" type="combo" height="320px" :loading="pnlStore.loading" />
             </div>
 
             <!-- Chart 2: Cost Structure by P&L category -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <h2 class="text-lg font-semibold mb-4 text-gray-700">Cost Structure by P&amp;L Category ({{ unitLabel }})</h2>
               <KChart :key="`pnl-coststructure-${unitLabel}`" :data="costStructureChart" type="stacked-bar" height="320px" :loading="pnlStore.loading" />
             </div>
 
             <!-- Chart 3: Margin % evolution -->
-            <div class="bg-white rounded border border-gray-200 p-4">
+            <div class="bg-white rounded-sm border border-gray-200 p-4">
               <h2 class="text-lg font-semibold mb-4 text-gray-700">Margin % Evolution</h2>
               <KChart :data="marginPctChart" type="line" height="280px" :loading="pnlStore.loading" />
             </div>

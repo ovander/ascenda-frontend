@@ -550,7 +550,7 @@ async function handleDownloadAI(snapshot: any) {
           <p class="text-sm text-gray-600 mb-3">
             {{ diffRows.length }} changed value{{ diffRows.length !== 1 ? 's' : '' }}
           </p>
-          <div class="overflow-auto max-h-96 border rounded">
+          <div class="overflow-auto max-h-96 border rounded-sm">
             <table class="w-full text-sm border-collapse">
               <thead class="bg-gray-50 sticky top-0">
                 <tr>

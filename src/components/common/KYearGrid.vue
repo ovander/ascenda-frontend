@@ -111,7 +111,7 @@ function getSignClass(row: GridRow, val: string | number): string {
 <template>
   <div>
   <div v-if="unit" class="flex justify-end mb-1">
-    <span class="text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded px-2 py-0.5 font-medium">
+    <span class="text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded-sm px-2 py-0.5 font-medium">
       Amounts in {{ unit }}
     </span>
   </div>
@@ -150,7 +150,7 @@ function getSignClass(row: GridRow, val: string | number): string {
         <div class="text-right w-full">{{ header }}</div>
       </template>
       <template #body="{ data }">
-        <div :class="['px-2 py-1 text-right rounded', getCellClass(data), getRowClass(data)]">
+        <div :class="['px-2 py-1 text-right rounded-sm', getCellClass(data), getRowClass(data)]">
           <InputNumber
             v-if="data.editable"
             :modelValue="numValue(data.values[idx]) / displayUnitStore.factor"
