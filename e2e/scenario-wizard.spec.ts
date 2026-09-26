@@ -296,12 +296,34 @@ test.describe('ScenarioWizard — Free tier (5 steps)', () => {
     await expect(page.getByText('Step 2 of 5')).toBeVisible()
   })
 
+  test('step bar follows the wizard, goes back on click, and keeps later steps closed', async ({ page }) => {
+    const user = await bootApp(page, 'freemium')
+    await mockApiCalls(page, user)
+    await gotoWizardFree(page)
+
+    const steps = page.locator('.p-step')
+    await expect(steps.nth(0)).toHaveClass(/p-step-active/)
+    await expect(steps.nth(1)).toHaveClass(/p-disabled/)   // not reachable before Continue validates step 1
+
+    await page.getByPlaceholder('e.g. Base Case, Conservative, Optimistic').fill('Test')
+    await clickContinue(page) // → Planning
+    await clickContinue(page) // → Key Rates
+    await expectStep(page, 'Key Rates')
+    await expect(steps.nth(2)).toHaveClass(/p-step-active/)
+    await expect(steps.nth(3)).toHaveClass(/p-disabled/)
+
+    await steps.nth(0).locator('.p-step-header').click()  // back to Details from the bar
+    await expectStep(page, 'Scenario Details')
+    await expect(page.getByText('Step 1 of 5')).toBeVisible()
+    await expect(steps.nth(0)).toHaveClass(/p-step-active/)
+  })
+
   test('step bar shows 5 items for free tier', async ({ page }) => {
     const user = await bootApp(page, 'freemium')
     await mockApiCalls(page, user)
     await gotoWizardFree(page)
 
-    await expect(page.locator('.p-steps-item')).toHaveCount(5)
+    await expect(page.locator('.p-step')).toHaveCount(5)
   })
 })
 
@@ -314,7 +336,7 @@ test.describe('ScenarioWizard — Pro tier (7 steps)', () => {
     await mockApiCalls(page)
     await gotoWizardPro(page)
 
-    await expect(page.locator('.p-steps-item')).toHaveCount(7)
+    await expect(page.locator('.p-step')).toHaveCount(7)
   })
 
   test('step counter shows "of 7" for pro tier', async ({ page }) => {
