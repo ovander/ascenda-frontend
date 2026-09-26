@@ -1,4 +1,17 @@
 #!/bin/bash
+# =============================================================================
+# deploy-frontend.sh  —  Ascenda frontend deployment, run on the VPS
+#
+# Lives at: /opt/apps/ascenda/deploy-frontend.sh
+# Install:  scp -P 2222 scripts/deploy-frontend.sh olivier@vandermoten.eu:/tmp/deploy-frontend.sh
+#           ssh -t -p 2222 olivier@vandermoten.eu \
+#               "sudo install -m 755 /tmp/deploy-frontend.sh /opt/apps/ascenda/deploy-frontend.sh"
+#
+# Usage:    sudo /opt/apps/ascenda/deploy-frontend.sh [version]
+#           Normally run by scripts/push.sh, which uploads the build (with a
+#           VERSION file) to /tmp/ascenda-frontend first. Without an argument
+#           the version is read from that file.
+# =============================================================================
 
 set -euo pipefail
 
@@ -19,7 +32,29 @@ TMP_DIR="/tmp/ascenda-frontend"
 USER="olivier"
 SITE_URL="https://ascenda.vandermoten.eu"
 
-VERSION="${1:-unknown}"
+# -----------------------------
+# VERSION
+# -----------------------------
+# The argument and the uploaded VERSION file (written by push.sh, which builds
+# the same version into the bundle) must agree, or the release directory would
+# be named after a build it does not hold. Without a VERSION file there is
+# nothing to compare, and the argument stands.
+PUSHED_VERSION="$(cat "$TMP_DIR/VERSION" 2>/dev/null || echo "")"
+VERSION="${1:-$PUSHED_VERSION}"
+
+if [ -z "$VERSION" ]; then
+    echo "❌ Usage: $0 <version>   (or run push.sh first; it writes $TMP_DIR/VERSION)"
+    exit 1
+fi
+if [ -n "$PUSHED_VERSION" ] && [ "$VERSION" != "$PUSHED_VERSION" ]; then
+    echo "❌ Refusing to deploy: the version you named is not the version that was pushed."
+    echo "     argument   $VERSION"
+    echo "     pushed     $PUSHED_VERSION   ($TMP_DIR/VERSION)"
+    echo "   → deploy what was pushed:   sudo $0 $PUSHED_VERSION"
+    echo "   → or push what you meant:   ./scripts/push.sh $VERSION"
+    exit 1
+fi
+
 RELEASE_DIR="$RELEASES_DIR/$VERSION"
 
 # -----------------------------
@@ -93,21 +128,33 @@ echo "✔ $FRONTEND_LINK → $RELEASE_DIR"
 # -----------------------------
 # HEALTHCHECK
 # -----------------------------
+# The site must answer, and — when the build carries a VERSION file — serve
+# this version's file, which shows the switch reached the web server. The
+# query string keeps any cache in between from answering for it.
 echo "🌐 Checking site..."
 
-for i in {1..10}; do
+site_ok() {
+    SERVED=""
     STATUS=$(curl -o /dev/null -s -w "%{http_code}" "$SITE_URL" || true)
-    if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
-        echo "✔ Site healthy (HTTP $STATUS)"
+    case "$STATUS" in 200|301|302) ;; *) return 1 ;; esac
+    [ -f "$RELEASE_DIR/VERSION" ] || return 0
+    SERVED=$(curl -fs "$SITE_URL/VERSION?deploy=$(date +%s)" || true)
+    [ "$SERVED" = "$VERSION" ]
+}
+
+HEALTHY=false
+for i in {1..10}; do
+    if site_ok; then
+        HEALTHY=true
+        echo "✔ Site healthy (HTTP $STATUS${SERVED:+, serving $SERVED})"
         break
     fi
-    echo "  Attempt $i/10 — HTTP $STATUS, retrying..."
+    echo "  Attempt $i/10 — HTTP $STATUS${SERVED:+, serving ${SERVED:0:40}}, retrying..."
     sleep 2
 done
 
-STATUS=$(curl -o /dev/null -s -w "%{http_code}" "$SITE_URL" || true)
-if [ "$STATUS" != "200" ] && [ "$STATUS" != "301" ] && [ "$STATUS" != "302" ]; then
-    echo "❌ Healthcheck failed (HTTP $STATUS)"
+if [ "$HEALTHY" = false ]; then
+    echo "❌ Healthcheck failed (HTTP $STATUS${SERVED:+, serving ${SERVED:0:40}} — expected $VERSION)"
     rollback
 fi
 

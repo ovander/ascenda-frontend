@@ -22,6 +22,7 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     app,
     dsn: import.meta.env.VITE_SENTRY_DSN as string,
     environment: import.meta.env.MODE,
+    release: import.meta.env.VITE_APP_VERSION,
     integrations: [
       Sentry.browserTracingIntegration({ router }),
     ],
