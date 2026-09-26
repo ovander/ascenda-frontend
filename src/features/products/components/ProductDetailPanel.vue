@@ -180,6 +180,7 @@ const derivedVolumesGridRows = computed<GridRow[]>(() => {
       isComputed: true,
       decimals: 0,
       suffix: volumeLabel.value,
+      kind: 'quantity',
     })
   }
   return rows
@@ -317,6 +318,7 @@ const assumptionsGridRows = computed<GridRow[]>(() => {
           editable: true,
           decimals: 4,
           suffix: '×',
+          kind: 'quantity',
           group: `Year ${yearIndex + 1}`,
           tooltip: 'Multiplier applied to the sum of direct costs (Raw Material + Royalties + Logistics). Default 1.0 = no change. Use 1.05 to add 5% overhead.',
         })
@@ -337,6 +339,7 @@ const assumptionsGridRows = computed<GridRow[]>(() => {
           editable: true,
           decimals: 4,
           suffix: '×',
+          kind: 'quantity',
           group: `Year ${yearIndex + 1}`,
           tooltip: 'Multiplier applied to the Base Unit Price to obtain the Final Unit Price. Default 1.0 = no change. Use 1.05 for +5% price increase.',
         })
@@ -418,6 +421,7 @@ const volumesGridRows = computed<GridRow[]>(() => {
         editable: true,
         decimals: 0,
         suffix: volumeLabel.value,
+        kind: 'quantity',
         group: channel.label,
       })
     }
@@ -449,7 +453,7 @@ const marginsGridRows = computed<GridRow[]>(() => {
       values,
       editable: true,
       decimals: 1,
-      suffix: '%',
+      kind: 'percent', // stored as a fraction (0.2); the compute applies price × (1 − margin)
     })
   }
 
