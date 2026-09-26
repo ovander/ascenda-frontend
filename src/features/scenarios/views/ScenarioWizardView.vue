@@ -7,12 +7,14 @@ import { useSettingsStore } from '@/features/settings/stores/settingsStore'
 import { useProductStore } from '@/features/products/stores/productStore'
 import { useTierGate } from '@/composables/useTierGate'
 import { useToast } from 'primevue/usetoast'
-import Steps from 'primevue/steps'
+import Stepper from 'primevue/stepper'
+import StepList from 'primevue/steplist'
+import Step from 'primevue/step'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import Textarea from 'primevue/textarea'
-import Dropdown from 'primevue/dropdown'
+import Select from 'primevue/select'
 import Toast from 'primevue/toast'
 import Card from 'primevue/card'
 import UpgradeModal from '@/components/common/UpgradeModal.vue'
@@ -423,12 +425,16 @@ async function finishWizard() {
     <!-- Steps bar -->
     <div class="bg-white border-b border-gray-100 px-6 py-4 sticky top-0 z-10">
       <div class="max-w-3xl mx-auto">
-        <Steps
-          :model="steps"
-          :activeIndex="currentStep"
-          class="wizard-steps"
-          @click="(e: any) => goToStep(e.index)"
-        />
+        <!-- Earlier steps can be revisited; later ones open with Continue, which
+             validates the current step. -->
+        <!-- Step values are 1-based: the Stepper shows them as the step numbers. -->
+        <Stepper :value="currentStep + 1" class="wizard-steps" @update:value="(v) => goToStep(Number(v) - 1)">
+          <StepList>
+            <Step v-for="(s, i) in steps" :key="s.label" :value="i + 1" :disabled="i > currentStep">
+              {{ s.label }}
+            </Step>
+          </StepList>
+        </Stepper>
       </div>
     </div>
 
@@ -474,7 +480,7 @@ async function finishWizard() {
         <div class="grid grid-cols-2 gap-5">
           <div class="col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-1.5">Country</label>
-            <Dropdown
+            <Select
               v-model="planning.country"
               :options="countryOptions"
               optionLabel="label"
@@ -487,7 +493,7 @@ async function finishWizard() {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1.5">Forecast Start Year</label>
-            <Dropdown
+            <Select
               v-model="planning.forecastStartYear"
               :options="forecastYearOptions"
               optionLabel="label"
@@ -498,7 +504,7 @@ async function finishWizard() {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1.5">First Fiscal Year</label>
-            <Dropdown
+            <Select
               v-model="planning.firstFiscalYearMonths"
               :options="fiscalMonthOptions"
               optionLabel="label"
@@ -515,7 +521,7 @@ async function finishWizard() {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1.5">Language</label>
-            <Dropdown
+            <Select
               v-model="planning.language"
               :options="languageOptions"
               optionLabel="label"
@@ -526,7 +532,7 @@ async function finishWizard() {
 
           <div class="col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-1.5">Salary Months / Year</label>
-            <Dropdown
+            <Select
               v-model="planning.salaryMonthsPerYear"
               :options="salaryMonthOptions"
               optionLabel="label"
@@ -698,7 +704,7 @@ async function finishWizard() {
             <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
               <i class="pi pi-arrow-down text-green-500" /> Customers pay you
             </h3>
-            <Dropdown
+            <Select
               v-model="wc.customerDays"
               :options="paymentTermOptions"
               optionLabel="label"
@@ -712,7 +718,7 @@ async function finishWizard() {
             <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
               <i class="pi pi-arrow-up text-red-400" /> You pay suppliers
             </h3>
-            <Dropdown
+            <Select
               v-model="wc.supplierDays"
               :options="paymentTermOptions"
               optionLabel="label"
@@ -761,7 +767,7 @@ async function finishWizard() {
               </div>
               <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1">Type</label>
-                <Dropdown
+                <Select
                   v-model="product.productType"
                   :options="productTypeOptions"
                   optionLabel="label"
@@ -771,7 +777,7 @@ async function finishWizard() {
               </div>
               <div v-if="isPro">
                 <label class="block text-xs font-medium text-gray-500 mb-1">Revenue Driver</label>
-                <Dropdown
+                <Select
                   v-model="product.driverType"
                   :options="driverTypeOptions"
                   optionLabel="label"
@@ -952,10 +958,29 @@ async function finishWizard() {
 </template>
 
 <style scoped>
-.wizard-steps :deep(.p-steps-item) {
-  cursor: pointer;
+/* Number above label, as the former Steps bar did, so 7 steps fit the width;
+   each step (and its trailing connector) takes an equal share of the bar. */
+.wizard-steps :deep(.p-steplist) {
+  width: 100%;
+  padding: 0;
 }
-.wizard-steps :deep(.p-steps-item.p-highlight .p-steps-number) {
-  background: var(--primary-color);
+.wizard-steps :deep(.p-step) {
+  flex: 1 1 0;
+  padding: 0;
+  gap: 0.25rem;
+}
+.wizard-steps :deep(.p-step:last-child) {
+  flex: 0 0 auto;
+}
+.wizard-steps :deep(.p-step-header) {
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0 0.25rem;
+}
+.wizard-steps :deep(.p-stepper-separator) {
+  flex: 1 1 auto;
+  align-self: flex-start;
+  margin-top: 14px; /* half the 28px step number: the line meets the circles' centres */
+  min-width: 0.5rem;
 }
 </style>
