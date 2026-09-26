@@ -12,6 +12,8 @@ import { useUiStore } from '@/stores/ui'
 import { useDisplayUnitStore, type DisplayUnit } from '@/stores/displayUnit'
 import { useTierGate } from '@/composables/useTierGate'
 import SelectButton from 'primevue/selectbutton'
+import ResponsiveDialog from '@/components/common/ResponsiveDialog.vue'
+import BuildInfoPanel from '@/components/common/BuildInfoPanel.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -41,6 +43,7 @@ const planStore = usePlanStore()
 const scenarioStore = useScenarioStore()
 
 const userMenu = ref()
+const aboutOpen = ref(false)
 
 const roleLabel = computed(() => {
   switch (auth.user?.role) {
@@ -74,6 +77,7 @@ const userMenuItems = computed(() => [
   ...(isOwner.value ? [{ label: t('nav.tenant'), icon: 'pi pi-building', command: () => router.push('/admin/tenant') }] : []),
   // Admin role → shortcut to admin dashboard
   ...(isAdmin.value && !isOwner.value ? [{ label: t('nav.admin'), icon: 'pi pi-shield', command: () => router.push('/admin/dashboard') }] : []),
+  { label: t('about.title'), icon: 'pi pi-info-circle', command: () => { aboutOpen.value = true } },
   { label: t('auth.logout'), icon: 'pi pi-sign-out', command: () => handleLogout() },
 ])
 
@@ -204,6 +208,9 @@ async function handleLogout() {
         >{{ roleLabel }}</span>
       </button>
       <Menu ref="userMenu" :model="userMenuItems" :popup="true" />
+      <ResponsiveDialog v-model:visible="aboutOpen" :header="t('about.title')" size="lg">
+        <BuildInfoPanel v-if="aboutOpen" />
+      </ResponsiveDialog>
 
       <!-- Tier badge: visible from tablet up (too cramped on phones) -->
       <span

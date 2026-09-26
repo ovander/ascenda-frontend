@@ -1,4 +1,18 @@
 {
+  "about": {
+    "title": "About Ascenda",
+    "system": "System",
+    "frontend": "Application",
+    "backend": "Server",
+    "version": "Version",
+    "commit": "Commit",
+    "built": "Built",
+    "toolchain": "Toolchain",
+    "unavailable": "The server did not answer.",
+    "retry": "Retry",
+    "copy": "Copy details",
+    "copied": "Copied"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",

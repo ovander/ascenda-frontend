@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAdminStatsStore } from '@/features/admin/stores/adminStatsStore'
 import { useAdminUsersStore } from '@/features/admin/stores/adminUsersStore'
 import PageContainer from '@/components/layout/PageContainer.vue'
@@ -8,7 +9,9 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Tag from 'primevue/tag'
 import ProgressSpinner from 'primevue/progressspinner'
+import BuildInfoPanel from '@/components/common/BuildInfoPanel.vue'
 
+const { t } = useI18n()
 const statsStore = useAdminStatsStore()
 const usersStore = useAdminUsersStore()
 
@@ -313,6 +316,10 @@ const loading = computed(() => statsStore.loading || usersStore.tenantsLoading)
         </div>
       </template>
     </template>
+
+    <!-- ── System: what is deployed ────────────────────────────────────────── -->
+    <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mt-8 mb-3">{{ t('about.system') }}</h2>
+    <BuildInfoPanel />
     </PageContainer>
   </div>
 </template>
