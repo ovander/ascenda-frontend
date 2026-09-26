@@ -134,11 +134,6 @@ function makeProduct(overrides: Partial<Product> & { driverType: Product['driver
     scenarioId: 'sc-1',
     name: 'Test Product',
     sortOrder: 0,
-    directCostVariability: '100',
-    externalChargeVariability: '0',
-    taxVariability: '0',
-    staffVariability: '0',
-    depreciationVariability: '0',
     ...overrides,
   }
 }

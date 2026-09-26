@@ -13,12 +13,10 @@ import Column from 'primevue/column'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
-import InputNumber from 'primevue/inputnumber'
 import ProgressSpinner from 'primevue/progressspinner'
 import { usePlanAccess } from '@/composables/usePlanAccess'
 import { useTierGate } from '@/composables/useTierGate'
 import KFieldLabel from '@/components/common/KFieldLabel.vue'
-import KFormLegend from '@/components/common/KFormLegend.vue'
 
 defineProps<{ planId?: string; sid?: string }>()
 const { canEdit } = usePlanAccess()
@@ -126,11 +124,6 @@ const newProductDriverParams = ref<DriverParams>(null)
 const newProductForm = ref<Record<string, any>>({
   name: '',
   driverType: 'generic' as DriverType,
-  directCostVariability: '0',
-  externalChargeVariability: '0',
-  taxVariability: '0',
-  staffVariability: '0',
-  depreciationVariability: '0',
 })
 
 onMounted(async () => {
@@ -269,11 +262,6 @@ async function handleAddProduct() {
       productType: productTypeFromDriver(driverType),
       driverType,
       driverParams: driverType !== 'generic' ? newProductDriverParams.value : null,
-      directCostVariability: String(newProductForm.value.directCostVariability),
-      externalChargeVariability: String(newProductForm.value.externalChargeVariability),
-      taxVariability: String(newProductForm.value.taxVariability),
-      staffVariability: String(newProductForm.value.staffVariability),
-      depreciationVariability: String(newProductForm.value.depreciationVariability),
     })
     resetForm()
     showAddDialog.value = false
@@ -286,11 +274,6 @@ function resetForm() {
   newProductForm.value = {
     name: '',
     driverType: 'generic' as DriverType,
-    directCostVariability: '0',
-    externalChargeVariability: '0',
-    taxVariability: '0',
-    staffVariability: '0',
-    depreciationVariability: '0',
   }
   newProductDriverParams.value = null
 }
@@ -380,13 +363,6 @@ async function downloadProductAudit() {
           id:          p.id,
           name:        p.name,
           productType: p.productType ?? 'product',
-          variability: {
-            directCost:     p.directCostVariability,
-            externalCharge: p.externalChargeVariability,
-            tax:            p.taxVariability,
-            staff:          p.staffVariability,
-            depreciation:   p.depreciationVariability,
-          },
           assumptions: productStore.getAssumptions(p.id),
           volumes:     productStore.getVolumes(p.id),
           margins:     productStore.getMargins(p.id),
@@ -507,75 +483,6 @@ async function downloadProductAudit() {
           </p>
         </div>
 
-        <details class="variability-section">
-          <summary class="text-xs font-medium text-gray-500 cursor-pointer select-none">
-            Advanced: Cost Variability Factors
-            <span class="text-gray-400 font-normal ml-1">(click to expand)</span>
-          </summary>
-          <div class="mt-3 space-y-4">
-            <KFormLegend
-              description="Variability factors control how much of each cost type scales with this product's revenue. 100% = fully variable (cost moves 1:1 with revenue). 0% = fully fixed."
-            />
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <KFieldLabel
-              label="Direct Cost Variability (%)"
-              tooltip="What percentage of this product's direct costs (raw materials, direct labour) scale proportionally with revenue? 100% = fully variable COGS. 50% = half the direct costs are fixed regardless of volume."
-            />
-            <InputNumber
-              v-model="newProductForm.directCostVariability"
-              :min="0" :max="100"
-              class="w-full" mode="decimal" :maxFractionDigits="2"
-            />
-          </div>
-          <div>
-            <KFieldLabel
-              label="External Charge Variability (%)"
-              tooltip="What percentage of external charges (subcontracting, outsourcing, packaging) moves with revenue? 100% = fully variable. Lower values indicate fixed contracts or minimum commitments."
-            />
-            <InputNumber
-              v-model="newProductForm.externalChargeVariability"
-              :min="0" :max="100"
-              class="w-full" mode="decimal" :maxFractionDigits="2"
-            />
-          </div>
-          <div>
-            <KFieldLabel
-              label="Tax Variability (%)"
-              tooltip="What percentage of product-specific taxes and duties (e.g. excise, eco-contributions) varies with revenue volume? 100% = fully transactional."
-            />
-            <InputNumber
-              v-model="newProductForm.taxVariability"
-              :min="0" :max="100"
-              class="w-full" mode="decimal" :maxFractionDigits="2"
-            />
-          </div>
-          <div>
-            <KFieldLabel
-              label="Staff Variability (%)"
-              tooltip="What percentage of staff costs allocated to this product scales with its revenue? 0% = all staff are shared fixed overhead. 100% = all staff costs are directly driven by this product's volume."
-            />
-            <InputNumber
-              v-model="newProductForm.staffVariability"
-              :min="0" :max="100"
-              class="w-full" mode="decimal" :maxFractionDigits="2"
-            />
-          </div>
-          <div>
-            <KFieldLabel
-              label="Depreciation Variability (%)"
-              tooltip="What percentage of depreciation linked to this product scales with revenue? 0% = all capex is fixed infrastructure. 100% = depreciation is entirely driven by production volume (e.g. units-of-production method)."
-            />
-            <InputNumber
-              v-model="newProductForm.depreciationVariability"
-              :min="0" :max="100"
-              class="w-full" mode="decimal" :maxFractionDigits="2"
-            />
-          </div>
-          </div><!-- end grid cols-2 -->
-          </div><!-- end mt-3 space-y-4 -->
-        </details><!-- end variability section -->
       </div><!-- end space-y-5 -->
 
       <template #footer>
@@ -641,9 +548,6 @@ async function downloadProductAudit() {
           >
             {{ driverTypeOptions.find(d => d.value === (product.driverType || 'generic'))?.icon }}
             {{ driverTypeOptions.find(d => d.value === (product.driverType || 'generic'))?.label ?? 'Generic' }}
-          </span>
-          <span class="text-sm text-gray-400">
-            Direct {{ Number(product.directCostVariability).toFixed(0) }}% · Ext {{ Number(product.externalChargeVariability).toFixed(0) }}%
           </span>
           <Button
             v-if="canEdit"
@@ -883,29 +787,4 @@ async function downloadProductAudit() {
   line-height: 1.35;
 }
 
-/* ── Variability details/summary ─────────────────────────────────────────── */
-.variability-section {
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  padding: 0.6rem 0.75rem;
-  background: #fafafa;
-}
-
-.variability-section summary {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.variability-section summary::before {
-  content: '▶';
-  font-size: 0.6rem;
-  color: #9ca3af;
-  transition: transform 0.15s;
-}
-
-.variability-section[open] summary::before {
-  transform: rotate(90deg);
-}
 </style>

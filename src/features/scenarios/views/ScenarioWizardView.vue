@@ -378,11 +378,6 @@ async function finishWizard() {
         name:                    p.name.trim(),
         productType:             p.productType,
         driverType:              isPro.value ? (p.driverType as any) : 'flat',
-        directCostVariability:   'variable',
-        externalChargeVariability: 'variable',
-        taxVariability:          'variable',
-        staffVariability:        'fixed',
-        depreciationVariability: 'fixed',
       })
     }
 

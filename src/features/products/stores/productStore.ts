@@ -72,11 +72,6 @@ export const useProductStore = defineStore('products', () => {
     productType?: string
     driverType?: DriverType
     driverParams?: DriverParams
-    directCostVariability: string
-    externalChargeVariability: string
-    taxVariability: string
-    staffVariability: string
-    depreciationVariability: string
   }) {
     try {
       const response = await api.post<Product>(`${basePath()}/`, data)
