@@ -96,7 +96,10 @@
     "loginTitle": "Welcome to Ascenda",
     "loginSubtitle": "Sign in to access your business plans",
     "loginButton": "Sign in with Socrate",
-    "loggingIn": "Signing in..."
+    "loggingIn": "Signing in...",
+    "magicLinkInvalid": "This sign-in link is invalid, has expired or has already been used.",
+    "magicLinkFailed": "Sign-in failed. Please try again in a moment.",
+    "magicLinkRequestNew": "Request a new sign-in link"
   },
   "roles": {
     "owner": "Owner",

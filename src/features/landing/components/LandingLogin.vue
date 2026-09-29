@@ -61,6 +61,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { rememberPostLoginRedirect } from '@/features/auth/utils/postLoginRedirect'
+
+const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
 
 const email   = ref('')
 const loading = ref(false)
@@ -74,13 +77,13 @@ const submit = async () => {
   success.value = false
 
   try {
-    const res = await fetch('/auth/magic-link', {
+    // Socrate e-mails the link; the page it opens (/magic-link) sends the
+    // user on to this destination.
+    rememberPostLoginRedirect(route.query.redirect)
+    const res = await fetch(`${apiBase}/auth/magic-link`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({
-        email:    email.value,
-        redirect: (route.query.redirect as string) || '/',
-      }),
+      body:    JSON.stringify({ email: email.value }),
     })
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))

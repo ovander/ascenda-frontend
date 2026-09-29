@@ -62,6 +62,24 @@ describe('Auth Store', () => {
     expect(store.isAuthenticated).toBe(true)
   })
 
+  it('signs in with a magic-link token', async () => {
+    vi.mocked(axios.post).mockResolvedValueOnce({
+      data: { accessToken: 'ml-access', refreshToken: 'ml-refresh', expiresIn: 900 },
+    })
+    vi.mocked(axios.get).mockResolvedValueOnce({ data: { id: '1', role: 'owner' } })
+
+    const store = useAuthStore()
+    await store.magicLink('link-token')
+
+    expect(axios.post).toHaveBeenCalledWith(
+      expect.stringContaining('/auth/magic-link/verify'),
+      { token: 'link-token' },
+    )
+    expect(store.accessToken).toBe('ml-access')
+    expect(store.refreshToken).toBe('ml-refresh')
+    expect(store.user).toEqual({ id: '1', role: 'owner' })
+  })
+
   it('should successfully refresh tokens', async () => {
     // POST /auth/refresh answers with the same flat shape as /auth/callback.
     vi.mocked(axios.post).mockResolvedValueOnce({

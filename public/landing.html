@@ -879,6 +879,10 @@
   </footer>
 
   <script>
+    // Backend API origin: the build fills in VITE_API_BASE_URL (vite.config.ts,
+    // landingApiBase); an unbuilt copy falls back to the local backend.
+    const API_BASE = (v => (v.charAt(0) === '%' ? 'http://localhost:3000' : v))('%VITE_API_BASE_URL%');
+
     // ── Scroll reveal ─────────────────────────────────────────────
     const observer = new IntersectionObserver(
       entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }),
@@ -905,8 +909,7 @@
       const body = { firstName: fd.get('firstName'), lastName: fd.get('lastName'), companyName: fd.get('companyName'), email: fd.get('email'), country: fd.get('country') };
 
       try {
-        // Replace with your actual API endpoint
-        const res = await fetch('/auth/register', {
+        const res = await fetch(`${API_BASE}/auth/register`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
         });
         if (!res.ok) {
@@ -926,8 +929,18 @@
     }
 
     // ── Login form ────────────────────────────────────────────────
-    // Read ?redirect=... so we can bounce the user back after auth
-    const _redirectParam = new URLSearchParams(window.location.search).get('redirect') || '/';
+    // Socrate e-mails the sign-in link; the page it opens (/magic-link) sends
+    // the user on to the page they asked for, kept here as ?redirect=. The link
+    // usually opens in a new tab, so it goes to localStorage, and only as an
+    // in-app path (the /magic-link page checks it again).
+    function rememberRedirect() {
+      const path = new URLSearchParams(window.location.search).get('redirect');
+      const safe = path && path !== '/' && path.startsWith('/') && !path.startsWith('//') && !path.includes('\\');
+      try {
+        if (safe) localStorage.setItem('magic_link_redirect', path);
+        else localStorage.removeItem('magic_link_redirect');
+      } catch (_) { /* storage unavailable: the user lands on the dashboard */ }
+    }
 
     async function handleLogin(e) {
       e.preventDefault();
@@ -946,10 +959,11 @@
       const fd = new FormData(e.target);
 
       try {
-        const res = await fetch('/auth/magic-link', {
+        rememberRedirect();
+        const res = await fetch(`${API_BASE}/auth/magic-link`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: fd.get('email'), redirect: _redirectParam }),
+          body: JSON.stringify({ email: fd.get('email') }),
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));

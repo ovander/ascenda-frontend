@@ -49,6 +49,15 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = response.data
   }
 
+  // Passwordless sign-in: redeem the single-use token from a Socrate magic
+  // link. The backend exchanges it at Socrate and answers like /auth/callback.
+  async function magicLink(token: string) {
+    const response = await axios.post<AuthTokens>(`${apiBase}/auth/magic-link/verify`, { token })
+    accessToken.value = response.data.accessToken
+    refreshToken.value = response.data.refreshToken
+    await fetchMe()
+  }
+
   async function logout() {
     // Revoke the refresh token at Socrate, which also ends its rotation chain.
     if (refreshToken.value) {
@@ -69,6 +78,7 @@ export const useAuthStore = defineStore('auth', () => {
     refreshToken,
     isAuthenticated,
     callback,
+    magicLink,
     refresh,
     fetchMe,
     logout,
