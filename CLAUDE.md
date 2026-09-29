@@ -24,7 +24,7 @@ PrimeVue 4 and Tailwind CSS 4, with French (default) and English. Sign-in is the
   `utils/`); shared pieces in `src/components`, `src/composables`, `src/stores`, `src/utils`.
 - **API calls** go through `src/composables/useApi.ts` (base URL, bearer token, silent refresh).
   Do not call the API with raw `fetch`/`axios` elsewhere; the auth store and the public sign-in
-  pages are the only exceptions.
+  pages are the only exceptions (ESLint `app/api-boundary` enforces it).
 - **Tokens** stay in memory (Pinia). Never put an access or refresh token in `localStorage`,
   `sessionStorage` or a URL. Refresh tokens rotate: always keep the newest one.
 - **Access rules** are in the router's `accessGuard` (route `meta`); the backend enforces the
@@ -44,8 +44,8 @@ PrimeVue 4 and Tailwind CSS 4, with French (default) and English. Sign-in is the
 ```bash
 npm ci
 npx vue-tsc -b                      # Typecheck
-npm run lint                        # ESLint: no errors
-npx vitest run                      # unit tests
+npm run lint                        # ESLint: no errors, warnings capped (--max-warnings)
+npx vitest run --coverage           # unit tests and coverage floors (vite.config.ts)
 node scripts/check-i18n.mjs         # every key in en.json and fr.json
 npm audit --omit=dev --audit-level=high
 npx vite build
@@ -53,7 +53,8 @@ npx playwright test                 # e2e, against the production build
 ```
 
 Node 24 (`.nvmrc`). Both CI checks, "Typecheck, unit tests, audit, build" and "Playwright e2e",
-are required on `main`.
+are required on `main`. Lower the ESLint warning cap and raise the coverage floors as the numbers
+improve; never move them the other way.
 
 ## Tests
 
@@ -74,7 +75,9 @@ are required on `main`.
 ## Releases and deploys (the owner runs them)
 
 - A release is an annotated tag `vX.Y.Z` on `main`, with the `[Unreleased]` changelog section
-  moved under the new version. Do not tag unless asked.
+  moved under the new version. Do not tag unless asked. Pushing the tag runs
+  `.github/workflows/release.yml`: a GitHub Release with that changelog section as notes, and the
+  production build. It fails if the section is missing.
 - `scripts/push.sh` builds with `.env.production`, uploads and deploys a tag;
   `scripts/version-guard.sh` refuses a dirty or untagged tree. Deploy after the backend when the
   API changed.

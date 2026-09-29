@@ -40,8 +40,38 @@ export default defineConfigWithVueTs(
       }],
       // Backlog: ~320 explicit `any` in application code when the linter was
       // introduced. Reported as warnings so the count is visible on every run;
-      // flip to 'error' once it reaches zero.
+      // `npm run lint` caps them (--max-warnings in package.json): lower the cap
+      // as the backlog shrinks, never raise it. Flip to 'error' at zero.
       '@typescript-eslint/no-explicit-any': 'warn',
+    },
+  },
+  {
+    // API calls go through src/composables/useApi.ts (base URL, bearer token,
+    // silent refresh). Types and helpers such as isAxiosError stay importable.
+    name: 'app/api-boundary',
+    files: ['src/**/*.{ts,vue}'],
+    ignores: [
+      'src/composables/useApi.ts',
+      // Token exchange, refresh and logout run before or outside useApi.
+      'src/stores/auth.ts',
+      // Public sign-in forms on the landing page: no session yet.
+      'src/features/landing/components/LandingLogin.vue',
+      'src/features/landing/components/LandingSignup.vue',
+      '**/*.{spec,test}.ts',
+      'src/test/**',
+    ],
+    rules: {
+      'no-restricted-imports': ['error', {
+        paths: [{
+          name: 'axios',
+          importNames: ['default'],
+          message: 'Call the API through useApi() (src/composables/useApi.ts).',
+        }],
+      }],
+      'no-restricted-globals': ['error',
+        { name: 'fetch', message: 'Call the API through useApi() (src/composables/useApi.ts).' },
+        { name: 'XMLHttpRequest', message: 'Call the API through useApi() (src/composables/useApi.ts).' },
+      ],
     },
   },
   {
