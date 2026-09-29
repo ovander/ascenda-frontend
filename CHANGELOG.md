@@ -9,6 +9,11 @@ in this repository. Entries before 1.2.0 are rebuilt from the release tags.
 ### Added
 - Contributor files: `CLAUDE.md`, `CONTRIBUTING.md`, this changelog, `SECURITY.md`,
   `CODEOWNERS`, issue and pull-request templates.
+- CI gates: unit-test coverage floors (`vite.config.ts`), a cap of 318 ESLint warnings, and lint
+  rules that keep raw `fetch` and the default axios import out of the app outside `useApi.ts`,
+  the auth store and the landing forms.
+- Release workflow: a `vX.Y.Z` tag publishes a GitHub Release with its `CHANGELOG.md` section as
+  notes and the production build as a tarball.
 
 ## [1.4.0] - 2026-09-29
 

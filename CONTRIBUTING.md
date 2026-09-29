@@ -34,8 +34,8 @@ Run these before opening a pull request; CI runs the same and both CI checks are
 
 ```bash
 npx vue-tsc -b
-npm run lint
-npx vitest run
+npm run lint                # no errors; warnings capped
+npx vitest run --coverage   # coverage must stay above the floors in vite.config.ts
 node scripts/check-i18n.mjs
 npm audit --omit=dev --audit-level=high
 npx vite build
@@ -60,7 +60,8 @@ npx playwright test
 ## Releases
 
 The maintainer tags releases `vX.Y.Z` on `main` and deploys them with `scripts/push.sh`, which
-refuses an untagged or dirty tree. The deploy SSH settings come from
+refuses an untagged or dirty tree. The tag also publishes a GitHub Release, with the version's
+`CHANGELOG.md` section as notes and the production build. The deploy SSH settings come from
 `~/.config/ascenda/deploy.env`; see the script's header.
 
 ## Security

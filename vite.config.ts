@@ -80,6 +80,15 @@ export default defineConfig({
       reportsDirectory: '/tmp/vitest-coverage-report',
       include: ['src/**/*.{ts,vue}'],
       exclude: ['src/test/**', 'src/**/*.spec.ts', 'src/**/*.d.ts', 'src/main.ts'],
+      // Floors for `vitest run --coverage` (CI): the measured totals, rounded
+      // down, when they were last raised. Raise them as coverage climbs; never
+      // lower them to get a pull request green.
+      thresholds: {
+        statements: 43,
+        branches: 30,
+        functions: 34,
+        lines: 44,
+      },
     },
   },
 })

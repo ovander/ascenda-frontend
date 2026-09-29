@@ -36,8 +36,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Unit tests
-        run: npx vitest run
+      # Coverage floors are the thresholds in vite.config.ts (test.coverage).
+      - name: Unit tests (with coverage floors)
+        run: npx vitest run --coverage
 
       - name: i18n key parity
         run: node scripts/check-i18n.mjs
