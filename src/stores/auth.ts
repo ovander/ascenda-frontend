@@ -28,14 +28,18 @@ export const useAuthStore = defineStore('auth', () => {
     await fetchMe()
   }
 
+  // Socrate rotates refresh tokens: every refresh returns a new one and the one
+  // sent is spent, so the new one must be kept for the next refresh.
   async function refresh() {
     if (!refreshToken.value) throw new Error('No refresh token')
-    const response = await axios.post<{ tokens: AuthTokens }>(
+    const response = await axios.post<AuthTokens>(
       `${apiBase}/auth/refresh`,
       { refreshToken: refreshToken.value }
     )
-    accessToken.value = response.data.tokens.accessToken
-    refreshToken.value = response.data.tokens.refreshToken
+    const { accessToken: access, refreshToken: next } = response.data
+    if (!access || !next) throw new Error('Refresh response without tokens')
+    accessToken.value = access
+    refreshToken.value = next
   }
 
   async function fetchMe() {
@@ -46,12 +50,13 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout() {
-    try {
-      await axios.post(`${apiBase}/auth/logout`, { refreshToken: refreshToken.value }, {
-        headers: { Authorization: `Bearer ${accessToken.value}` },
-      })
-    } catch {
-      // Best effort
+    // Revoke the refresh token at Socrate, which also ends its rotation chain.
+    if (refreshToken.value) {
+      try {
+        await axios.post(`${apiBase}/auth/logout`, { token: refreshToken.value })
+      } catch {
+        // Best effort: the local session is cleared either way.
+      }
     }
     user.value = null
     accessToken.value = null
