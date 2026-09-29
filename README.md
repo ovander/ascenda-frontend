@@ -288,3 +288,12 @@ Current focus:
 - Expanding AI-assisted insight features
 - Polishing chart dashboards and report generation
 - Preparing for production-grade SaaS deployment
+
+## License
+
+Copyright © 2026 Olivier Vandermoten.
+
+Ascenda is free software: you can redistribute it and/or modify it under the terms of the
+[GNU Affero General Public License, version 3](LICENSE) (`AGPL-3.0-only`). If you run a
+modified version as a network service, the AGPL requires you to offer its users the
+corresponding source code.
