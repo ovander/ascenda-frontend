@@ -211,7 +211,7 @@ A global `displayUnit` store lets users toggle between €, k€, and M€. All 
 
 ## Backend Integration
 
-The frontend communicates with the [Ascenda backend](../backend/README.md) via a REST API.
+The frontend communicates with the [Ascenda backend](https://github.com/ovander/ascenda-backend#readme) via a REST API.
 
 - **Base URL** configured via `VITE_API_BASE_URL`
 - **Authentication** via JWT bearer tokens, managed by `useApi.ts` with automatic token refresh on 401
@@ -226,7 +226,7 @@ The frontend communicates with the [Ascenda backend](../backend/README.md) via a
 ### Prerequisites
 
 - Node.js 20+
-- A running instance of the [Ascenda backend](../backend/README.md)
+- A running instance of the [Ascenda backend](https://github.com/ovander/ascenda-backend#readme)
 
 ### Install dependencies
 
