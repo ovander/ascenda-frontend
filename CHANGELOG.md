@@ -6,6 +6,10 @@ in this repository. Entries before 1.2.0 are rebuilt from the release tags.
 
 ## [Unreleased]
 
+### Changed
+- Production build signs in at the new Socrate, `https://socrate.vandermoten.eu`, with its client
+  ID `cVqYPgs3uGZYgw1x6F3aOQ` (`.env.production`). Deploy together with the backend cut-over.
+
 ## [1.5.0] - 2026-09-29
 
 ### Added

@@ -272,9 +272,9 @@ npm run test:e2e       # end-to-end tests (Playwright)
 | Variable | Description | Example |
 |---|---|---|
 | `VITE_API_BASE_URL` | Ascenda backend base URL | `http://localhost:3000` |
-| `VITE_SOCRATE_CLIENT_ID` | OAuth2 client ID | — |
-| `VITE_SOCRATE_BASE_URL` | Socrate OAuth2 server base URL | `https://auth.ascenda.com` |
-| `VITE_SOCRATE_REDIRECT_URI` | OAuth2 redirect URI | `http://localhost:5173/callback` |
+| `VITE_SOCRATE_CLIENT_ID` | OAuth2 client ID (public; the secret stays on the backend) | — |
+| `VITE_SOCRATE_BASE_URL` | Socrate's public URL, the issuer, with no trailing slash; sign-in goes to `<this>/oauth/authorize` with PKCE S256 | `https://socrate.vandermoten.eu` |
+| `VITE_SOCRATE_REDIRECT_URI` | OAuth2 redirect URI, registered at Socrate exactly (no wildcards) | `https://ascenda.vandermoten.eu/callback` |
 | `VITE_DEFAULT_LOCALE` | Default UI language (`fr` or `en`) | `fr` |
 
 ---
