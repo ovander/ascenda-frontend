@@ -114,6 +114,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+
 const form = ref({
   firstName:   '',
   lastName:    '',
@@ -132,7 +134,7 @@ const submit = async () => {
   success.value = false
 
   try {
-    const res = await fetch('/auth/register', {
+    const res = await fetch(`${apiBase}/auth/register`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(form.value),

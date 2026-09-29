@@ -38,6 +38,14 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true },
   },
   {
+    // Landing page of the sign-in link Socrate e-mails (the magic-link URL
+    // configured on the Socrate application).
+    path: '/magic-link',
+    name: 'magic-link',
+    component: () => import('@/features/auth/views/MagicLinkView.vue'),
+    meta: { public: true },
+  },
+  {
     path: '/',
     component: AppShell,
     children: [
