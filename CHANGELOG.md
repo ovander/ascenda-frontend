@@ -6,14 +6,16 @@ in this repository. Entries before 1.2.0 are rebuilt from the release tags.
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-09-29
+
 ### Added
 - Contributor files: `CLAUDE.md`, `CONTRIBUTING.md`, this changelog, `SECURITY.md`,
-  `CODEOWNERS`, issue and pull-request templates.
+  `CODEOWNERS`, issue and pull-request templates (#26).
 - CI gates: unit-test coverage floors (`vite.config.ts`), a cap of 318 ESLint warnings, and lint
   rules that keep raw `fetch` and the default axios import out of the app outside `useApi.ts`,
-  the auth store and the landing forms.
+  the auth store and the landing forms (#27).
 - Release workflow: a `vX.Y.Z` tag publishes a GitHub Release with its `CHANGELOG.md` section as
-  notes and the production build as a tarball.
+  notes and the production build as a tarball (#27).
 
 ## [1.4.0] - 2026-09-29
 
@@ -119,7 +121,8 @@ in this repository. Entries before 1.2.0 are rebuilt from the release tags.
 ### Added
 - Initial frontend and README.
 
-[Unreleased]: https://github.com/ovander/ascenda-frontend/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/ovander/ascenda-frontend/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/ovander/ascenda-frontend/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/ovander/ascenda-frontend/compare/v1.3.4...v1.4.0
 [1.3.4]: https://github.com/ovander/ascenda-frontend/compare/v1.3.3...v1.3.4
 [1.3.3]: https://github.com/ovander/ascenda-frontend/compare/v1.3.2...v1.3.3
