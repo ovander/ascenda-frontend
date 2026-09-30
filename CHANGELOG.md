@@ -6,20 +6,20 @@ in this repository. Entries before 1.2.0 are rebuilt from the release tags.
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-09-30
+
+Cut-over to Socrate at `https://socrate.vandermoten.eu` (Phase 1). Deploy after the backend's
+v2.7.0 and its VPS env changes.
+
 ### Added
 - The build fails on a wrong Socrate setting: an issuer (`VITE_SOCRATE_BASE_URL`) ending with
   `/`, a redirect URI that is not an absolute http(s) URL, or, in production, a missing issuer,
-  client ID or redirect URI (`src/config/socrateEnv.ts`).
+  client ID or redirect URI (`src/config/socrateEnv.ts`) (#32).
 
 ### Changed
 - Sign-in moves to the new Socrate: `VITE_SOCRATE_BASE_URL=https://socrate.vandermoten.eu` in
-  `.env.production` (client ID `VowmSxfnObxDKFvdk1Lucg` and redirect URI unchanged). Merged and
-  deployed at cut-over, after the backend.
-
-### Fixed
-- `.env.production` signs in at today's Socrate again (`https://golfperformance.fr`, client ID
-  `VowmSxfnObxDKFvdk1Lucg`) until the cut-over. #29 switched it early; the switch now comes as its
-  own PR, merged at cut-over. The v1.6.0 section it released under was never tagged and is removed.
+  `.env.production`; the client ID `VowmSxfnObxDKFvdk1Lucg` and the redirect URI are unchanged
+  (#29, #31, #33).
 
 ## [1.5.0] - 2026-09-29
 
@@ -136,7 +136,8 @@ in this repository. Entries before 1.2.0 are rebuilt from the release tags.
 ### Added
 - Initial frontend and README.
 
-[Unreleased]: https://github.com/ovander/ascenda-frontend/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/ovander/ascenda-frontend/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/ovander/ascenda-frontend/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/ovander/ascenda-frontend/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/ovander/ascenda-frontend/compare/v1.3.4...v1.4.0
 [1.3.4]: https://github.com/ovander/ascenda-frontend/compare/v1.3.3...v1.3.4
