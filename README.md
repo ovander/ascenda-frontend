@@ -213,8 +213,8 @@ A global `displayUnit` store lets users toggle between €, k€, and M€. All 
 
 The frontend communicates with the [Ascenda backend](https://github.com/ovander/ascenda-backend#readme) via a REST API.
 
-- **Base URL** configured via `VITE_API_BASE_URL`
-- **Authentication** via JWT bearer tokens, managed by `useApi.ts` with automatic token refresh on 401
+- **Same origin** — the SPA calls `/api`, `/bff` and `/auth` on its own host; Caddy routes them to the backend (in development, the Vite dev server proxies them to `ASCENDA_API`, default `http://localhost:8080`). The build sets a CSP with `connect-src 'self'`
+- **Authentication** through the backend's Backend-for-Frontend: sign-in navigates to `/bff/login`, the backend keeps the tokens, and the browser holds only an HttpOnly session cookie. `GET /bff/session` gives the CSRF token that `useApi.ts` sends in `X-CSRF-Token` on unsafe methods; a 401 re-checks the session and signs in again
 - **Multi-tenancy** — tenant context is derived from the authenticated user's JWT and scoped on every request
 - **Rate limiting** — batch endpoints (e.g. `/graphs/annual/all`) are used where multiple datasets are needed simultaneously, to avoid exhausting per-tenant rate limits
 - **Tier gating** — feature availability is enforced both client-side (route guards, `useTierGate`) and server-side (backend middleware)
@@ -271,10 +271,7 @@ npm run test:e2e       # end-to-end tests (Playwright)
 
 | Variable | Description | Example |
 |---|---|---|
-| `VITE_API_BASE_URL` | Ascenda backend base URL | `http://localhost:3000` |
-| `VITE_SOCRATE_CLIENT_ID` | OAuth2 client ID (public; the secret stays on the backend) | — |
-| `VITE_SOCRATE_BASE_URL` | Socrate's public URL, the issuer; sign-in goes to `<this>/oauth/authorize` with PKCE S256. **No trailing slash**: the build fails on one (checked in `src/config/socrateEnv.ts`, like the backend's `SOCRATE_BASE_URL`) | `https://socrate.vandermoten.eu` |
-| `VITE_SOCRATE_REDIRECT_URI` | OAuth2 redirect URI, registered at Socrate exactly (no wildcards). Must be an absolute http(s) URL; the build fails otherwise | `https://ascenda.vandermoten.eu/callback` |
+| `ASCENDA_API` | Development only: the backend the Vite dev server proxies `/api`, `/bff` and `/auth` to (read by `vite.config.ts`, not built into the app) | `http://localhost:8080` |
 | `VITE_DEFAULT_LOCALE` | Default UI language (`fr` or `en`) | `fr` |
 
 ---

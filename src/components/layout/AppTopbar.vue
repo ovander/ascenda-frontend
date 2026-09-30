@@ -196,6 +196,7 @@ async function handleLogout() {
       <!-- User menu trigger -->
       <button
         class="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg hover:bg-gray-100 text-sm text-gray-700 transition-colors cursor-pointer border-0 bg-transparent"
+        data-test="user-menu"
         @click="toggleUserMenu"
       >
         <i class="pi pi-user text-gray-500"></i>

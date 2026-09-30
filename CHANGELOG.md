@@ -6,6 +6,17 @@ in this repository. Entries before 1.2.0 are rebuilt from the release tags.
 
 ## [Unreleased]
 
+### Changed
+- Sign-in through the backend's Backend-for-Frontend: no OAuth token reaches the browser. Sign-in
+  navigates to `/bff/login`, the session is an HttpOnly cookie, the state comes from
+  `GET /bff/session`, and sign-out is `POST /bff/logout`. Every API call is same-origin, sends
+  `X-CSRF-Token` on POST, PUT, PATCH and DELETE and never an `Authorization` header; a 401
+  re-checks the session and signs in again. The build sets `connect-src 'self'` (#35).
+
+### Removed
+- The PKCE code, token state and refresh logic, the `/callback` page, the `window.__E2E_AUTH__`
+  hook, and the `VITE_API_BASE_URL` and `VITE_SOCRATE_*` settings with their build check (#35).
+
 ## [1.6.0] - 2026-09-30
 
 Cut-over to Socrate at `https://socrate.vandermoten.eu` (Phase 1). Deploy after the backend's

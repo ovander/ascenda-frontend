@@ -3,13 +3,17 @@
  *
  * Strategy
  * --------
- * The app uses Pinia in-memory state for authentication (no localStorage).
- * To test protected routes without a real backend + OAuth flow we:
- *   1. Intercept all /api/v1/** requests and return mock JSON.
- *   2. Load the app (lands on /login because unauthenticated).
- *   3. Inject auth tokens + user directly into the Pinia store via
- *      `page.evaluate()` using `document.querySelector('#app').__vue_app__`.
- *   4. Navigate to the target route — the router guard now sees isAuthenticated === true.
+ * The backend's BFF owns sign-in: the SPA asks GET /bff/session whether the
+ * browser has a session (an HttpOnly cookie it never sees) and calls the API
+ * same-origin. The suite never reaches a backend or the identity provider:
+ *   1. signInAs() makes the mocked /bff/session answer "signed in" with a CSRF
+ *      token, as the BFF does after a sign-in. It lives here, in the test
+ *      harness only: the app has no test hook for authentication.
+ *   2. mockApiCalls() intercepts every /api/v1/** request with mock JSON, and
+ *      answers GET /api/v1/users/me with the signed-in user.
+ *   3. The router guard then sees the session like it would in production.
+ * e2e/auth.spec.ts runs the sign-in itself: /bff/login → a fake issuer →
+ * /bff/callback → back into the app.
  *
  * For scenario-scoped modules (snapshots, settings, …) we additionally inject
  * the active plan + scenario into their respective Pinia stores.
@@ -123,7 +127,39 @@ export const MOCK_SETTINGS = {
  * Registers page.route() handlers for all backend API calls so tests run
  * without a live backend. More-specific patterns must be registered first.
  */
-export async function mockApiCalls(page: Page, user = MOCK_USER) {
+// The user each page is signed in as (signInAs), for GET /api/v1/users/me.
+const sessionUsers = new WeakMap<Page, object>()
+
+/** The CSRF token the mocked BFF hands out; the SPA must send it on unsafe methods. */
+export const E2E_CSRF = 'e2e-csrf-token'
+
+/**
+ * Makes the page signed in, as after a BFF sign-in: GET /bff/session answers
+ * with the user and a CSRF token, and POST /bff/logout ends it. Call it before
+ * mockApiCalls() and before the first page.goto().
+ */
+export async function signInAs(page: Page, user: object = MOCK_USER) {
+  sessionUsers.set(page, user)
+  let signedIn = true
+  // Lets the ui store expose __setWindowWidth for the responsive tests.
+  await page.addInitScript(() => { ;(window as any).__E2E__ = true })
+  await page.route('**/bff/session', route => route.fulfill({
+    headers: { 'Cache-Control': 'no-store' },
+    json: signedIn
+      ? { authenticated: true, user: { sub: '42', email: (user as any).email, name: (user as any).name }, csrf: E2E_CSRF }
+      : { authenticated: false },
+  }))
+  await page.route('**/bff/logout', (route) => {
+    signedIn = false
+    return route.fulfill({ status: 204 })
+  })
+}
+
+export async function mockApiCalls(page: Page, explicitUser?: object) {
+  const user = explicitUser ?? sessionUsers.get(page) ?? MOCK_USER
+  if (!sessionUsers.has(page)) {
+    await page.route('**/bff/session', route => route.fulfill({ json: { authenticated: false } }))
+  }
   await page.route('**/api/v1/**', async (route) => {
     const url    = route.request().url()
     const method = route.request().method().toUpperCase()
@@ -190,7 +226,7 @@ export async function mockApiCalls(page: Page, user = MOCK_USER) {
     return route.fulfill({ json: {} })
   })
 
-  // Auth endpoints (login, refresh, logout)
+  // Public auth endpoints (registration, magic-link e-mail)
   await page.route('**/auth/**', async (route) => {
     route.fulfill({ json: {} })
   })
@@ -198,29 +234,20 @@ export async function mockApiCalls(page: Page, user = MOCK_USER) {
 
 // ─── Auth injection ─────────────────────────────────────────────────────────
 /**
- * Injects fake auth into the Pinia store AND registers an addInitScript so that
- * the auth state (window.__E2E_AUTH__) is re-seeded on every subsequent
- * page.goto() call.  The auth store reads window.__E2E_AUTH__ on init, so
- * the router guard sees isAuthenticated === true immediately on each navigation.
+ * Signs the page in (signInAs) and updates the already-mounted app, so the
+ * next navigation sees the session without a reload.
  */
 export async function injectAuth(page: Page, user = MOCK_USER) {
-  const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user }
-
-  // Register init script — runs before the app boots on every future navigation
-  await page.addInitScript((data) => {
-    ;(window as any).__E2E_AUTH__ = data
-  }, payload)
-
-  // Also patch the currently-mounted Pinia state for immediate effect
-  await page.evaluate((u) => {
+  await signInAs(page, user)
+  await page.evaluate(([u, csrf]) => {
     const app   = (document.querySelector('#app') as any)?.__vue_app__
     const pinia = app?.config?.globalProperties?.$pinia
     const auth  = pinia?.state?.value?.['auth']
     if (!auth) return
-    auth.accessToken  = 'e2e-access-token'
-    auth.refreshToken = 'e2e-refresh-token'
-    auth.user         = u
-  }, user)
+    auth.csrf    = csrf
+    auth.user    = u
+    auth.checked = true
+  }, [user, E2E_CSRF] as const)
 }
 
 /**
@@ -403,27 +430,24 @@ export const test = base.extend<AuthFixtures>({
   authedPage: async ({ page }, use) => {
     // addInitScript must be registered BEFORE the first page.goto() so that it
     // runs on every navigation — including subsequent page.goto() calls in tests.
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_USER }
-    await page.addInitScript((data) => { ;(window as any).__E2E_AUTH__ = data }, payload)
+    await signInAs(page, MOCK_USER)
     await mockApiCalls(page)
-    // Navigate directly to dashboard — auth store reads __E2E_AUTH__ on init
+    // Navigate directly to dashboard — the guard asks /bff/session first
     await page.goto('/')
     await page.waitForLoadState('networkidle')
     await use(page)
   },
 
   adminPage: async ({ page }, use) => {
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_ADMIN_USER }
-    await page.addInitScript((data) => { ;(window as any).__E2E_AUTH__ = data }, payload)
-    await mockApiCalls(page, MOCK_ADMIN_USER)
+    await signInAs(page, MOCK_ADMIN_USER)
+    await mockApiCalls(page)
     await page.goto('/admin/dashboard')
     await page.waitForLoadState('networkidle')
     await use(page)
   },
 
   scenarioPage: async ({ page }, use) => {
-    const authPayload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_USER }
-    await page.addInitScript((data) => { ;(window as any).__E2E_AUTH__ = data }, authPayload)
+    await signInAs(page, MOCK_USER)
     // Seed plan/scenario context so stores initialise correctly on every page.goto()
     const ctxPayload = { plan: MOCK_PLAN, scenario: MOCK_SCENARIO }
     await page.addInitScript((data) => { ;(window as any).__E2E_PLAN_CTX__ = data }, ctxPayload)

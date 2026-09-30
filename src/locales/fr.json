@@ -97,6 +97,8 @@
     "loginSubtitle": "Connectez-vous pour accéder à vos plans d'affaires",
     "loginButton": "Se connecter avec Socrate",
     "loggingIn": "Connexion en cours...",
+    "signInFailed": "La connexion n'a pas abouti. Veuillez réessayer.",
+    "signInCancelled": "La connexion a été annulée.",
     "magicLinkInvalid": "Ce lien de connexion est invalide, a expiré ou a déjà été utilisé.",
     "magicLinkFailed": "La connexion a échoué. Veuillez réessayer dans un instant.",
     "magicLinkRequestNew": "Demander un nouveau lien de connexion"

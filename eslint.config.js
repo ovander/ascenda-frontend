@@ -52,7 +52,7 @@ export default defineConfigWithVueTs(
     files: ['src/**/*.{ts,vue}'],
     ignores: [
       'src/composables/useApi.ts',
-      // Token exchange, refresh and logout run before or outside useApi.
+      // The BFF session check, magic-link sign-in and logout run before or outside useApi.
       'src/stores/auth.ts',
       // Public sign-in forms on the landing page: no session yet.
       'src/features/landing/components/LandingLogin.vue',

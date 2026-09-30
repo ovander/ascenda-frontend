@@ -8,7 +8,7 @@
  *  - AppShell sidebar renders after login
  */
 
-import { test, expect, mockApiCalls, MOCK_USER, PLAN_ID, SCENARIO_ID } from './fixtures'
+import { test, expect, mockApiCalls, MOCK_USER, PLAN_ID, SCENARIO_ID, signInAs } from './fixtures'
 
 
 test.describe('Unauthenticated redirect', () => {
@@ -38,8 +38,7 @@ test.describe('Unauthenticated redirect', () => {
 
 test.describe('AppShell after login', () => {
   test('sidebar is rendered for authenticated owner', async ({ page }) => {
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_USER }
-    await page.addInitScript((d) => { ;(window as any).__E2E_AUTH__ = d }, payload)
+    await signInAs(page, MOCK_USER)
     await mockApiCalls(page)
     await page.goto('/')
     await page.waitForLoadState('networkidle')
@@ -50,8 +49,7 @@ test.describe('AppShell after login', () => {
   })
 
   test('top bar is rendered for authenticated user', async ({ page }) => {
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_USER }
-    await page.addInitScript((d) => { ;(window as any).__E2E_AUTH__ = d }, payload)
+    await signInAs(page, MOCK_USER)
     await mockApiCalls(page)
     await page.goto('/')
     await page.waitForLoadState('networkidle')
@@ -66,8 +64,7 @@ test.describe('Role-based access — admin role', () => {
   test('admin cannot access the plans dashboard and is redirected', async ({ page }) => {
     // Bootstrap the app as admin from the start so auth survives page.goto()
     const adminUser = { ...MOCK_USER, role: 'admin' }
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: adminUser }
-    await page.addInitScript((d) => { ;(window as any).__E2E_AUTH__ = d }, payload)
+    await signInAs(page, adminUser)
     await mockApiCalls(page, adminUser)
     await page.goto('/')
     await page.waitForLoadState('networkidle')
@@ -85,8 +82,7 @@ test.describe('Role-based access — admin role', () => {
   })
 
   test('admin can access /admin/users', async ({ page }) => {
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: { ...MOCK_USER, role: 'admin' } }
-    await page.addInitScript((d) => { ;(window as any).__E2E_AUTH__ = d }, payload)
+    await signInAs(page, { ...MOCK_USER, role: 'admin' })
     await mockApiCalls(page)
     await page.goto('/admin/users')
     await page.waitForLoadState('networkidle')
@@ -96,8 +92,7 @@ test.describe('Role-based access — admin role', () => {
 
 test.describe('Role-based access — owner role', () => {
   test('owner can access /admin/tenant', async ({ page }) => {
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_USER }
-    await page.addInitScript((d) => { ;(window as any).__E2E_AUTH__ = d }, payload)
+    await signInAs(page, MOCK_USER)
     await mockApiCalls(page)
     await page.goto('/admin/tenant')
     await page.waitForLoadState('networkidle')
@@ -105,8 +100,7 @@ test.describe('Role-based access — owner role', () => {
   })
 
   test('owner can access the plans dashboard', async ({ page }) => {
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_USER }
-    await page.addInitScript((d) => { ;(window as any).__E2E_AUTH__ = d }, payload)
+    await signInAs(page, MOCK_USER)
     await mockApiCalls(page)
     await page.goto('/')
     await page.waitForLoadState('networkidle')
@@ -118,8 +112,7 @@ test.describe('Role-based access — owner role', () => {
 
 test.describe('Unknown routes', () => {
   test('unknown path redirects to the dashboard', async ({ page }) => {
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_USER }
-    await page.addInitScript((d) => { ;(window as any).__E2E_AUTH__ = d }, payload)
+    await signInAs(page, MOCK_USER)
     await mockApiCalls(page)
     await page.goto('/this/path/does/not/exist')
     // Router has a catch-all that redirects to '/'

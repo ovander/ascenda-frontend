@@ -6,7 +6,7 @@
  * All API calls are intercepted — no backend required.
  */
 
-import { test, expect, MOCK_ADMIN_STATS } from './fixtures'
+import { test, expect, MOCK_ADMIN_STATS, signInAs } from './fixtures'
 
 test.describe('Admin Dashboard — page structure', () => {
   test.beforeEach(async ({ adminPage: _page }) => {
@@ -93,8 +93,7 @@ test.describe('Admin Dashboard — Top Users table', () => {
 test.describe('Admin Dashboard — access control', () => {
   test('admin role lands on /admin/dashboard after navigating to /', async ({ page }) => {
     const { mockApiCalls, MOCK_ADMIN_USER } = await import('./fixtures')
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_ADMIN_USER }
-    await page.addInitScript((data) => { ;(window as any).__E2E_AUTH__ = data }, payload)
+    await signInAs(page, MOCK_ADMIN_USER)
     await mockApiCalls(page)
     await page.goto('/')
     await page.waitForLoadState('networkidle')
@@ -103,8 +102,7 @@ test.describe('Admin Dashboard — access control', () => {
 
   test('admin role is redirected away from plan routes', async ({ page }) => {
     const { mockApiCalls, MOCK_ADMIN_USER, PLAN_ID } = await import('./fixtures')
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_ADMIN_USER }
-    await page.addInitScript((data) => { ;(window as any).__E2E_AUTH__ = data }, payload)
+    await signInAs(page, MOCK_ADMIN_USER)
     await mockApiCalls(page)
     await page.goto(`/plans/${PLAN_ID}`)
     await page.waitForLoadState('networkidle')

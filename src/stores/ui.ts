@@ -32,8 +32,9 @@ export const useUiStore = defineStore('ui', () => {
     }, { passive: true })
 
     // E2E test hook: allows Playwright to directly set windowWidth for responsive tests.
-    // Only active in test/development environments (not in production).
-    if (import.meta.env.DEV || (window as any).__E2E_AUTH__) {
+    // Only when the dev server runs or a Playwright init script sets window.__E2E__
+    // before the app boots; it only resizes the layout.
+    if (import.meta.env.DEV || (window as any).__E2E__) {
       ;(window as any).__setWindowWidth = (w: number) => { windowWidth.value = w }
     }
   }

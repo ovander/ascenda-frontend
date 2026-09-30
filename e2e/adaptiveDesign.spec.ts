@@ -30,7 +30,7 @@ async function push(page: import('@playwright/test').Page, path: string) {
 }
 
 // ── Helper: set windowWidth via the E2E hook exposed by the ui store ──────────
-// The ui store exposes window.__setWindowWidth() when __E2E_AUTH__ is present.
+// The ui store exposes window.__setWindowWidth() when window.__E2E__ is set (signInAs).
 // This directly updates windowWidth.value → isMobile/isTablet/isDesktop recompute.
 async function patchMobile(page: import('@playwright/test').Page, isMobile: boolean) {
   await page.evaluate((w) => {

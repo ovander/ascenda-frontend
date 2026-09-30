@@ -1,32 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
-const mockCallback = vi.fn()
+const mockLogin = vi.fn()
 const mockLogout = vi.fn()
 
 vi.mock('@/stores/auth', () => ({
   useAuthStore: vi.fn(() => ({
     isAuthenticated: false,
     user: null,
-    accessToken: null,
-    refreshToken: null,
-    callback: mockCallback,
+    csrf: null,
+    login: mockLogin,
     logout: mockLogout,
   })),
 }))
-
-// Mock crypto.subtle for PKCE
-Object.defineProperty(globalThis, 'crypto', {
-  value: {
-    getRandomValues: (arr: Uint8Array) => {
-      arr.fill(42)
-      return arr
-    },
-    subtle: {
-      digest: vi.fn().mockResolvedValue(new ArrayBuffer(32)),
-    },
-  },
-})
 
 import { useAuth } from './useAuth'
 
@@ -65,43 +51,24 @@ describe('useAuth', () => {
     expect(auth.isOwner.value).toBe(false)
   })
 
-  it('initiateLogin stores PKCE verifier and state in sessionStorage', async () => {
-    const auth = useAuth()
-    // Mock window.location.href setter
-    delete (window as any).location
-    window.location = { href: '' } as any
-
-    await auth.initiateLogin()
-
-    expect(sessionStorage.getItem('pkce_code_verifier')).toBeTruthy()
-    expect(sessionStorage.getItem('oauth_state')).toBeTruthy()
+  it('initiateLogin hands sign-in to the backend, returning to the current page', () => {
+    window.history.replaceState(null, '', '/plans/7?tab=pnl#top')
+    useAuth().initiateLogin()
+    expect(mockLogin).toHaveBeenCalledWith('/plans/7?tab=pnl#top')
   })
 
-  it('handleCallback throws on state mismatch', async () => {
+  it('initiateLogin takes an explicit destination, and ignores a click event', () => {
     const auth = useAuth()
-    sessionStorage.setItem('oauth_state', 'correct-state')
-
-    await expect(auth.handleCallback('code', 'wrong-state')).rejects.toThrow('Invalid OAuth state parameter')
+    auth.initiateLogin('/admin/users')
+    expect(mockLogin).toHaveBeenLastCalledWith('/admin/users')
+    window.history.replaceState(null, '', '/')
+    ;(auth.initiateLogin as (e: unknown) => void)(new MouseEvent('click'))
+    expect(mockLogin).toHaveBeenLastCalledWith('/')
   })
 
-  it('handleCallback throws if no code verifier stored', async () => {
-    const auth = useAuth()
-    sessionStorage.setItem('oauth_state', 'state-1')
-    // No pkce_code_verifier set
-
-    await expect(auth.handleCallback('code', 'state-1')).rejects.toThrow('Missing PKCE code verifier')
-  })
-
-  it('handleCallback calls store.callback on valid state', async () => {
-    const auth = useAuth()
-    sessionStorage.setItem('oauth_state', 'state-1')
-    sessionStorage.setItem('pkce_code_verifier', 'verifier-1')
-
-    await auth.handleCallback('auth-code', 'state-1')
-
-    expect(mockCallback).toHaveBeenCalledWith('auth-code', 'verifier-1')
-    expect(sessionStorage.getItem('pkce_code_verifier')).toBeNull()
-    expect(sessionStorage.getItem('oauth_state')).toBeNull()
+  it('keeps no PKCE state or token in browser storage', () => {
+    useAuth().initiateLogin()
+    expect(sessionStorage.length).toBe(0)
   })
 
   it('logout calls store.logout', async () => {

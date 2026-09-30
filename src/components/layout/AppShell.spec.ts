@@ -22,7 +22,7 @@ vi.mock('@/stores/ui', () => ({
 vi.mock('@/stores/auth', () => ({
   useAuthStore: vi.fn(() => ({
     user: { name: 'Test User', email: 'test@test.com', role: 'editor' },
-    accessToken: 'tok',
+    csrf: 'csrf-token',
     isAuthenticated: true,
     fetchMe: vi.fn(),
   })),
