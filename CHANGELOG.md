@@ -6,6 +6,11 @@ in this repository. Entries before 1.2.0 are rebuilt from the release tags.
 
 ## [Unreleased]
 
+### Changed
+- Sign-in moves to the new Socrate: `VITE_SOCRATE_BASE_URL=https://socrate.vandermoten.eu` in
+  `.env.production` (client ID `VowmSxfnObxDKFvdk1Lucg` and redirect URI unchanged). Merged and
+  deployed at cut-over, after the backend.
+
 ### Fixed
 - `.env.production` signs in at today's Socrate again (`https://golfperformance.fr`, client ID
   `VowmSxfnObxDKFvdk1Lucg`) until the cut-over. #29 switched it early; the switch now comes as its
