@@ -18,10 +18,19 @@ const ISSUER_PATH = '/__fake-issuer'
 const CSRF = 'csrf-from-the-bff'
 
 /**
- * A fake BFF and issuer. /bff/login answers like the backend (302 to the
- * issuer's /oauth/authorize, keeping return_to), the issuer sends the browser
- * to /bff/callback, and the callback starts the session and returns to the
- * page. Every request the app makes is recorded.
+ * A page that sends the browser on to url. The real backend answers 302; a
+ * mocked 302 would not do here, because the request a fulfilled redirect leads
+ * to bypasses page.route() and reaches the preview server.
+ */
+function goOn(url: string) {
+  return { contentType: 'text/html', body: `<html><body><script>location.replace(${JSON.stringify(url)})</script></body></html>` }
+}
+
+/**
+ * A fake BFF and issuer. /bff/login sends the browser to the issuer's
+ * /oauth/authorize (keeping return_to), the issuer to /bff/callback, and the
+ * callback starts the session and returns to the page. Every request the app
+ * makes is recorded.
  */
 async function fakeBff(page: Page, opts: { signedIn?: boolean } = {}) {
   const state = { signedIn: opts.signedIn ?? false, logins: [] as URL[], requests: [] as Request[], logouts: [] as Request[] }
@@ -42,7 +51,7 @@ async function fakeBff(page: Page, opts: { signedIn?: boolean } = {}) {
     authorize.searchParams.set('code_challenge_method', 'S256')
     authorize.searchParams.set('redirect_uri', `${url.origin}/bff/callback`)
     authorize.searchParams.set('return_to', url.searchParams.get('return_to') ?? '/') // carried for the fake only
-    return route.fulfill({ status: 302, headers: { Location: authorize.toString() } })
+    return route.fulfill(goOn(authorize.toString()))
   })
   await page.route(`**${ISSUER_PATH}/**`, (route) => {
     const authorize = new URL(route.request().url())
@@ -51,15 +60,12 @@ async function fakeBff(page: Page, opts: { signedIn?: boolean } = {}) {
     callback.searchParams.set('state', authorize.searchParams.get('state')!)
     callback.searchParams.set('rt', authorize.searchParams.get('return_to')!)
     // The user signs in at the issuer, which then sends the browser back.
-    return route.fulfill({
-      contentType: 'text/html',
-      body: `<html><body data-testid="issuer"><script>location.replace(${JSON.stringify(callback.toString())})</script></body></html>`,
-    })
+    return route.fulfill(goOn(callback.toString()))
   })
   await page.route('**/bff/callback**', (route) => {
     const url = new URL(route.request().url())
     state.signedIn = true
-    return route.fulfill({ status: 302, headers: { Location: url.searchParams.get('rt') ?? '/' } })
+    return route.fulfill(goOn(url.searchParams.get('rt') ?? '/'))
   })
   await page.route('**/bff/logout', (route) => {
     state.logouts.push(route.request())
