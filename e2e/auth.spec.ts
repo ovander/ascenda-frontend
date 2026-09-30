@@ -74,16 +74,20 @@ async function expectNoAuthInBrowserStorage(page: Page) {
 
 test.describe('Sign-in through the BFF', () => {
   test('a signed-out visit to a page signs in and comes back to it', async ({ page }) => {
+    // /admin/tenant: an owner page that stays put once loaded (plan pages may
+    // move on to a scenario by themselves).
+    const target = '/admin/tenant'
     await mockApiCalls(page) // before fakeBff: the routes registered last win
     const bff = await fakeBff(page)
 
-    await page.goto(`/plans/${PLAN_ID}`)
+    await page.goto(target)
     await page.waitForURL(/\/landing\?redirect=/)
-    await page.goto(`/login?redirect=${encodeURIComponent(`/plans/${PLAN_ID}`)}`)
+    expect(new URL(page.url()).searchParams.get('redirect')).toBe(target)
+    await page.goto(`/login?redirect=${encodeURIComponent(target)}`)
 
-    await page.waitForURL(url => url.pathname === `/plans/${PLAN_ID}`)
+    await page.waitForURL(url => url.pathname === target)
     expect(bff.logins).toHaveLength(1)
-    expect(bff.logins[0].searchParams.get('return_to')).toBe(`/plans/${PLAN_ID}`)
+    expect(bff.logins[0].searchParams.get('return_to')).toBe(target)
     // The page is now in the app, signed in.
     await expect(page.locator('[data-test="user-menu"]')).toBeVisible()
     await expectNoAuthInBrowserStorage(page)
