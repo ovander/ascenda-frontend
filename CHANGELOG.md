@@ -6,11 +6,10 @@ in this repository. Entries before 1.2.0 are rebuilt from the release tags.
 
 ## [Unreleased]
 
-## [1.6.0] - 2026-09-29
-
-### Changed
-- Production build signs in at the new Socrate, `https://socrate.vandermoten.eu`, with its client
-  ID `cVqYPgs3uGZYgw1x6F3aOQ` (`.env.production`). Deploy together with the backend cut-over (#29).
+### Fixed
+- `.env.production` signs in at today's Socrate again (`https://golfperformance.fr`, client ID
+  `VowmSxfnObxDKFvdk1Lucg`) until the cut-over. #29 switched it early; the switch now comes as its
+  own PR, merged at cut-over. The v1.6.0 section it released under was never tagged and is removed.
 
 ## [1.5.0] - 2026-09-29
 
@@ -127,8 +126,7 @@ in this repository. Entries before 1.2.0 are rebuilt from the release tags.
 ### Added
 - Initial frontend and README.
 
-[Unreleased]: https://github.com/ovander/ascenda-frontend/compare/v1.6.0...HEAD
-[1.6.0]: https://github.com/ovander/ascenda-frontend/compare/v1.5.0...v1.6.0
+[Unreleased]: https://github.com/ovander/ascenda-frontend/compare/v1.5.0...HEAD
 [1.5.0]: https://github.com/ovander/ascenda-frontend/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/ovander/ascenda-frontend/compare/v1.3.4...v1.4.0
 [1.3.4]: https://github.com/ovander/ascenda-frontend/compare/v1.3.3...v1.3.4
