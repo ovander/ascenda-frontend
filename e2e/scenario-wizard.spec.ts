@@ -30,8 +30,7 @@ import {
   PLAN_ID, WIZARD_SCENARIO_ID,
   MOCK_PLAN, MOCK_USER,
   mockApiCalls, mockWizardRoutes,
-  injectTenantTier, routerPush,
-} from './fixtures'
+  injectTenantTier, routerPush, signInAs } from './fixtures'
 import type { Page } from '@playwright/test'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -113,10 +112,7 @@ const expectStep = (page: Page, heading: string) =>
  */
 async function bootApp(page: Page, planTier?: string) {
   const user = planTier ? { ...MOCK_USER, plan: planTier } : MOCK_USER
-  const authPayload = {
-    accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user,
-  }
-  await page.addInitScript((d: any) => { ;(window as any).__E2E_AUTH__ = d }, authPayload)
+  await signInAs(page, user)
 
   // Only seed the plan (not scenario) — wizard creates a new scenario from scratch.
   const ctxPayload = { plan: MOCK_PLAN }

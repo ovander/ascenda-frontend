@@ -9,7 +9,7 @@ Ascenda is a financial-planning SaaS for startups and SMEs: multi-year business 
 flow, balance sheet, WCR, break-even, cap table), scenario simulation and AI narration. This
 repository is the web app: Vue 3 single-page application in TypeScript, Vite, Pinia, vue-router,
 PrimeVue 4 and Tailwind CSS 4, with French (default) and English. Sign-in is the Socrate OAuth
-2.1 authorization-code flow with PKCE, started here and exchanged by the backend.
+2.1 authorization-code flow with PKCE, run entirely by the backend's Backend-for-Frontend (`/bff`).
 
 ## Sources of truth, in order
 
@@ -22,11 +22,14 @@ PrimeVue 4 and Tailwind CSS 4, with French (default) and English. Sign-in is the
 
 - **Layout.** A feature lives in `src/features/<domain>/` (`views/`, `components/`, `stores/`,
   `utils/`); shared pieces in `src/components`, `src/composables`, `src/stores`, `src/utils`.
-- **API calls** go through `src/composables/useApi.ts` (base URL, bearer token, silent refresh).
+- **API calls** go through `src/composables/useApi.ts` (same origin, CSRF header, session loss).
   Do not call the API with raw `fetch`/`axios` elsewhere; the auth store and the public sign-in
   pages are the only exceptions (ESLint `app/api-boundary` enforces it).
-- **Tokens** stay in memory (Pinia). Never put an access or refresh token in `localStorage`,
-  `sessionStorage` or a URL. Refresh tokens rotate: always keep the newest one.
+- **Tokens** never reach the browser. The backend's BFF keeps them; the SPA holds only an
+  HttpOnly session cookie it cannot read and the CSRF token from `GET /bff/session` (Pinia,
+  memory). Never send an `Authorization` header, and never put auth data in `localStorage` or
+  `sessionStorage` (`src/test/noBrowserTokens.spec.ts` fails the build otherwise). Every API call
+  is a same-origin path; `useApi` adds `X-CSRF-Token` on POST, PUT, PATCH and DELETE.
 - **Access rules** are in the router's `accessGuard` (route `meta`); the backend enforces the
   same rules, so the UI never relaxes them on its own.
 - **Strings.** Every user-visible string is an i18n key present in both `src/locales/en.json` and
@@ -81,6 +84,6 @@ improve; never move them the other way.
 - `scripts/push.sh` builds with `.env.production`, uploads and deploys a tag;
   `scripts/version-guard.sh` refuses a dirty or untagged tree. Deploy after the backend when the
   API changed.
-- `/landing` is also served as the static `public/landing.html` on a full page load; its API
-  address is filled in at build time (`%VITE_API_BASE_URL%`, see `vite.config.ts`). Keep both
+- `/landing` is also served as the static `public/landing.html` on a full page load; like the
+  app, it calls the API same-origin and carries the same CSP (`connect-src 'self'`). Keep both
   landing pages in step.

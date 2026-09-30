@@ -1,86 +1,139 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import axios from 'axios'
-import type { User, AuthTokens } from '@/types'
+import type { User } from '@/types'
+
+/**
+ * Authentication through the backend's Backend-for-Frontend (BFF).
+ *
+ * The backend runs the whole OAuth flow and keeps the tokens. The browser
+ * holds only an HttpOnly session cookie it cannot read, and this store holds
+ * only what GET /bff/session returns: whether there is a session and its CSRF
+ * token, sent back in X-CSRF-Token on every POST, PUT, PATCH and DELETE
+ * (useApi). No token, and nothing about the session, is kept in browser
+ * storage (src/test/noBrowserTokens.spec.ts).
+ *
+ * Every call is same-origin (a relative path): the session cookie is sent to
+ * the SPA's own host only.
+ */
+
+/** The body of GET /bff/session and POST /bff/magic-link/verify. */
+interface BffSession {
+  authenticated: boolean
+  user?: { sub: string; email?: string; name?: string }
+  csrf?: string
+}
+
+/** Where the backend starts a sign-in; it redirects to Socrate. */
+export function loginUrl(returnTo = '/'): string {
+  return `/bff/login?return_to=${encodeURIComponent(returnTo)}`
+}
 
 export const useAuthStore = defineStore('auth', () => {
-  // E2E testing hook: Playwright injects window.__E2E_AUTH__ via addInitScript so
-  // that auth state survives page.goto() calls without a real OAuth flow.
-  const _e2e = typeof window !== 'undefined' ? (window as any).__E2E_AUTH__ : undefined
+  const user = ref<User | null>(null)
+  const csrf = ref<string | null>(null)
+  // Whether /bff/session has answered since the page loaded.
+  const checked = ref(false)
 
-  const user = ref<User | null>(_e2e?.user ?? null)
-  const accessToken = ref<string | null>(_e2e?.accessToken ?? null)
-  const refreshToken = ref<string | null>(_e2e?.refreshToken ?? null)
+  const isAuthenticated = computed(() => csrf.value !== null)
 
-  const isAuthenticated = computed(() => !!accessToken.value)
-
-  const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
-
-  async function callback(code: string, codeVerifier: string) {
-    const response = await axios.post<AuthTokens>(
-      `${apiBase}/auth/callback`,
-      { code, codeVerifier, redirectUri: import.meta.env.VITE_SOCRATE_REDIRECT_URI }
-    )
-    accessToken.value = response.data.accessToken
-    refreshToken.value = response.data.refreshToken
-
-    // Fetch user profile after obtaining tokens
-    await fetchMe()
+  function clear() {
+    user.value = null
+    csrf.value = null
   }
 
-  // Socrate rotates refresh tokens: every refresh returns a new one and the one
-  // sent is spent, so the new one must be kept for the next refresh.
-  async function refresh() {
-    if (!refreshToken.value) throw new Error('No refresh token')
-    const response = await axios.post<AuthTokens>(
-      `${apiBase}/auth/refresh`,
-      { refreshToken: refreshToken.value }
-    )
-    const { accessToken: access, refreshToken: next } = response.data
-    if (!access || !next) throw new Error('Refresh response without tokens')
-    accessToken.value = access
-    refreshToken.value = next
+  /** Takes a session body; anything but an authenticated one with a CSRF token clears the state. */
+  function apply(data: unknown): boolean {
+    const s = data as BffSession | null
+    if (s && s.authenticated === true && typeof s.csrf === 'string' && s.csrf !== '') {
+      csrf.value = s.csrf
+      return true
+    }
+    clear()
+    return false
   }
 
   async function fetchMe() {
-    const response = await axios.get<User>(`${apiBase}/api/v1/users/me`, {
-      headers: { Authorization: `Bearer ${accessToken.value}` },
-    })
+    const response = await axios.get<User>('/api/v1/users/me')
     user.value = response.data
   }
 
-  // Passwordless sign-in: redeem the single-use token from a Socrate magic
-  // link. The backend exchanges it at Socrate and answers like /auth/callback.
+  /**
+   * Asks the backend whether this browser has a session, and loads the user
+   * when it does. The session's existence is the BFF's answer alone: a user
+   * profile that fails to load does not end it (the API reports why), so a
+   * misbehaving API cannot bounce the browser between here and Socrate.
+   */
+  async function loadSession(): Promise<boolean> {
+    try {
+      const response = await axios.get<BffSession>('/bff/session')
+      if (apply(response.data)) {
+        try {
+          await fetchMe()
+        } catch {
+          user.value = null
+        }
+      }
+    } catch {
+      clear()
+    }
+    checked.value = true
+    return isAuthenticated.value
+  }
+
+  let inflight: Promise<boolean> | null = null
+
+  /** loadSession once per page load; concurrent callers share the request. */
+  function ensureSession(): Promise<boolean> {
+    if (checked.value) return Promise.resolve(isAuthenticated.value)
+    inflight ??= loadSession().finally(() => { inflight = null })
+    return inflight
+  }
+
+  /** Re-asks the backend (after a 401 or a CSRF refusal), sharing one request. */
+  function recheckSession(): Promise<boolean> {
+    inflight ??= loadSession().finally(() => { inflight = null })
+    return inflight
+  }
+
+  /** Starts a sign-in: a navigation to the backend, which sends the browser to Socrate. */
+  function login(returnTo = '/') {
+    window.location.assign(loginUrl(returnTo))
+  }
+
+  // Passwordless sign-in: the backend redeems the single-use token from a
+  // Socrate magic link and starts a session.
   async function magicLink(token: string) {
-    const response = await axios.post<AuthTokens>(`${apiBase}/auth/magic-link/verify`, { token })
-    accessToken.value = response.data.accessToken
-    refreshToken.value = response.data.refreshToken
+    const response = await axios.post<BffSession>('/bff/magic-link/verify', { token })
+    checked.value = true
+    if (!apply(response.data)) throw new Error('Sign-in failed')
     await fetchMe()
   }
 
+  // The backend revokes the refresh token at Socrate and ends the session.
   async function logout() {
-    // Revoke the refresh token at Socrate, which also ends its rotation chain.
-    if (refreshToken.value) {
+    if (csrf.value) {
       try {
-        await axios.post(`${apiBase}/auth/logout`, { token: refreshToken.value })
+        await axios.post('/bff/logout', null, { headers: { 'X-CSRF-Token': csrf.value } })
       } catch {
-        // Best effort: the local session is cleared either way.
+        // Best effort: the local state is cleared either way.
       }
     }
-    user.value = null
-    accessToken.value = null
-    refreshToken.value = null
+    clear()
+    checked.value = true
   }
 
   return {
     user,
-    accessToken,
-    refreshToken,
+    csrf,
+    checked,
     isAuthenticated,
-    callback,
-    magicLink,
-    refresh,
+    ensureSession,
+    loadSession,
+    recheckSession,
     fetchMe,
+    login,
+    magicLink,
     logout,
   }
 })

@@ -3,8 +3,9 @@ import { shallowMount } from '@vue/test-utils'
 import LoginView from './LoginView.vue'
 
 // Mock vue-router so route.query.auto is accessible in onMounted
+const route = vi.hoisted(() => ({ query: {} as Record<string, string> }))
 vi.mock('vue-router', () => ({
-  useRoute: vi.fn(() => ({ query: {} })),
+  useRoute: vi.fn(() => route),
   useRouter: vi.fn(() => ({ push: vi.fn() })),
 }))
 
@@ -16,6 +17,8 @@ vi.mock('vue-i18n', () => ({
         'auth.loginTitle': 'Welcome to Ascenda',
         'auth.loginSubtitle': 'Business Planning Made Simple',
         'auth.loginButton': 'Sign in with Socrate',
+        'auth.signInFailed': 'Sign-in did not complete.',
+        'auth.signInCancelled': 'Sign-in was cancelled.',
       }
       return translations[key] || key
     },
@@ -74,7 +77,36 @@ describe('LoginView', () => {
   it('should call initiateLogin when button is clicked', async () => {
     const wrapper = createWrapper()
     await wrapper.find('button').trigger('click')
-    expect(mockInitiateLogin).toHaveBeenCalled()
+    expect(mockInitiateLogin).toHaveBeenCalledWith('/')
+  })
+
+  it('returns to the ?redirect= page after sign-in', async () => {
+    route.query = { redirect: '/plans/3' }
+    const wrapper = createWrapper()
+    await wrapper.find('button').trigger('click')
+    expect(mockInitiateLogin).toHaveBeenLastCalledWith('/plans/3')
+    route.query = {}
+  })
+
+  it('shows why the backend refused a sign-in, and does not retry on its own', () => {
+    mockInitiateLogin.mockClear()
+    route.query = { error: 'sign_in_failed', auto: '1' }
+    let wrapper = createWrapper()
+    expect(wrapper.find('[data-test="login-error"]').text()).toBe('Sign-in did not complete.')
+    expect(mockInitiateLogin).not.toHaveBeenCalled()
+
+    route.query = { error: 'access_denied' }
+    wrapper = createWrapper()
+    expect(wrapper.find('[data-test="login-error"]').text()).toBe('Sign-in was cancelled.')
+    route.query = {}
+  })
+
+  it('starts sign-in straight away from the landing page link (?auto=1)', () => {
+    mockInitiateLogin.mockClear()
+    route.query = { auto: '1' }
+    createWrapper()
+    expect(mockInitiateLogin).toHaveBeenCalledWith('/')
+    route.query = {}
   })
 
   it('should render a centered card', () => {

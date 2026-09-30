@@ -11,9 +11,9 @@ Requirements: Node 24 (`.nvmrc`), and a running backend for anything past the la
 ```bash
 git clone https://github.com/ovander/ascenda-frontend && cd ascenda-frontend
 npm ci
-# Point the app at your backend and identity provider: VITE_API_BASE_URL,
-# VITE_SOCRATE_BASE_URL, VITE_SOCRATE_CLIENT_ID, VITE_SOCRATE_REDIRECT_URI
-# (see README.md → Getting Started and .env.production for the names).
+# The dev server proxies /api, /bff and /auth to the backend (ASCENDA_API,
+# default http://localhost:8080), which runs sign-in (BFF_REDIRECT_URL=
+# http://localhost:5180/bff/callback, BFF_INSECURE_COOKIE=true in its .env).
 npm run dev
 ```
 

@@ -1,78 +1,154 @@
 /**
- * E2E — Authentication flows (public / unauthenticated).
+ * E2E — Authentication through the backend's Backend-for-Frontend (BFF).
  *
- * These tests do NOT require a backend. They cover the PKCE login redirect,
- * the OAuth callback error path, and the unauthenticated redirect guard.
+ * Sign-in runs on the backend: the SPA navigates to /bff/login, the backend
+ * sends the browser to Socrate, Socrate back to /bff/callback, and the backend
+ * sets an HttpOnly session cookie and returns to the page. Here a fake BFF and
+ * a fake issuer play those parts with page.route(); no backend or identity
+ * provider is reached, and nothing in the app is bypassed.
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page, type Request } from '@playwright/test'
+import { mockApiCalls, MOCK_USER, PLAN_ID } from './fixtures'
 
-test.describe('Login redirect (Authorization Code + PKCE)', () => {
-  // /login renders nothing: its route guard builds the authorize URL and
-  // navigates to the identity provider. The authorize request is intercepted
-  // so the suite never leaves the preview server or touches the real IdP.
-  test.beforeEach(async ({ page }) => {
-    await page.route('**/api/**', route => route.fulfill({ json: {} }))
-    await page.route('**/oauth/authorize**', route =>
-      route.fulfill({ contentType: 'text/html', body: '<html><body data-testid="idp">idp</body></html>' }),
-    )
+const ISSUER = 'https://issuer.example.test'
+const CSRF = 'csrf-from-the-bff'
+
+/**
+ * A fake BFF and issuer. /bff/login answers like the backend (302 to the
+ * issuer's /oauth/authorize, keeping return_to), the issuer sends the browser
+ * to /bff/callback, and the callback starts the session and returns to the
+ * page. Every request the app makes is recorded.
+ */
+async function fakeBff(page: Page, opts: { signedIn?: boolean } = {}) {
+  const state = { signedIn: opts.signedIn ?? false, logins: [] as URL[], requests: [] as Request[], logouts: [] as Request[] }
+  page.on('request', r => state.requests.push(r))
+
+  await page.route('**/bff/session', route => route.fulfill({
+    headers: { 'Cache-Control': 'no-store' },
+    json: state.signedIn
+      ? { authenticated: true, user: { sub: '42', email: MOCK_USER.email, name: MOCK_USER.name }, csrf: CSRF }
+      : { authenticated: false },
+  }))
+  await page.route('**/bff/login**', (route) => {
+    const url = new URL(route.request().url())
+    state.logins.push(url)
+    const authorize = new URL(`${ISSUER}/oauth/authorize`)
+    authorize.searchParams.set('response_type', 'code')
+    authorize.searchParams.set('state', 'state-1')
+    authorize.searchParams.set('code_challenge_method', 'S256')
+    authorize.searchParams.set('redirect_uri', `${url.origin}/bff/callback`)
+    authorize.searchParams.set('return_to', url.searchParams.get('return_to') ?? '/') // carried for the fake only
+    return route.fulfill({ status: 302, headers: { Location: authorize.toString() } })
   })
-
-  async function authorizeUrl(page: import('@playwright/test').Page): Promise<URL> {
-    await page.goto('/login')
-    await page.waitForURL(/\/oauth\/authorize\?/)
-    return new URL(page.url())
-  }
-
-  test('navigates to the identity provider authorize endpoint', async ({ page }) => {
-    const url = await authorizeUrl(page)
-    expect(url.pathname).toBe('/oauth/authorize')
-    expect(url.searchParams.get('response_type')).toBe('code')
-    expect(url.searchParams.get('client_id')).toBeTruthy()
-    expect(url.searchParams.get('redirect_uri')).toMatch(/\/callback$/)
-    expect(url.searchParams.get('scope')).toContain('openid')
-  })
-
-  test('sends a PKCE S256 challenge and a state nonce', async ({ page }) => {
-    const url = await authorizeUrl(page)
-    expect(url.searchParams.get('code_challenge_method')).toBe('S256')
-    // base64url(SHA-256) is 43 characters without padding
-    expect(url.searchParams.get('code_challenge')).toMatch(/^[A-Za-z0-9_-]{43}$/)
-    expect(url.searchParams.get('state')).toMatch(/^[a-z0-9]{32}$/)
-  })
-
-  test('generates a fresh state and challenge on every login', async ({ page }) => {
-    const first = await authorizeUrl(page)
-    const second = await authorizeUrl(page)
-    expect(second.searchParams.get('state')).not.toBe(first.searchParams.get('state'))
-    expect(second.searchParams.get('code_challenge')).not.toBe(first.searchParams.get('code_challenge'))
-  })
-})
-
-test.describe('OAuth callback', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.route('**/api/**',  route => route.fulfill({ json: {} }))
-    await page.route('**/auth/**', route => route.fulfill({ json: {} }))
-  })
-
-  test('stays on /callback when visiting the route', async ({ page }) => {
-    await page.goto('/callback')
-    await expect(page).toHaveURL(/callback/)
-  })
-
-  test('shows an error when code/state params are missing', async ({ page }) => {
-    await page.goto('/callback')
-    // Without ?code=&state= the CallbackView renders the error card
-    await expect(
-      page.getByText(/missing authorization code|authentication error/i).first()
-    ).toBeVisible({ timeout: 5000 })
-  })
-
-  test('error card has a "Return to login" link', async ({ page }) => {
-    await page.goto('/callback')
-    await expect(page.getByRole('link', { name: /return to login/i })).toBeVisible({
-      timeout: 5000,
+  await page.route(`${ISSUER}/**`, (route) => {
+    const authorize = new URL(route.request().url())
+    const callback = new URL(authorize.searchParams.get('redirect_uri')!)
+    callback.searchParams.set('code', 'code-1')
+    callback.searchParams.set('state', authorize.searchParams.get('state')!)
+    callback.searchParams.set('rt', authorize.searchParams.get('return_to')!)
+    // The user signs in at the issuer, which then sends the browser back.
+    return route.fulfill({
+      contentType: 'text/html',
+      body: `<html><body data-testid="issuer"><script>location.replace(${JSON.stringify(callback.toString())})</script></body></html>`,
     })
+  })
+  await page.route('**/bff/callback**', (route) => {
+    const url = new URL(route.request().url())
+    state.signedIn = true
+    return route.fulfill({ status: 302, headers: { Location: url.searchParams.get('rt') ?? '/' } })
+  })
+  await page.route('**/bff/logout', (route) => {
+    state.logouts.push(route.request())
+    state.signedIn = false
+    return route.fulfill({ status: 204 })
+  })
+  return state
+}
+
+async function expectNoAuthInBrowserStorage(page: Page) {
+  const stored = await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }))
+  expect(stored).not.toContain(CSRF)
+  expect(stored).not.toMatch(/token|verifier|state|session/i)
+}
+
+test.describe('Sign-in through the BFF', () => {
+  test('a signed-out visit to a page signs in and comes back to it', async ({ page }) => {
+    await mockApiCalls(page) // before fakeBff: the routes registered last win
+    const bff = await fakeBff(page)
+
+    await page.goto(`/plans/${PLAN_ID}`)
+    await page.waitForURL(/\/landing\?redirect=/)
+    await page.goto(`/login?redirect=${encodeURIComponent(`/plans/${PLAN_ID}`)}`)
+
+    await page.waitForURL(url => url.pathname === `/plans/${PLAN_ID}`)
+    expect(bff.logins).toHaveLength(1)
+    expect(bff.logins[0].searchParams.get('return_to')).toBe(`/plans/${PLAN_ID}`)
+    // The page is now in the app, signed in.
+    await expect(page.locator('[data-test="user-menu"]')).toBeVisible()
+    await expectNoAuthInBrowserStorage(page)
+  })
+
+  test('the landing "Sign in" link goes straight to /bff/login', async ({ page }) => {
+    await mockApiCalls(page) // before fakeBff: the routes registered last win
+    const bff = await fakeBff(page)
+
+    await page.goto('/login?auto=1')
+
+    await page.waitForURL(url => url.pathname === '/')
+    expect(bff.logins).toHaveLength(1)
+  })
+
+  test('API calls are same-origin, never carry a bearer, and send the CSRF token on unsafe methods', async ({ page, baseURL }) => {
+    await mockApiCalls(page) // before fakeBff: the routes registered last win
+    const bff = await fakeBff(page, { signedIn: true })
+
+    await page.goto('/')
+    await expect(page.locator('[data-test="user-menu"]')).toBeVisible()
+    await page.locator('[data-test="user-menu"]').click()
+    await page.getByRole('menuitem', { name: /déconnexion|logout/i }).click()
+    await page.waitForURL(/\/landing/)
+
+    const origin = new URL(baseURL!).origin
+    const xhr = bff.requests.filter(r => ['xhr', 'fetch'].includes(r.resourceType()))
+    expect(xhr.length).toBeGreaterThan(2)
+    for (const r of xhr) {
+      expect(new URL(r.url()).origin, r.url()).toBe(origin)
+      expect(await r.headerValue('authorization'), r.url()).toBeNull()
+    }
+    expect(bff.logouts).toHaveLength(1)
+    expect(await bff.logouts[0].headerValue('x-csrf-token')).toBe(CSRF)
+    for (const r of xhr.filter(r => r.method() !== 'GET' && r.method() !== 'HEAD')) {
+      expect(await r.headerValue('x-csrf-token'), r.url()).toBe(CSRF)
+    }
+    await expectNoAuthInBrowserStorage(page)
+  })
+
+  test('a lost session (401) re-checks /bff/session and signs in again to the same page', async ({ page }) => {
+    await mockApiCalls(page) // before fakeBff: the routes registered last win
+    const bff = await fakeBff(page, { signedIn: true })
+    await page.goto('/')
+    await expect(page.locator('[data-test="user-menu"]')).toBeVisible()
+
+    // The session ends on the server (idle timeout, refresh rejected).
+    bff.signedIn = false
+    await page.route('**/api/v1/plans**', route => route.fulfill({ status: 401, json: { code: 'UNAUTHORIZED', message: 'authentication required' } }))
+    await page.evaluate(id => (document.querySelector('#app') as any).__vue_app__.config.globalProperties.$router.push(`/plans/${id}`), PLAN_ID)
+
+    await expect.poll(() => bff.logins.length).toBeGreaterThan(0)
+    expect(bff.logins[0].searchParams.get('return_to')).toBe(`/plans/${PLAN_ID}`)
+  })
+
+  test('a sign-in the backend refused shows why, without looping back to Socrate', async ({ page }) => {
+    const bff = await fakeBff(page)
+
+    await page.goto('/login?error=sign_in_failed&auto=1')
+
+    await expect(page.locator('[data-test="login-error"]')).toBeVisible()
+    await page.waitForTimeout(300)
+    expect(bff.logins).toHaveLength(0)
+    await page.locator('[data-test="login-button"]').click()
+    await expect.poll(() => bff.logins.length).toBe(1)
   })
 })
 
@@ -80,6 +156,7 @@ test.describe('Navigation guards — unauthenticated', () => {
   // Unauthenticated visitors are sent to the SPA landing route (/landing),
   // carrying the requested path as ?redirect= for everything but "/".
   test.beforeEach(async ({ page }) => {
+    await page.route('**/bff/session', route => route.fulfill({ json: { authenticated: false } }))
     await page.route('**/api/**',  route => route.fulfill({ json: {} }))
     await page.route('**/auth/**', route => route.fulfill({ json: {} }))
   })
@@ -107,5 +184,11 @@ test.describe('Navigation guards — unauthenticated', () => {
     await page.waitForURL(/\/landing\?/)
     const url = new URL(page.url())
     expect(url.searchParams.get('redirect')).toBe('/plans/plan-1')
+  })
+
+  test('a backend that is down counts as signed out', async ({ page }) => {
+    await page.route('**/bff/session', route => route.fulfill({ status: 502, body: 'Bad Gateway' }))
+    await page.goto('/plans/plan-1')
+    await page.waitForURL(/\/landing\?/)
   })
 })

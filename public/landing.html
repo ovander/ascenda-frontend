@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <!-- Same policy as the app (vite.config.ts): requests to this origin only. -->
+  <meta http-equiv="Content-Security-Policy" content="connect-src 'self'; object-src 'none'; base-uri 'self'" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ascenda — Financial Planning for Growing Businesses</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -879,9 +881,6 @@
   </footer>
 
   <script>
-    // Backend API origin: the build fills in VITE_API_BASE_URL (vite.config.ts,
-    // landingApiBase); an unbuilt copy falls back to the local backend.
-    const API_BASE = (v => (v.charAt(0) === '%' ? 'http://localhost:3000' : v))('%VITE_API_BASE_URL%');
 
     // ── Scroll reveal ─────────────────────────────────────────────
     const observer = new IntersectionObserver(
@@ -909,7 +908,7 @@
       const body = { firstName: fd.get('firstName'), lastName: fd.get('lastName'), companyName: fd.get('companyName'), email: fd.get('email'), country: fd.get('country') };
 
       try {
-        const res = await fetch(`${API_BASE}/auth/register`, {
+        const res = await fetch(`/auth/register`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
         });
         if (!res.ok) {
@@ -960,7 +959,7 @@
 
       try {
         rememberRedirect();
-        const res = await fetch(`${API_BASE}/auth/magic-link`, {
+        const res = await fetch(`/auth/magic-link`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: fd.get('email') }),

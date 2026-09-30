@@ -114,7 +114,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+// Same-origin: Caddy routes /auth to the backend (the dev server proxies it).
 
 const form = ref({
   firstName:   '',
@@ -134,7 +134,7 @@ const submit = async () => {
   success.value = false
 
   try {
-    const res = await fetch(`${apiBase}/auth/register`, {
+    const res = await fetch(`/auth/register`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(form.value),

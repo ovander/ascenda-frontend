@@ -25,11 +25,6 @@ export interface PlanMember {
   updatedAt: string
 }
 
-export interface AuthTokens {
-  accessToken: string
-  refreshToken: string
-}
-
 export interface Tenant {
   id: string
   name: string

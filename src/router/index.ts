@@ -15,28 +15,21 @@ const routes: RouteRecordRaw[] = [
         meta: { public: true },
     },
     {
+        // Sign-in runs on the backend (BFF): /login navigates to /bff/login,
+        // which sends the browser to Socrate and back with a session cookie.
+        // When the backend refused a sign-in it comes back here with ?error=,
+        // and the page shows why instead of starting another attempt.
         path: '/login',
         name: 'login',
-        component: { template: '<div></div>' },
-        beforeEnter: async () => {
-            // Use the shared initiateLogin helper so that the PKCE code_verifier
-            // and the OAuth `state` nonce are both generated, stored in
-            // sessionStorage, AND included in the authorization URL.
-            // The previous inline builder omitted both — causing Socrate to
-            // reject the request with "state parameter is required".
-            const { useAuth } = await import('@/composables/useAuth')
-            const { initiateLogin } = useAuth()
-            await initiateLogin()
-            return false // prevent Vue Router from rendering the blank component
+        component: () => import('@/features/auth/views/LoginView.vue'),
+        beforeEnter: (to) => {
+            if (to.query.error) return true
+            const redirect = typeof to.query.redirect === 'string' ? to.query.redirect : '/'
+            useAuthStore().login(redirect)
+            return false
         },
         meta: { public: true },
     },
-  {
-    path: '/callback',
-    name: 'callback',
-    component: () => import('@/features/auth/views/CallbackView.vue'),
-    meta: { public: true },
-  },
   {
     // Landing page of the sign-in link Socrate e-mails (the magic-link URL
     // configured on the Socrate application).
@@ -389,7 +382,12 @@ export function accessGuard(to: RouteLocationNormalized): true | RouteLocationRa
   return true
 }
 
-router.beforeEach(accessGuard)
+// Before the first protected navigation, ask the backend whether this browser
+// has a session (GET /bff/session); accessGuard then decides synchronously.
+router.beforeEach(async (to) => {
+  if (!to.meta.public) await useAuthStore().ensureSession()
+  return accessGuard(to)
+})
 
 // ── Auto-switch UX layer + close mobile drawer on every navigation ───────────
 router.afterEach((to) => {

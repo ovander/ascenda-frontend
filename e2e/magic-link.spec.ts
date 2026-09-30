@@ -9,32 +9,23 @@
 import { test, expect } from '@playwright/test'
 import { mockApiCalls, PLAN_ID } from './fixtures'
 
-const API = 'https://api.ascenda.vandermoten.eu' // VITE_API_BASE_URL of the build under test
-
 test.describe('Magic-link request (landing page)', () => {
   // /landing exists twice: a full page load gets the static public/landing.html,
   // an in-app redirect (router guard) renders the Vue landing page. Both forms
-  // must post to the API origin, not to the frontend host.
+  // post to the API on the app's own origin (Caddy routes /auth to it).
   const entries = [
     { name: 'static landing page', open: `/landing.html?redirect=/plans/${PLAN_ID}` },
     { name: 'in-app landing page', open: `/plans/${PLAN_ID}` },
   ]
 
   for (const entry of entries) {
-    test(`${entry.name}: posts only the e-mail to the API and remembers the requested page`, async ({ page }) => {
+    test(`${entry.name}: posts only the e-mail to the API and remembers the requested page`, async ({ page, baseURL }) => {
+      await page.route('**/bff/session', route => route.fulfill({ json: { authenticated: false } }))
       await page.route('**/api/**', route => route.fulfill({ json: {} }))
       const requests: { url: string; body: unknown }[] = []
       await page.route('**/auth/magic-link', async (route) => {
-        // The API is on another origin: answer the CORS preflight.
-        if (route.request().method() === 'OPTIONS') {
-          return route.fulfill({ status: 204, headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
-            'Access-Control-Allow-Headers': 'Content-Type',
-          } })
-        }
         requests.push({ url: route.request().url(), body: route.request().postDataJSON() })
-        await route.fulfill({ status: 202, json: { message: 'sent' }, headers: { 'Access-Control-Allow-Origin': '*' } })
+        await route.fulfill({ status: 202, json: { message: 'sent' } })
       })
 
       await page.goto(entry.open)
@@ -43,7 +34,7 @@ test.describe('Magic-link request (landing page)', () => {
       await form.locator('button[type="submit"]').click()
 
       await expect(page.getByText(/magic link sent|check your inbox/i).first()).toBeVisible()
-      expect(requests).toEqual([{ url: `${API}/auth/magic-link`, body: { email: 'ada@example.com' } }])
+      expect(requests).toEqual([{ url: `${new URL(baseURL!).origin}/auth/magic-link`, body: { email: 'ada@example.com' } }])
       expect(await page.evaluate(() => localStorage.getItem('magic_link_redirect'))).toBe(`/plans/${PLAN_ID}`)
     })
   }
@@ -54,12 +45,19 @@ test.describe('Magic-link sign-in (/magic-link)', () => {
     await mockApiCalls(page)
   })
 
+  // The BFF redeems the link into a session: it answers like GET /bff/session
+  // and sets the HttpOnly cookie; no token ever reaches the browser.
   async function mockVerify(page: import('@playwright/test').Page, status = 200) {
     const tokens: unknown[] = []
-    await page.route('**/auth/magic-link/verify', async (route) => {
+    let signedIn = false
+    await page.route('**/bff/session', route => route.fulfill({
+      json: signedIn ? { authenticated: true, user: { sub: '42' }, csrf: 'csrf-1' } : { authenticated: false },
+    }))
+    await page.route('**/bff/magic-link/verify', async (route) => {
       tokens.push(route.request().postDataJSON())
-      if (status !== 200) return route.fulfill({ status, json: { error: { message: 'invalid' } } })
-      return route.fulfill({ json: { accessToken: 'access', refreshToken: 'refresh', expiresIn: 900 } })
+      if (status !== 200) return route.fulfill({ status, json: { code: 'UNAUTHORIZED', message: 'invalid' } })
+      signedIn = true
+      return route.fulfill({ json: { authenticated: true, user: { sub: '42' }, csrf: 'csrf-1' } })
     })
     return tokens
   }
@@ -72,6 +70,8 @@ test.describe('Magic-link sign-in (/magic-link)', () => {
     await page.waitForURL(url => url.pathname === '/')
     expect(posted).toEqual([{ token: 'single-use' }])
     expect(page.url()).not.toContain('single-use')
+    const stored = await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }))
+    expect(stored).not.toContain('csrf-1')
   })
 
   test('opens the page remembered when the link was requested', async ({ page }) => {

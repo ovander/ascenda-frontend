@@ -16,10 +16,6 @@ declare module 'vue-router' {
 }
 
 interface ImportMetaEnv {
-  readonly VITE_API_BASE_URL: string
-  readonly VITE_SOCRATE_CLIENT_ID: string
-  readonly VITE_SOCRATE_BASE_URL: string
-  readonly VITE_SOCRATE_REDIRECT_URI: string
   /** Release version (vX.Y.Z), set by scripts/push.sh; unset in development. */
   readonly VITE_APP_VERSION?: string
 }

@@ -3,11 +3,8 @@ import { defineConfig, version as viteVersion, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { execSync } from 'node:child_process'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { join } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
-import { socrateEnvErrors } from './src/config/socrateEnv'
 
 const require = createRequire(import.meta.url)
 
@@ -34,52 +31,58 @@ const appBuild = {
   },
 }
 
-// public/landing.html is copied as-is, outside Vite's HTML pipeline, so it
-// cannot read import.meta.env. Its %VITE_API_BASE_URL% placeholder is filled
-// in the built copy, from the same .env files as the app.
-function landingApiBase(): Plugin {
-  let apiBase = ''
-  let outDir = ''
+// The SPA talks to its own origin only: the backend's BFF holds the tokens and
+// the browser sends its session cookie to this host, so the build pins
+// connect-src to 'self' (plus the Sentry ingest origin when VITE_SENTRY_DSN is
+// set). Sign-in at Socrate is a navigation, not a request. public/landing.html
+// carries the same policy in its own <meta>.
+export function contentSecurityPolicy(env: Record<string, string>): string {
+  const connect = ["'self'"]
+  if (env.VITE_SENTRY_DSN) {
+    try {
+      connect.push(new URL(env.VITE_SENTRY_DSN).origin)
+    } catch {
+      throw new Error(`VITE_SENTRY_DSN is not a URL: "${env.VITE_SENTRY_DSN}"`)
+    }
+  }
+  return `connect-src ${connect.join(' ')}; object-src 'none'; base-uri 'self'`
+}
+
+function cspMeta(): Plugin {
+  let policy = ''
   return {
-    name: 'landing-api-base',
+    name: 'csp-meta',
     apply: 'build',
     configResolved(config) {
-      apiBase = config.env.VITE_API_BASE_URL || ''
-      outDir = config.build.outDir.startsWith('/') ? config.build.outDir : join(config.root, config.build.outDir)
+      policy = contentSecurityPolicy(config.env)
     },
-    writeBundle() {
-      const file = join(outDir, 'landing.html')
-      if (!existsSync(file)) return
-      writeFileSync(file, readFileSync(file, 'utf8').replaceAll('%VITE_API_BASE_URL%', apiBase))
+    transformIndexHtml() {
+      return [{ tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: policy }, injectTo: 'head-prepend' }]
     },
   }
 }
 
-// A build stops when the Socrate settings it would bake in are wrong: a
-// trailing slash on the issuer, a relative redirect URI, or (in production) a
-// missing value. See src/config/socrateEnv.ts.
-function socrateEnvCheck(): Plugin {
-  return {
-    name: 'socrate-env-check',
-    apply: 'build',
-    configResolved(config) {
-      const errors = socrateEnvErrors(config.env, config.mode === 'production')
-      if (errors.length > 0) {
-        throw new Error(`Invalid Socrate configuration:\n  - ${errors.join('\n  - ')}`)
-      }
-    },
-  }
-}
+// In development the SPA and the backend are on different ports; the dev
+// server proxies the backend's paths so the SPA still calls its own origin and
+// the session cookie works. ASCENDA_API overrides the backend address.
+const backend = process.env.ASCENDA_API || 'http://localhost:8080'
+const devProxy = Object.fromEntries(['/api', '/bff', '/auth'].map(p => [p, { target: backend }]))
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), tailwindcss(), landingApiBase(), socrateEnvCheck()],
+  plugins: [vue(), tailwindcss(), cspMeta()],
   define: {
     __APP_BUILD__: JSON.stringify(appBuild),
   },
   server: {
     port: 5180,
     strictPort: true,
+    proxy: devProxy,
+  },
+  // `vite preview` would inherit the dev proxy; the e2e suite runs against it
+  // with every backend call mocked, so it gets none.
+  preview: {
+    proxy: {},
   },
   resolve: {
     alias: {

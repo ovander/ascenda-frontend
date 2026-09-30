@@ -5,7 +5,7 @@
  * All API calls are intercepted — no backend required.
  */
 
-import { test, expect, mockApiCalls, MOCK_PLAN, MOCK_USER } from './fixtures'
+import { test, expect, mockApiCalls, MOCK_PLAN, MOCK_USER, signInAs } from './fixtures'
 
 test.describe('Plans Dashboard', () => {
   test('renders the dashboard heading', async ({ authedPage: page }) => {
@@ -54,9 +54,8 @@ test.describe('Plans Dashboard', () => {
 
 test.describe('Plans Dashboard — empty state', () => {
   test('shows empty-state message when no plans exist', async ({ page }) => {
-    // Seed auth via addInitScript so it survives the page.goto() below
-    const payload = { accessToken: 'e2e-access-token', refreshToken: 'e2e-refresh-token', user: MOCK_USER }
-    await page.addInitScript((data) => { ;(window as any).__E2E_AUTH__ = data }, payload)
+    // Signed in (mocked BFF session) for every page.goto() below
+    await signInAs(page, MOCK_USER)
 
     // Override API: return empty plans list but valid user
     await mockApiCalls(page)

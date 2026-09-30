@@ -17,7 +17,7 @@ const SCENARIO = '/plans/p1/scenarios/s1'
 
 function signIn(role: string) {
   const auth = useAuthStore()
-  auth.accessToken = 'token'
+  auth.csrf = 'csrf-token'
   auth.user = { role } as User
 }
 
@@ -31,7 +31,7 @@ beforeEach(() => {
 
 describe('accessGuard', () => {
   it('lets anyone through to the public pages', () => {
-    for (const path of ['/landing', '/callback']) expect(guard(path)).toBe(true)
+    for (const path of ['/landing', '/login', '/magic-link']) expect(guard(path)).toBe(true)
     expect(fetchAll).not.toHaveBeenCalled()
   })
 
