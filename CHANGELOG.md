@@ -6,6 +6,11 @@ in this repository. Entries before 1.2.0 are rebuilt from the release tags.
 
 ## [Unreleased]
 
+### Added
+- The build fails on a wrong Socrate setting: an issuer (`VITE_SOCRATE_BASE_URL`) ending with
+  `/`, a redirect URI that is not an absolute http(s) URL, or, in production, a missing issuer,
+  client ID or redirect URI (`src/config/socrateEnv.ts`).
+
 ### Fixed
 - `.env.production` signs in at today's Socrate again (`https://golfperformance.fr`, client ID
   `VowmSxfnObxDKFvdk1Lucg`) until the cut-over. #29 switched it early; the switch now comes as its
