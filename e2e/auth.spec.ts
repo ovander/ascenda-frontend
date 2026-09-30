@@ -11,7 +11,10 @@
 import { test, expect, type Page, type Request } from '@playwright/test'
 import { mockApiCalls, MOCK_USER, PLAN_ID } from './fixtures'
 
-const ISSUER = 'https://issuer.example.test'
+// The fake issuer lives on the app's origin: where Socrate is does not matter
+// to the SPA (the backend redirects there), and a cross-origin https host
+// would put the browser's TLS and network rules into the test.
+const ISSUER_PATH = '/__fake-issuer'
 const CSRF = 'csrf-from-the-bff'
 
 /**
@@ -33,7 +36,7 @@ async function fakeBff(page: Page, opts: { signedIn?: boolean } = {}) {
   await page.route('**/bff/login**', (route) => {
     const url = new URL(route.request().url())
     state.logins.push(url)
-    const authorize = new URL(`${ISSUER}/oauth/authorize`)
+    const authorize = new URL(`${url.origin}${ISSUER_PATH}/oauth/authorize`)
     authorize.searchParams.set('response_type', 'code')
     authorize.searchParams.set('state', 'state-1')
     authorize.searchParams.set('code_challenge_method', 'S256')
@@ -41,7 +44,7 @@ async function fakeBff(page: Page, opts: { signedIn?: boolean } = {}) {
     authorize.searchParams.set('return_to', url.searchParams.get('return_to') ?? '/') // carried for the fake only
     return route.fulfill({ status: 302, headers: { Location: authorize.toString() } })
   })
-  await page.route(`${ISSUER}/**`, (route) => {
+  await page.route(`**${ISSUER_PATH}/**`, (route) => {
     const authorize = new URL(route.request().url())
     const callback = new URL(authorize.searchParams.get('redirect_uri')!)
     callback.searchParams.set('code', 'code-1')
@@ -81,11 +84,21 @@ test.describe('Sign-in through the BFF', () => {
     await mockApiCalls(page) // before fakeBff: the routes registered last win
     const bff = await fakeBff(page)
 
+    // Every step of the round trip, for the failure message.
+    const trail: string[] = []
+    page.on('framenavigated', f => { if (f === page.mainFrame()) trail.push(`nav ${f.url()}`) })
+    page.on('console', m => trail.push(`console.${m.type()} ${m.text()}`))
+    page.on('pageerror', e => trail.push(`pageerror ${e.message}`))
+
     await page.goto(`/login?redirect=${encodeURIComponent(target)}`)
 
-    await expect.poll(() => new URL(page.url()).pathname, { timeout: 15_000 }).toBe(target)
-    expect(bff.logins).toHaveLength(1)
-    expect(bff.logins[0].searchParams.get('return_to')).toBe(target)
+    try {
+      await expect.poll(() => bff.logins.length).toBe(1)
+      expect(bff.logins[0].searchParams.get('return_to')).toBe(target)
+      await expect.poll(() => new URL(page.url()).pathname, { timeout: 15_000 }).toBe(target)
+    } catch (e) {
+      throw new Error(`${(e as Error).message}\n--- trail ---\n${trail.join('\n')}`, { cause: e })
+    }
     // The page is now in the app, signed in.
     await expect(page.locator('[data-test="user-menu"]')).toBeVisible()
     await expectNoAuthInBrowserStorage(page)
