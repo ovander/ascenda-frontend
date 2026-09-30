@@ -7,6 +7,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
+import { socrateEnvErrors } from './src/config/socrateEnv'
 
 const require = createRequire(import.meta.url)
 
@@ -54,9 +55,25 @@ function landingApiBase(): Plugin {
   }
 }
 
+// A build stops when the Socrate settings it would bake in are wrong: a
+// trailing slash on the issuer, a relative redirect URI, or (in production) a
+// missing value. See src/config/socrateEnv.ts.
+function socrateEnvCheck(): Plugin {
+  return {
+    name: 'socrate-env-check',
+    apply: 'build',
+    configResolved(config) {
+      const errors = socrateEnvErrors(config.env, config.mode === 'production')
+      if (errors.length > 0) {
+        throw new Error(`Invalid Socrate configuration:\n  - ${errors.join('\n  - ')}`)
+      }
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), tailwindcss(), landingApiBase()],
+  plugins: [vue(), tailwindcss(), landingApiBase(), socrateEnvCheck()],
   define: {
     __APP_BUILD__: JSON.stringify(appBuild),
   },
