@@ -6,6 +6,11 @@ in this repository. Entries before 1.2.0 are rebuilt from the release tags.
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-09-30
+
+Sign-in through the backend's Backend-for-Frontend (Phase 2). Deploy in the same window as the
+backend's v2.8.0, after the Caddy site routes `/bff/*`, `/api/*` and `/auth/*` to the API.
+
 ### Changed
 - Sign-in through the backend's Backend-for-Frontend: no OAuth token reaches the browser. Sign-in
   navigates to `/bff/login`, the session is an HttpOnly cookie, the state comes from
@@ -147,7 +152,8 @@ v2.7.0 and its VPS env changes.
 ### Added
 - Initial frontend and README.
 
-[Unreleased]: https://github.com/ovander/ascenda-frontend/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/ovander/ascenda-frontend/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/ovander/ascenda-frontend/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/ovander/ascenda-frontend/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/ovander/ascenda-frontend/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/ovander/ascenda-frontend/compare/v1.3.4...v1.4.0
